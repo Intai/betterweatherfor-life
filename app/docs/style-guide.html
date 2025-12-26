@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Better Weather For Life - Style Guide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', 'system-ui', 'sans-serif'],
+            mono: ['Geist Mono', 'monospace'],
+          },
+          colors: {
+            // Primary - Ocean Blues
+            ocean: {
+              50: '#e6f4fa',
+              100: '#cce9f5',
+              200: '#99d3eb',
+              300: '#66bde1',
+              400: '#33a7d7',
+              500: '#0891cd',
+              600: '#0074a4',
+              700: '#00577b',
+              800: '#003a52',
+              900: '#001d29',
+            },
+            // Secondary - Sky
+            sky: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+            // Accent - Sunset Orange
+            sunset: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            },
+            // Earth Tones
+            earth: {
+              50: '#faf6f1',
+              100: '#f5ede3',
+              200: '#e8d9c5',
+              300: '#d9c4a5',
+              400: '#c9ad82',
+              500: '#b89b6a',
+              600: '#a18653',
+              700: '#846d43',
+              800: '#6b5837',
+              900: '#54452c',
+            },
+            // Forest Green
+            forest: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            },
+            // Semantic Colors
+            conditions: {
+              perfect: '#10b981',
+              good: '#22c55e',
+              fair: '#eab308',
+              poor: '#f97316',
+              unsafe: '#ef4444',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    .dark ::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #4a4a4a;
+    }
+
+    /* Color swatch hover effect */
+    .color-swatch {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .color-swatch:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Card hover effect */
+    .card-hover {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Button press effect */
+    .btn-press:active {
+      transform: scale(0.98);
+    }
+
+    /* Wave animation for condition indicator */
+    @keyframes wave {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    .animate-wave {
+      animation: wave 2s ease-in-out infinite;
+    }
+
+    /* Pulse animation for live indicator */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .animate-pulse-dot {
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased">
+  <!-- Theme Toggle -->
+  <div class="fixed top-4 right-4 z-50">
+    <button id="themeToggle" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-3 shadow-lg hover:shadow-xl transition-all btn-press">
+      <svg id="sunIcon" class="w-5 h-5 text-sunset-500 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+      </svg>
+      <svg id="moonIcon" class="w-5 h-5 text-ocean-600 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Light Mode Section -->
+  <div class="bg-white text-gray-900">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-ocean-600 via-ocean-500 to-sky-500 text-white py-16 px-8">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex items-center gap-3 mb-4">
+          <svg class="w-10 h-10" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M20 8 L20 14 M20 26 L20 32 M8 20 L14 20 M26 20 L32 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="20" cy="20" r="6" fill="currentColor"/>
+          </svg>
+          <h1 class="text-4xl font-bold tracking-tight">Better Weather For Life</h1>
+        </div>
+        <p class="text-xl text-ocean-100 max-w-2xl">Style Guide - Design System for Outdoor Enthusiasts</p>
+        <p class="mt-4 text-ocean-200 text-sm">Version 1.0 | December 2024</p>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-8 py-12">
+
+      <!-- Color Palette Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Color Palette</h2>
+        <p class="text-gray-600 mb-8">Nature-inspired colors that evoke the outdoors - from deep ocean blues to warm sunset oranges.</p>
+
+        <!-- Primary - Ocean -->
+        <div class="mb-10">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-ocean-500"></span>
+            Primary - Ocean Blue
+          </h3>
+          <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-ocean-50 border border-gray-200"></div>
+              <p class="text-xs mt-2 text-gray-600">50</p>
+              <p class="text-xs text-gray-400 font-mono">#e6f4fa</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-ocean-100"></div>
+              <p class="text-xs mt-2 text-gray-600">100</p>
+              <p class="text-xs text-gray-400 font-mono">#cce9f5</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-ocean-200"></div>
+              <p class="text-xs mt-2 text-gray-600">200</p>
+              <p class="text-xs text-gray-400 font-mono">#99d3eb</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-ocean-300"></div>
+              <p class="text-xs mt-2 text-gray-600">300</p>
+              <p class="text-xs text-gray-400 font-mono">#66bde1</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-ocean-400"></div>
+              <p class="text-xs mt-2 text-gray-600">400</p>
+              <p class="text-xs text-gray-400 font-mono">#33a7d7</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-ocean-500"></div>
+              <p class="text-xs mt-2 text-gray-600 font-semibold">500</p>
+              <p class="text-xs text-gray-400 font-mono">#0891cd</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-ocean-600"></div>
+              <p class="text-xs mt-2 text-gray-600">600</p>
+              <p class="text-xs text-gray-400 font-mono">#0074a4</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-ocean-700"></div>
+              <p class="text-xs mt-2 text-gray-600">700</p>
+              <p class="text-xs text-gray-400 font-mono">#00577b</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-ocean-800"></div>
+              <p class="text-xs mt-2 text-gray-600">800</p>
+              <p class="text-xs text-gray-400 font-mono">#003a52</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-ocean-900"></div>
+              <p class="text-xs mt-2 text-gray-600">900</p>
+              <p class="text-xs text-gray-400 font-mono">#001d29</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accent - Sunset -->
+        <div class="mb-10">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-sunset-500"></span>
+            Accent - Sunset Orange
+          </h3>
+          <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-sunset-50 border border-gray-200"></div>
+              <p class="text-xs mt-2 text-gray-600">50</p>
+              <p class="text-xs text-gray-400 font-mono">#fff7ed</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-sunset-100"></div>
+              <p class="text-xs mt-2 text-gray-600">100</p>
+              <p class="text-xs text-gray-400 font-mono">#ffedd5</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-sunset-200"></div>
+              <p class="text-xs mt-2 text-gray-600">200</p>
+              <p class="text-xs text-gray-400 font-mono">#fed7aa</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-sunset-300"></div>
+              <p class="text-xs mt-2 text-gray-600">300</p>
+              <p class="text-xs text-gray-400 font-mono">#fdba74</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-sunset-400"></div>
+              <p class="text-xs mt-2 text-gray-600">400</p>
+              <p class="text-xs text-gray-400 font-mono">#fb923c</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-sunset-500"></div>
+              <p class="text-xs mt-2 text-gray-600 font-semibold">500</p>
+              <p class="text-xs text-gray-400 font-mono">#f97316</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-sunset-600"></div>
+              <p class="text-xs mt-2 text-gray-600">600</p>
+              <p class="text-xs text-gray-400 font-mono">#ea580c</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-sunset-700"></div>
+              <p class="text-xs mt-2 text-gray-600">700</p>
+              <p class="text-xs text-gray-400 font-mono">#c2410c</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-sunset-800"></div>
+              <p class="text-xs mt-2 text-gray-600">800</p>
+              <p class="text-xs text-gray-400 font-mono">#9a3412</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-sunset-900"></div>
+              <p class="text-xs mt-2 text-gray-600">900</p>
+              <p class="text-xs text-gray-400 font-mono">#7c2d12</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Earth Tones -->
+        <div class="mb-10">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-earth-500"></span>
+            Earth Tones
+          </h3>
+          <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-earth-50 border border-gray-200"></div>
+              <p class="text-xs mt-2 text-gray-600">50</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-earth-100"></div>
+              <p class="text-xs mt-2 text-gray-600">100</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-earth-200"></div>
+              <p class="text-xs mt-2 text-gray-600">200</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-earth-300"></div>
+              <p class="text-xs mt-2 text-gray-600">300</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-earth-400"></div>
+              <p class="text-xs mt-2 text-gray-600">400</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-earth-500"></div>
+              <p class="text-xs mt-2 text-gray-600 font-semibold">500</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-earth-600"></div>
+              <p class="text-xs mt-2 text-gray-600">600</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-earth-700"></div>
+              <p class="text-xs mt-2 text-gray-600">700</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-earth-800"></div>
+              <p class="text-xs mt-2 text-gray-600">800</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-earth-900"></div>
+              <p class="text-xs mt-2 text-gray-600">900</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Forest Green -->
+        <div class="mb-10">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-forest-500"></span>
+            Forest Green
+          </h3>
+          <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-forest-50 border border-gray-200"></div>
+              <p class="text-xs mt-2 text-gray-600">50</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-forest-100"></div>
+              <p class="text-xs mt-2 text-gray-600">100</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-forest-200"></div>
+              <p class="text-xs mt-2 text-gray-600">200</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-forest-300"></div>
+              <p class="text-xs mt-2 text-gray-600">300</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-forest-400"></div>
+              <p class="text-xs mt-2 text-gray-600">400</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-forest-500"></div>
+              <p class="text-xs mt-2 text-gray-600 font-semibold">500</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-forest-600"></div>
+              <p class="text-xs mt-2 text-gray-600">600</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-forest-700"></div>
+              <p class="text-xs mt-2 text-gray-600">700</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-forest-800"></div>
+              <p class="text-xs mt-2 text-gray-600">800</p>
+            </div>
+            <div class="color-swatch">
+              <div class="h-16 rounded-lg bg-forest-900"></div>
+              <p class="text-xs mt-2 text-gray-600">900</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Semantic / Condition Colors -->
+        <div class="mb-10">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">Condition Indicators</h3>
+          <p class="text-gray-600 mb-4 text-sm">Used to communicate weather and activity conditions at a glance.</p>
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="color-swatch text-center">
+              <div class="h-20 rounded-xl bg-emerald-500 flex items-center justify-center">
+                <span class="text-white font-semibold">Perfect</span>
+              </div>
+              <p class="text-xs mt-2 text-gray-600">Ideal conditions</p>
+              <p class="text-xs text-gray-400 font-mono">#10b981</p>
+            </div>
+            <div class="color-swatch text-center">
+              <div class="h-20 rounded-xl bg-green-500 flex items-center justify-center">
+                <span class="text-white font-semibold">Good</span>
+              </div>
+              <p class="text-xs mt-2 text-gray-600">Favorable</p>
+              <p class="text-xs text-gray-400 font-mono">#22c55e</p>
+            </div>
+            <div class="color-swatch text-center">
+              <div class="h-20 rounded-xl bg-yellow-500 flex items-center justify-center">
+                <span class="text-white font-semibold">Fair</span>
+              </div>
+              <p class="text-xs mt-2 text-gray-600">Acceptable</p>
+              <p class="text-xs text-gray-400 font-mono">#eab308</p>
+            </div>
+            <div class="color-swatch text-center">
+              <div class="h-20 rounded-xl bg-orange-500 flex items-center justify-center">
+                <span class="text-white font-semibold">Poor</span>
+              </div>
+              <p class="text-xs mt-2 text-gray-600">Not recommended</p>
+              <p class="text-xs text-gray-400 font-mono">#f97316</p>
+            </div>
+            <div class="color-swatch text-center">
+              <div class="h-20 rounded-xl bg-red-500 flex items-center justify-center">
+                <span class="text-white font-semibold">Unsafe</span>
+              </div>
+              <p class="text-xs mt-2 text-gray-600">Dangerous</p>
+              <p class="text-xs text-gray-400 font-mono">#ef4444</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Typography Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Typography</h2>
+        <p class="text-gray-600 mb-8">Using Geist font family for clean, modern readability across all devices.</p>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- Headings -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-6">Headings</h3>
+            <div class="space-y-4">
+              <div>
+                <p class="text-xs text-gray-400 mb-1 font-mono">h1 - 36px/40px - Bold</p>
+                <h1 class="text-4xl font-bold text-gray-900">Find Your Perfect Day</h1>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 mb-1 font-mono">h2 - 30px/36px - Bold</p>
+                <h2 class="text-3xl font-bold text-gray-900">Weather Rankings</h2>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 mb-1 font-mono">h3 - 24px/32px - Semibold</p>
+                <h3 class="text-2xl font-semibold text-gray-900">Today's Top Spots</h3>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 mb-1 font-mono">h4 - 20px/28px - Semibold</p>
+                <h4 class="text-xl font-semibold text-gray-900">Tide Information</h4>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 mb-1 font-mono">h5 - 18px/26px - Medium</p>
+                <h5 class="text-lg font-medium text-gray-900">Wind Conditions</h5>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 mb-1 font-mono">h6 - 16px/24px - Medium</p>
+                <h6 class="text-base font-medium text-gray-900">UV Index</h6>
+              </div>
+            </div>
+          </div>
+
+          <!-- Body Text -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-6">Body Text</h3>
+            <div class="space-y-4">
+              <div>
+                <p class="text-xs text-gray-400 mb-1 font-mono">Body Large - 18px/28px</p>
+                <p class="text-lg text-gray-700">Discover the best outdoor conditions tailored to your favorite activities.</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 mb-1 font-mono">Body - 16px/24px</p>
+                <p class="text-base text-gray-700">Check real-time weather, tide, and wave data to plan your perfect adventure.</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 mb-1 font-mono">Body Small - 14px/20px</p>
+                <p class="text-sm text-gray-600">Updated every 15 minutes from official weather stations.</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 mb-1 font-mono">Caption - 12px/16px</p>
+                <p class="text-xs text-gray-500">Last updated: Dec 26, 2024 at 2:30 PM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weather Data Display -->
+        <div class="mt-8 bg-gray-50 rounded-2xl p-6">
+          <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-6">Weather Data Display</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="text-center">
+              <p class="text-xs text-gray-400 mb-1 font-mono">Temperature - Mono</p>
+              <p class="text-5xl font-mono font-light text-gray-900">24<span class="text-2xl">°C</span></p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-400 mb-1 font-mono">Wind Speed</p>
+              <p class="text-5xl font-mono font-light text-gray-900">12<span class="text-lg ml-1">km/h</span></p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-400 mb-1 font-mono">Wave Height</p>
+              <p class="text-5xl font-mono font-light text-gray-900">0.8<span class="text-lg ml-1">m</span></p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-400 mb-1 font-mono">UV Index</p>
+              <p class="text-5xl font-mono font-light text-yellow-500">6</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Spacing Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Spacing System</h2>
+        <p class="text-gray-600 mb-8">Consistent spacing based on 4px/8px grid system (Tailwind defaults).</p>
+
+        <div class="bg-gray-50 rounded-2xl p-6">
+          <div class="space-y-3">
+            <div class="flex items-center gap-4">
+              <div class="w-1 h-4 bg-ocean-500 rounded"></div>
+              <span class="text-sm text-gray-600 w-20">4px</span>
+              <span class="text-xs text-gray-400 font-mono">space-1 / p-1 / m-1</span>
+              <span class="text-xs text-gray-500">Tight spacing</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-2 h-4 bg-ocean-500 rounded"></div>
+              <span class="text-sm text-gray-600 w-20">8px</span>
+              <span class="text-xs text-gray-400 font-mono">space-2 / p-2 / m-2</span>
+              <span class="text-xs text-gray-500">Default small</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-4 h-4 bg-ocean-500 rounded"></div>
+              <span class="text-sm text-gray-600 w-20">16px</span>
+              <span class="text-xs text-gray-400 font-mono">space-4 / p-4 / m-4</span>
+              <span class="text-xs text-gray-500">Default medium</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-6 h-4 bg-ocean-500 rounded"></div>
+              <span class="text-sm text-gray-600 w-20">24px</span>
+              <span class="text-xs text-gray-400 font-mono">space-6 / p-6 / m-6</span>
+              <span class="text-xs text-gray-500">Section spacing</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-8 h-4 bg-ocean-500 rounded"></div>
+              <span class="text-sm text-gray-600 w-20">32px</span>
+              <span class="text-xs text-gray-400 font-mono">space-8 / p-8 / m-8</span>
+              <span class="text-xs text-gray-500">Large spacing</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-4 bg-ocean-500 rounded"></div>
+              <span class="text-sm text-gray-600 w-20">48px</span>
+              <span class="text-xs text-gray-400 font-mono">space-12 / p-12 / m-12</span>
+              <span class="text-xs text-gray-500">Hero spacing</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Buttons Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Buttons</h2>
+        <p class="text-gray-600 mb-8">Interactive elements with clear visual hierarchy and feedback states.</p>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- Primary Buttons -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-6">Primary Buttons</h3>
+            <div class="space-y-4">
+              <div class="flex items-center gap-4 flex-wrap">
+                <button class="bg-ocean-600 hover:bg-ocean-700 text-white font-medium px-6 py-3 rounded-xl transition-colors btn-press">
+                  Find Spots
+                </button>
+                <button class="bg-ocean-600 hover:bg-ocean-700 text-white font-medium px-4 py-2 rounded-lg transition-colors btn-press text-sm">
+                  Small
+                </button>
+                <button class="bg-ocean-600 hover:bg-ocean-700 text-white font-medium px-8 py-4 rounded-2xl transition-colors btn-press text-lg">
+                  Large
+                </button>
+              </div>
+              <div class="flex items-center gap-4 flex-wrap">
+                <button class="bg-ocean-400 text-white font-medium px-6 py-3 rounded-xl cursor-not-allowed opacity-60">
+                  Disabled
+                </button>
+                <button class="bg-ocean-600 text-white font-medium px-6 py-3 rounded-xl flex items-center gap-2">
+                  <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Loading...
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Buttons -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-6">Secondary Buttons</h3>
+            <div class="space-y-4">
+              <div class="flex items-center gap-4 flex-wrap">
+                <button class="border-2 border-ocean-600 text-ocean-600 hover:bg-ocean-50 font-medium px-6 py-3 rounded-xl transition-colors btn-press">
+                  View Details
+                </button>
+                <button class="border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-medium px-6 py-3 rounded-xl transition-colors btn-press">
+                  Cancel
+                </button>
+              </div>
+              <div class="flex items-center gap-4 flex-wrap">
+                <button class="text-ocean-600 hover:text-ocean-700 hover:bg-ocean-50 font-medium px-6 py-3 rounded-xl transition-colors btn-press">
+                  Ghost Button
+                </button>
+                <button class="text-gray-600 hover:text-gray-900 hover:bg-gray-100 font-medium px-6 py-3 rounded-xl transition-colors btn-press underline">
+                  Link Style
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Icon Buttons -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-6">Icon Buttons</h3>
+            <div class="flex items-center gap-4 flex-wrap">
+              <button class="bg-ocean-600 hover:bg-ocean-700 text-white p-3 rounded-xl transition-colors btn-press">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </button>
+              <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-3 rounded-xl transition-colors btn-press">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
+              </button>
+              <button class="border-2 border-gray-200 hover:border-gray-300 text-gray-600 p-3 rounded-xl transition-colors btn-press">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                </svg>
+              </button>
+              <button class="bg-ocean-600 hover:bg-ocean-700 text-white p-3 rounded-full transition-colors btn-press shadow-lg shadow-ocean-600/30">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Activity Buttons -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-6">Activity Selection</h3>
+            <div class="flex items-center gap-3 flex-wrap">
+              <button class="bg-ocean-600 text-white font-medium px-4 py-2 rounded-full transition-colors btn-press flex items-center gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                SUP
+              </button>
+              <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-full transition-colors btn-press flex items-center gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+                Kayak
+              </button>
+              <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-full transition-colors btn-press flex items-center gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93z"/></svg>
+                Snorkel
+              </button>
+              <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-full transition-colors btn-press flex items-center gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM5 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5zm5.8-10l2.4-2.4.8.8c1.3 1.3 3 2.1 5.1 2.1V9c-1.5 0-2.7-.6-3.6-1.5l-1.9-1.9c-.5-.4-1-.6-1.6-.6s-1.1.2-1.4.6L7.8 8.4c-.4.4-.6.9-.6 1.4 0 .6.2 1.1.6 1.4L11 14v5h2v-6.2l-2.2-2.3zM19 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5z"/></svg>
+                Cycling
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cards Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Cards</h2>
+        <p class="text-gray-600 mb-8">Container components for location and weather information display.</p>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- Location Card -->
+          <div class="card-hover bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="h-32 bg-gradient-to-br from-ocean-400 to-sky-500 relative">
+              <div class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
+                <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse-dot"></span>
+                Perfect
+              </div>
+              <div class="absolute bottom-3 left-3">
+                <span class="bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded-lg">SUP</span>
+              </div>
+            </div>
+            <div class="p-4">
+              <h4 class="font-semibold text-gray-900 mb-1">Manly Beach</h4>
+              <p class="text-sm text-gray-500 mb-3">Sydney, NSW</p>
+              <div class="flex items-center justify-between text-sm">
+                <div class="flex items-center gap-1 text-gray-600">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
+                  </svg>
+                  24°C
+                </div>
+                <div class="flex items-center gap-1 text-gray-600">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                  8 km/h
+                </div>
+                <div class="flex items-center gap-1 text-gray-600">
+                  <svg class="w-4 h-4 animate-wave" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                  </svg>
+                  0.5m
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location Card - Fair -->
+          <div class="card-hover bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="h-32 bg-gradient-to-br from-earth-400 to-earth-600 relative">
+              <div class="absolute top-3 right-3 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                Fair
+              </div>
+              <div class="absolute bottom-3 left-3">
+                <span class="bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded-lg">Cycling</span>
+              </div>
+            </div>
+            <div class="p-4">
+              <h4 class="font-semibold text-gray-900 mb-1">Centennial Park</h4>
+              <p class="text-sm text-gray-500 mb-3">Sydney, NSW</p>
+              <div class="flex items-center justify-between text-sm">
+                <div class="flex items-center gap-1 text-gray-600">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
+                  </svg>
+                  28°C
+                </div>
+                <div class="flex items-center gap-1 text-orange-500">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                  22 km/h
+                </div>
+                <div class="flex items-center gap-1 text-yellow-500">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3"></path>
+                  </svg>
+                  UV 8
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location Card - Poor -->
+          <div class="card-hover bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden opacity-75">
+            <div class="h-32 bg-gradient-to-br from-gray-400 to-gray-600 relative">
+              <div class="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                Unsafe
+              </div>
+              <div class="absolute bottom-3 left-3">
+                <span class="bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded-lg">Snorkel</span>
+              </div>
+            </div>
+            <div class="p-4">
+              <h4 class="font-semibold text-gray-900 mb-1">Shelly Beach</h4>
+              <p class="text-sm text-gray-500 mb-3">Sydney, NSW</p>
+              <div class="flex items-center justify-between text-sm">
+                <div class="flex items-center gap-1 text-gray-600">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
+                  </svg>
+                  18°C
+                </div>
+                <div class="flex items-center gap-1 text-red-500">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                  35 km/h
+                </div>
+                <div class="flex items-center gap-1 text-red-500">
+                  <svg class="w-4 h-4 animate-wave" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                  </svg>
+                  2.5m
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compact Card -->
+        <h3 class="text-lg font-semibold text-gray-800 mt-10 mb-4">Compact List Card</h3>
+        <div class="space-y-3">
+          <div class="card-hover bg-white rounded-xl shadow-md border border-gray-100 p-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-ocean-400 to-sky-500 flex items-center justify-center">
+                <span class="text-white font-bold">1</span>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900">Bondi Beach</h4>
+                <p class="text-sm text-gray-500">SUP - Perfect conditions</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-6">
+              <div class="text-center">
+                <p class="text-2xl font-mono font-light text-gray-900">24°</p>
+                <p class="text-xs text-gray-400">Temp</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-mono font-light text-gray-900">8</p>
+                <p class="text-xs text-gray-400">km/h</p>
+              </div>
+              <div class="w-16 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-xs font-semibold">95%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-hover bg-white rounded-xl shadow-md border border-gray-100 p-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-ocean-300 to-sky-400 flex items-center justify-center">
+                <span class="text-white font-bold">2</span>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900">Coogee Beach</h4>
+                <p class="text-sm text-gray-500">Kayak - Good conditions</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-6">
+              <div class="text-center">
+                <p class="text-2xl font-mono font-light text-gray-900">22°</p>
+                <p class="text-xs text-gray-400">Temp</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-mono font-light text-gray-900">12</p>
+                <p class="text-xs text-gray-400">km/h</p>
+              </div>
+              <div class="w-16 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-xs font-semibold">82%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Badges Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Badges & Pills</h2>
+        <p class="text-gray-600 mb-8">Labels for categorization, status, and quick information display.</p>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- Activity Badges -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-4">Activity Types</h3>
+            <div class="flex flex-wrap gap-2">
+              <span class="bg-ocean-100 text-ocean-700 px-3 py-1.5 rounded-full text-sm font-medium">SUP</span>
+              <span class="bg-sky-100 text-sky-700 px-3 py-1.5 rounded-full text-sm font-medium">Kayaking</span>
+              <span class="bg-cyan-100 text-cyan-700 px-3 py-1.5 rounded-full text-sm font-medium">Snorkeling</span>
+              <span class="bg-forest-100 text-forest-700 px-3 py-1.5 rounded-full text-sm font-medium">Cycling</span>
+              <span class="bg-earth-100 text-earth-700 px-3 py-1.5 rounded-full text-sm font-medium">Hiking</span>
+              <span class="bg-sunset-100 text-sunset-700 px-3 py-1.5 rounded-full text-sm font-medium">Surfing</span>
+            </div>
+          </div>
+
+          <!-- Condition Badges -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-4">Condition Status</h3>
+            <div class="flex flex-wrap gap-2">
+              <span class="bg-emerald-500 text-white px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1">
+                <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse-dot"></span>
+                Perfect
+              </span>
+              <span class="bg-green-500 text-white px-3 py-1.5 rounded-full text-sm font-medium">Good</span>
+              <span class="bg-yellow-500 text-white px-3 py-1.5 rounded-full text-sm font-medium">Fair</span>
+              <span class="bg-orange-500 text-white px-3 py-1.5 rounded-full text-sm font-medium">Poor</span>
+              <span class="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm font-medium">Unsafe</span>
+            </div>
+          </div>
+
+          <!-- Weather Badges -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-4">Weather Indicators</h3>
+            <div class="flex flex-wrap gap-2">
+              <span class="bg-yellow-100 text-yellow-700 border border-yellow-200 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1z"/></svg>
+                Sunny
+              </span>
+              <span class="bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+                Cloudy
+              </span>
+              <span class="bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/></svg>
+                Rain
+              </span>
+              <span class="bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14.5 17c0 1.65-1.35 3-3 3s-3-1.35-3-3h2c0 .55.45 1 1 1s1-.45 1-1-.45-1-1-1H2v-2h9.5c1.65 0 3 1.35 3 3zm6.5-2H2v-2h19v2zm-2.5-4c0-1.65-1.35-3-3-3s-3 1.35-3 3h2c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1H2V9h13.5c1.65 0 3 1.35 3 3z"/></svg>
+                Windy
+              </span>
+            </div>
+          </div>
+
+          <!-- Tide Badges -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-4">Tide Status</h3>
+            <div class="flex flex-wrap gap-2">
+              <span class="bg-ocean-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                High Tide
+              </span>
+              <span class="bg-ocean-200 text-ocean-800 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                Low Tide
+              </span>
+              <span class="bg-ocean-100 text-ocean-700 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                Rising
+              </span>
+              <span class="bg-ocean-100 text-ocean-700 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/></svg>
+                Falling
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Form Elements Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Form Elements</h2>
+        <p class="text-gray-600 mb-8">Input controls for filtering, searching, and user preferences.</p>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- Text Inputs -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-4">Text Inputs</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Search Location</label>
+                <div class="relative">
+                  <input type="text" placeholder="Search beaches, parks..." class="w-full px-4 py-3 pl-10 rounded-xl border border-gray-200 focus:border-ocean-500 focus:ring-2 focus:ring-ocean-500/20 outline-none transition-all">
+                  <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">With Helper Text</label>
+                <input type="text" placeholder="Enter your email" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-ocean-500 focus:ring-2 focus:ring-ocean-500/20 outline-none transition-all">
+                <p class="text-xs text-gray-500 mt-1">We'll send you daily condition updates.</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Error State</label>
+                <input type="text" value="invalid@" class="w-full px-4 py-3 rounded-xl border border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none transition-all">
+                <p class="text-xs text-red-500 mt-1">Please enter a valid email address.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Select & Dropdown -->
+          <div class="bg-gray-50 rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-ocean-600 uppercase tracking-wider mb-4">Select & Controls</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Activity Type</label>
+                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-ocean-500 focus:ring-2 focus:ring-ocean-500/20 outline-none transition-all bg-white">
+                  <option>All Activities</option>
+                  <option>SUP</option>
+                  <option>Kayaking</option>
+                  <option>Snorkeling</option>
+                  <option>Cycling</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Distance Range</label>
+                <input type="range" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-ocean-600">
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>5 km</span>
+                  <span>50 km</span>
+                </div>
+              </div>
+              <div>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-ocean-600 focus:ring-ocean-500">
+                  <span class="text-sm text-gray-700">Show only perfect conditions</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <div class="relative">
+                    <input type="checkbox" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ocean-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-ocean-600"></div>
+                  </div>
+                  <span class="text-sm text-gray-700">Enable notifications</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Weather Indicators Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Weather & Condition Indicators</h2>
+        <p class="text-gray-600 mb-8">Visual displays for real-time weather and activity conditions.</p>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- Condition Score -->
+          <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 text-center">
+            <h4 class="text-sm font-medium text-gray-500 mb-4">Overall Score</h4>
+            <div class="relative w-32 h-32 mx-auto mb-4">
+              <svg class="w-32 h-32 transform -rotate-90">
+                <circle cx="64" cy="64" r="56" stroke="#e5e7eb" stroke-width="12" fill="none"/>
+                <circle cx="64" cy="64" r="56" stroke="#10b981" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="352" stroke-dashoffset="35"/>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="text-4xl font-bold text-gray-900">92</span>
+              </div>
+            </div>
+            <p class="text-emerald-600 font-semibold">Perfect for SUP</p>
+          </div>
+
+          <!-- Wind Direction -->
+          <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 text-center">
+            <h4 class="text-sm font-medium text-gray-500 mb-4">Wind Direction</h4>
+            <div class="relative w-32 h-32 mx-auto mb-4">
+              <div class="w-32 h-32 rounded-full border-4 border-gray-100 flex items-center justify-center">
+                <div class="text-center">
+                  <svg class="w-8 h-8 mx-auto text-ocean-600 transform rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                  </svg>
+                  <p class="text-lg font-semibold text-gray-900 mt-1">NE</p>
+                </div>
+              </div>
+              <span class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 text-xs text-gray-400">N</span>
+              <span class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1 text-xs text-gray-400">S</span>
+              <span class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 text-xs text-gray-400">W</span>
+              <span class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 text-xs text-gray-400">E</span>
+            </div>
+            <p class="text-gray-600">12 km/h - Light breeze</p>
+          </div>
+
+          <!-- Tide Chart -->
+          <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <h4 class="text-sm font-medium text-gray-500 mb-4">Tide Today</h4>
+            <div class="h-24 flex items-end justify-between gap-1 mb-4">
+              <div class="w-full bg-ocean-100 rounded-t" style="height: 30%"></div>
+              <div class="w-full bg-ocean-200 rounded-t" style="height: 50%"></div>
+              <div class="w-full bg-ocean-300 rounded-t" style="height: 75%"></div>
+              <div class="w-full bg-ocean-500 rounded-t" style="height: 100%"></div>
+              <div class="w-full bg-ocean-400 rounded-t" style="height: 85%"></div>
+              <div class="w-full bg-ocean-300 rounded-t" style="height: 60%"></div>
+              <div class="w-full bg-ocean-200 rounded-t" style="height: 35%"></div>
+              <div class="w-full bg-ocean-100 rounded-t" style="height: 20%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-400">
+              <span>6am</span>
+              <span>12pm</span>
+              <span>6pm</span>
+            </div>
+            <div class="mt-3 flex items-center justify-center gap-4 text-sm">
+              <span class="flex items-center gap-1 text-ocean-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                High: 1.8m @ 2pm
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rating Bar -->
+        <div class="mt-8 bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <h4 class="text-sm font-medium text-gray-500 mb-4">Condition Breakdown</h4>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-700">Temperature</span>
+                <span class="text-emerald-600 font-medium">Excellent</span>
+              </div>
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-emerald-500 rounded-full" style="width: 95%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-700">Wind</span>
+                <span class="text-green-600 font-medium">Good</span>
+              </div>
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-green-500 rounded-full" style="width: 80%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-700">Wave Height</span>
+                <span class="text-yellow-600 font-medium">Fair</span>
+              </div>
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-yellow-500 rounded-full" style="width: 60%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-700">UV Index</span>
+                <span class="text-orange-600 font-medium">Caution</span>
+              </div>
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-orange-500 rounded-full" style="width: 40%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Navigation Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Navigation</h2>
+        <p class="text-gray-600 mb-8">Navigation patterns for mobile and desktop interfaces.</p>
+
+        <!-- Top Navigation Bar -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-6">
+          <div class="bg-gradient-to-r from-ocean-600 to-sky-500 px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <svg class="w-8 h-8 text-white" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2" fill="none"/>
+                <circle cx="20" cy="20" r="6" fill="currentColor"/>
+              </svg>
+              <span class="text-white font-semibold text-lg">BetterWeather</span>
+            </div>
+            <nav class="hidden md:flex items-center gap-6">
+              <a href="#" class="text-white/90 hover:text-white transition-colors">Explore</a>
+              <a href="#" class="text-white/90 hover:text-white transition-colors">Activities</a>
+              <a href="#" class="text-white/90 hover:text-white transition-colors">Favorites</a>
+              <a href="#" class="text-white/90 hover:text-white transition-colors">Settings</a>
+            </nav>
+            <button class="md:hidden text-white">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Tab Bar (Mobile) -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          <p class="px-4 pt-4 text-xs text-gray-400 uppercase tracking-wider">Mobile Tab Bar</p>
+          <div class="flex items-center justify-around py-3 border-t border-gray-100 mt-3">
+            <a href="#" class="flex flex-col items-center gap-1 text-ocean-600">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              </svg>
+              <span class="text-xs font-medium">Home</span>
+            </a>
+            <a href="#" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <span class="text-xs">Explore</span>
+            </a>
+            <a href="#" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+              </svg>
+              <span class="text-xs">Favorites</span>
+            </a>
+            <a href="#" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              <span class="text-xs">Profile</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Dark Mode Section -->
+  <div class="dark bg-gray-950 text-gray-100">
+    <header class="py-12 px-8 border-b border-gray-800">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl font-bold text-white mb-2">Dark Mode</h2>
+        <p class="text-gray-400">All components adapt seamlessly to dark theme for comfortable night viewing.</p>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-8 py-12">
+
+      <!-- Dark Color Samples -->
+      <section class="mb-12">
+        <h3 class="text-xl font-semibold text-white mb-6">Dark Theme Colors</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <div class="h-20 rounded-xl bg-gray-950 border border-gray-800"></div>
+            <p class="text-sm text-gray-400 mt-2">Background</p>
+            <p class="text-xs text-gray-500 font-mono">#0a0a0a</p>
+          </div>
+          <div>
+            <div class="h-20 rounded-xl bg-gray-900 border border-gray-800"></div>
+            <p class="text-sm text-gray-400 mt-2">Surface</p>
+            <p class="text-xs text-gray-500 font-mono">#171717</p>
+          </div>
+          <div>
+            <div class="h-20 rounded-xl bg-gray-800"></div>
+            <p class="text-sm text-gray-400 mt-2">Elevated</p>
+            <p class="text-xs text-gray-500 font-mono">#262626</p>
+          </div>
+          <div>
+            <div class="h-20 rounded-xl bg-ocean-500"></div>
+            <p class="text-sm text-gray-400 mt-2">Primary</p>
+            <p class="text-xs text-gray-500 font-mono">#0891cd</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Dark Cards -->
+      <section class="mb-12">
+        <h3 class="text-xl font-semibold text-white mb-6">Cards (Dark)</h3>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="card-hover bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+            <div class="h-32 bg-gradient-to-br from-ocean-600 to-sky-600 relative">
+              <div class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
+                <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse-dot"></span>
+                Perfect
+              </div>
+            </div>
+            <div class="p-4">
+              <h4 class="font-semibold text-white mb-1">Manly Beach</h4>
+              <p class="text-sm text-gray-400 mb-3">Sydney, NSW</p>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-300">24°C</span>
+                <span class="text-gray-300">8 km/h</span>
+                <span class="text-gray-300">0.5m</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-hover bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+            <div class="h-32 bg-gradient-to-br from-earth-600 to-earth-800 relative">
+              <div class="absolute top-3 right-3 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                Fair
+              </div>
+            </div>
+            <div class="p-4">
+              <h4 class="font-semibold text-white mb-1">Centennial Park</h4>
+              <p class="text-sm text-gray-400 mb-3">Sydney, NSW</p>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-300">28°C</span>
+                <span class="text-orange-400">22 km/h</span>
+                <span class="text-yellow-400">UV 8</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-hover bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden opacity-75">
+            <div class="h-32 bg-gradient-to-br from-gray-600 to-gray-800 relative">
+              <div class="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                Unsafe
+              </div>
+            </div>
+            <div class="p-4">
+              <h4 class="font-semibold text-white mb-1">Shelly Beach</h4>
+              <p class="text-sm text-gray-400 mb-3">Sydney, NSW</p>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-300">18°C</span>
+                <span class="text-red-400">35 km/h</span>
+                <span class="text-red-400">2.5m</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Dark Buttons -->
+      <section class="mb-12">
+        <h3 class="text-xl font-semibold text-white mb-6">Buttons (Dark)</h3>
+        <div class="flex flex-wrap items-center gap-4">
+          <button class="bg-ocean-600 hover:bg-ocean-500 text-white font-medium px-6 py-3 rounded-xl transition-colors btn-press">
+            Primary
+          </button>
+          <button class="border-2 border-ocean-500 text-ocean-400 hover:bg-ocean-500/10 font-medium px-6 py-3 rounded-xl transition-colors btn-press">
+            Secondary
+          </button>
+          <button class="bg-gray-800 hover:bg-gray-700 text-gray-200 font-medium px-6 py-3 rounded-xl transition-colors btn-press">
+            Neutral
+          </button>
+          <button class="text-ocean-400 hover:text-ocean-300 hover:bg-gray-800 font-medium px-6 py-3 rounded-xl transition-colors btn-press">
+            Ghost
+          </button>
+        </div>
+      </section>
+
+      <!-- Dark Forms -->
+      <section class="mb-12">
+        <h3 class="text-xl font-semibold text-white mb-6">Form Elements (Dark)</h3>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Search Location</label>
+            <input type="text" placeholder="Search beaches, parks..." class="w-full px-4 py-3 rounded-xl bg-gray-900 border border-gray-700 text-gray-100 placeholder-gray-500 focus:border-ocean-500 focus:ring-2 focus:ring-ocean-500/20 outline-none transition-all">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Activity Type</label>
+            <select class="w-full px-4 py-3 rounded-xl bg-gray-900 border border-gray-700 text-gray-100 focus:border-ocean-500 focus:ring-2 focus:ring-ocean-500/20 outline-none transition-all">
+              <option>All Activities</option>
+              <option>SUP</option>
+              <option>Kayaking</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Dark Badges -->
+      <section class="mb-12">
+        <h3 class="text-xl font-semibold text-white mb-6">Badges (Dark)</h3>
+        <div class="flex flex-wrap gap-3">
+          <span class="bg-ocean-900/50 text-ocean-300 border border-ocean-700/50 px-3 py-1.5 rounded-full text-sm font-medium">SUP</span>
+          <span class="bg-sky-900/50 text-sky-300 border border-sky-700/50 px-3 py-1.5 rounded-full text-sm font-medium">Kayaking</span>
+          <span class="bg-cyan-900/50 text-cyan-300 border border-cyan-700/50 px-3 py-1.5 rounded-full text-sm font-medium">Snorkeling</span>
+          <span class="bg-forest-900/50 text-forest-300 border border-forest-700/50 px-3 py-1.5 rounded-full text-sm font-medium">Cycling</span>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 py-8 px-8">
+      <div class="max-w-6xl mx-auto text-center">
+        <p class="text-gray-500 text-sm">Better Weather For Life - Style Guide v1.0</p>
+        <p class="text-gray-600 text-xs mt-2">Designed for outdoor enthusiasts</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+
+    themeToggle.addEventListener('click', () => {
+      html.classList.toggle('dark');
+    });
+  </script>
+</body>
+</html>
