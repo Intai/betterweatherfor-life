@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Better Weather For Life - Location Detail UI Design</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', 'system-ui', 'sans-serif'],
+            mono: ['Geist Mono', 'monospace'],
+          },
+          colors: {
+            ocean: {
+              50: '#e6f4fa',
+              100: '#cce9f5',
+              200: '#99d3eb',
+              300: '#66bde1',
+              400: '#33a7d7',
+              500: '#0891cd',
+              600: '#0074a4',
+              700: '#00577b',
+              800: '#003a52',
+              900: '#001d29',
+            },
+            sky: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+            sunset: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            },
+            earth: {
+              50: '#faf6f1',
+              100: '#f5ede3',
+              200: '#e8d9c5',
+              300: '#d9c4a5',
+              400: '#c9ad82',
+              500: '#b89b6a',
+              600: '#a18653',
+              700: '#846d43',
+              800: '#6b5837',
+              900: '#54452c',
+            },
+            forest: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            },
+            conditions: {
+              ideal: '#22c55e',
+              acceptable: '#0ea5e9',
+              marginal: '#f97316',
+              unsuitable: '#ef4444',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .btn-press:active {
+      transform: scale(0.98);
+    }
+    .card-hover {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.15);
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .animate-pulse-dot {
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    /* Score bar animation */
+    .score-bar {
+      transition: width 0.5s ease-out;
+    }
+    /* Hide scrollbar but keep functionality */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Score circle glow */
+    .score-glow-green {
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.3);
+    }
+    .score-glow-sky {
+      box-shadow: 0 0 40px rgba(14, 165, 233, 0.3);
+    }
+    .score-glow-orange {
+      box-shadow: 0 0 40px rgba(249, 115, 22, 0.3);
+    }
+    .score-glow-red {
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.3);
+    }
+    /* Alert shake animation */
+    @keyframes alert-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.01); }
+    }
+    .alert-danger {
+      animation: alert-pulse 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased bg-gray-100 min-h-screen py-8">
+
+  <!-- Page Title -->
+  <div class="text-center mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Location Detail Page - UI Design</h1>
+    <p class="text-gray-500 mt-1">4 States: Main View, UV Warning, Water Quality Warning, Severe Weather Alert</p>
+  </div>
+
+  <!-- ==========================================
+       STATE 1: MAIN VIEW (No Alerts)
+       Mission Bay, Score 85, Ideal
+       ========================================== -->
+
+  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
+    <div class="text-center py-2 bg-gray-800 text-xs text-white font-medium">State 1: Main View (No Alerts)</div>
+
+    <!-- Header - Sticky -->
+    <header class="sticky top-0 z-50 bg-gradient-to-r from-ocean-600 to-sky-500 text-white px-4 py-3 flex items-center gap-3 shadow-lg">
+      <button class="p-2 -ml-2 hover:bg-white/10 rounded-xl transition-colors btn-press" aria-label="Go back">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <h1 class="font-semibold text-lg tracking-tight">Mission Bay</h1>
+    </header>
+
+    <!-- Score Display -->
+    <section class="px-4 py-6 flex flex-col items-center bg-gradient-to-b from-gray-50 to-white">
+      <div class="w-32 h-32 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center score-glow-green mb-4">
+        <span class="text-5xl font-bold text-white">87</span>
+      </div>
+      <span class="bg-green-500 text-white text-sm font-semibold px-4 py-1.5 rounded-full flex items-center gap-2">
+        <span class="w-2 h-2 bg-white rounded-full animate-pulse-dot"></span>
+        Ideal
+      </span>
+      <p class="text-gray-500 text-sm mt-2">Best conditions at 8am</p>
+    </section>
+
+    <!-- Factor Breakdown Cards -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">Conditions</h2>
+
+      <!-- Wind Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-ocean-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-ocean-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Wind</h3>
+        </div>
+        <div class="grid gap-2 mb-3" style="grid-template-columns: 70px 1fr 70px;">
+          <div>
+            <p class="text-xs text-gray-500">Speed</p>
+            <p class="font-medium text-gray-900">8 km/h</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Direction</p>
+            <p class="font-medium text-gray-900 whitespace-nowrap">NE <span class="text-green-600">(Onshore)</span></p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Gusts</p>
+            <p class="font-medium text-gray-900">12 km/h</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">Light onshore breeze. Ideal for paddling - will gently push you back to shore if you tire.</p>
+        </div>
+      </div>
+
+      <!-- Tide Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-ocean-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-ocean-600" viewBox="0 0 24 24" fill="none">
+              <path d="M3 19L12 5L21 19Z" fill="currentColor" opacity="0.2"/>
+              <rect x="0" y="9" width="24" height="15" fill="currentColor" opacity="0.6" clip-path="url(#tide-clip-1)"/>
+              <defs>
+                <clipPath id="tide-clip-1">
+                  <path d="M3 19L12 5L21 19Z"/>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Tide</h3>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">State</p>
+            <p class="font-medium text-gray-900">Rising</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Level</p>
+            <p class="font-medium text-gray-900">60%</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">High tide</p>
+            <p class="font-medium text-gray-900">10:30am</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">Rising tide with gentle flow. Good water depth at launch area.</p>
+        </div>
+      </div>
+
+      <!-- Water Quality Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Water Quality</h3>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">Safeswim</p>
+            <p class="font-medium text-green-600">Green (Safe)</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Last check</p>
+            <p class="font-medium text-gray-900">15 mins ago</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">No contamination risk detected. Safe for swimming and paddling.</p>
+        </div>
+      </div>
+
+      <!-- Temperature Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-yellow-500" viewBox="0 0 24 24" fill="none">
+              <rect x="8" y="2" width="8" height="20" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+              <rect x="10" y="9" width="4" height="11" rx="2" fill="currentColor"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Temperature</h3>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">Air</p>
+            <p class="font-medium text-gray-900">22°C</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Feels like</p>
+            <p class="font-medium text-gray-900">24°C</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Water</p>
+            <p class="font-medium text-gray-900">20°C</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">Comfortable conditions. Light layers recommended for early morning start.</p>
+        </div>
+      </div>
+
+      <!-- Precipitation Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Precipitation</h3>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">Current</p>
+            <p class="font-medium text-gray-900">None</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Forecast</p>
+            <p class="font-medium text-gray-900">Clear</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Chance</p>
+            <p class="font-medium text-gray-900">5%</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">Dry conditions expected through the morning window. Clear until 2pm.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Analysis Section -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">AI Analysis</h2>
+      <div class="bg-gradient-to-br from-ocean-50 to-sky-50 rounded-2xl p-4 border border-ocean-100">
+        <p class="text-sm text-gray-700 leading-relaxed mb-3">
+          Mission Bay offers excellent conditions for SUP this morning. The combination of factors creates an ideal window for paddling.
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed mb-3">
+          The northeast wind at 8 km/h creates a gentle onshore breeze that will help push you back to shore if you tire. This is much safer than offshore winds that could carry you away from land.
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed mb-3">
+          The incoming tide means water depth at the launch area will be good, and the gentle tidal flow won't create challenging currents. Water quality is rated green by Safeswim with no recent rainfall affecting the area.
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed font-medium">
+          Recommended window: 7am - 10am before sea breeze strengthens.
+        </p>
+      </div>
+    </section>
+
+    <!-- Time-Based Forecast Strip -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">Forecast</h2>
+      <div class="overflow-x-auto hide-scrollbar -mx-4 px-4 -mt-2">
+        <div class="flex gap-2 py-2" style="width: max-content;">
+          <!-- 7am -->
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">7am</span>
+            <span class="text-lg font-bold text-green-600">85</span>
+            <div class="w-6 h-1.5 rounded-full bg-green-500 mt-1"></div>
+          </div>
+          <!-- 8am - Best Hour -->
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-green-50 border-2 border-green-500 relative overflow-visible">
+            <span class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            </span>
+            <span class="text-xs text-gray-500 mb-1">8am</span>
+            <span class="text-lg font-bold text-green-600">87</span>
+            <div class="w-6 h-1.5 rounded-full bg-green-500 mt-1"></div>
+          </div>
+          <!-- 9am -->
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">9am</span>
+            <span class="text-lg font-bold text-green-600">85</span>
+            <div class="w-6 h-1.5 rounded-full bg-green-500 mt-1"></div>
+          </div>
+          <!-- 10am -->
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">10am</span>
+            <span class="text-lg font-bold text-sky-500">78</span>
+            <div class="w-6 h-1.5 rounded-full bg-sky-500 mt-1"></div>
+          </div>
+          <!-- 11am -->
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">11am</span>
+            <span class="text-lg font-bold text-sky-500">65</span>
+            <div class="w-6 h-1.5 rounded-full bg-sky-500 mt-1"></div>
+          </div>
+          <!-- 12pm -->
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">12pm</span>
+            <span class="text-lg font-bold text-orange-500">58</span>
+            <div class="w-6 h-1.5 rounded-full bg-orange-500 mt-1"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Share Button -->
+    <section class="px-4 pb-8">
+      <button class="w-full bg-transparent hover:bg-ocean-50 text-ocean-600 border-2 border-ocean-600 font-medium py-3.5 rounded-xl transition-colors btn-press flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+        </svg>
+        Share Location
+      </button>
+    </section>
+
+  </div>
+
+  <!-- ==========================================
+       STATE 2: UV INDEX WARNING (Info Alert)
+       Yellow info alert for UV Index 9
+       ========================================== -->
+
+  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
+    <div class="text-center py-2 bg-yellow-500 text-xs text-white font-medium">State 2: UV Index Warning (Info Alert)</div>
+
+    <!-- Header - Sticky -->
+    <header class="sticky top-0 z-50 bg-gradient-to-r from-ocean-600 to-sky-500 text-white px-4 py-3 flex items-center gap-3 shadow-lg">
+      <button class="p-2 -ml-2 hover:bg-white/10 rounded-xl transition-colors btn-press" aria-label="Go back">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <h1 class="font-semibold text-lg tracking-tight">Mission Bay</h1>
+    </header>
+
+    <!-- Score Display -->
+    <section class="px-4 py-6 flex flex-col items-center bg-gradient-to-b from-gray-50 to-white">
+      <div class="w-32 h-32 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center score-glow-green mb-4">
+        <span class="text-5xl font-bold text-white">87</span>
+      </div>
+      <span class="bg-green-500 text-white text-sm font-semibold px-4 py-1.5 rounded-full flex items-center gap-2">
+        <span class="w-2 h-2 bg-white rounded-full animate-pulse-dot"></span>
+        Ideal
+      </span>
+      <p class="text-gray-500 text-sm mt-2">Best conditions at 8am</p>
+    </section>
+
+    <!-- UV Index Info Alert -->
+    <section class="px-4 pb-4">
+      <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-yellow-800 mb-1">UV Index Very High</h3>
+            <p class="text-sm text-yellow-700 leading-relaxed">
+              UV Index is currently 9 (Very High). Apply sunscreen SPF 50+, wear protective clothing, a wide-brimmed hat, and UV-blocking sunglasses. Seek shade during peak hours (10am-2pm).
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Factor Cards (Condensed for space) -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">Conditions</h2>
+
+      <!-- Wind Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-ocean-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-ocean-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Wind</h3>
+        </div>
+        <div class="grid gap-2 mb-3" style="grid-template-columns: 70px 1fr 70px;">
+          <div>
+            <p class="text-xs text-gray-500">Speed</p>
+            <p class="font-medium text-gray-900">8 km/h</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Direction</p>
+            <p class="font-medium text-gray-900 whitespace-nowrap">NE <span class="text-green-600">(Onshore)</span></p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Gusts</p>
+            <p class="font-medium text-gray-900">12 km/h</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">Light onshore breeze. Ideal for paddling.</p>
+        </div>
+      </div>
+
+      <!-- Tide Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-ocean-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-ocean-600" viewBox="0 0 24 24" fill="none">
+              <path d="M3 19L12 5L21 19Z" fill="currentColor" opacity="0.2"/>
+              <rect x="0" y="9" width="24" height="15" fill="currentColor" opacity="0.6" clip-path="url(#tide-clip-2)"/>
+              <defs>
+                <clipPath id="tide-clip-2">
+                  <path d="M3 19L12 5L21 19Z"/>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Tide</h3>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">State</p>
+            <p class="font-medium text-gray-900">Rising</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Level</p>
+            <p class="font-medium text-gray-900">60%</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">High tide</p>
+            <p class="font-medium text-gray-900">10:30am</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">Rising tide with gentle flow. Good water depth.</p>
+        </div>
+      </div>
+
+      <!-- Water Quality Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Water Quality</h3>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">Safeswim</p>
+            <p class="font-medium text-green-600">Green (Safe)</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Last check</p>
+            <p class="font-medium text-gray-900">15 mins ago</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">No contamination risk. Safe for paddling.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Analysis Section -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">AI Analysis</h2>
+      <div class="bg-gradient-to-br from-ocean-50 to-sky-50 rounded-2xl p-4 border border-ocean-100">
+        <p class="text-sm text-gray-700 leading-relaxed mb-3">
+          Mission Bay offers excellent paddling conditions this morning, but take extra UV precautions as the UV index is very high at 9.
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed font-medium">
+          Recommended window: 7am - 9am to avoid peak UV exposure.
+        </p>
+      </div>
+    </section>
+
+    <!-- Forecast Strip -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">Forecast</h2>
+      <div class="overflow-x-auto hide-scrollbar -mx-4 px-4 -mt-2">
+        <div class="flex gap-2 py-2" style="width: max-content;">
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">7am</span>
+            <span class="text-lg font-bold text-green-600">85</span>
+            <div class="w-6 h-1.5 rounded-full bg-green-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-green-50 border-2 border-green-500 relative overflow-visible">
+            <span class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            </span>
+            <span class="text-xs text-gray-500 mb-1">8am</span>
+            <span class="text-lg font-bold text-green-600">87</span>
+            <div class="w-6 h-1.5 rounded-full bg-green-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">9am</span>
+            <span class="text-lg font-bold text-green-600">85</span>
+            <div class="w-6 h-1.5 rounded-full bg-green-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">10am</span>
+            <span class="text-lg font-bold text-sky-500">78</span>
+            <div class="w-6 h-1.5 rounded-full bg-sky-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">11am</span>
+            <span class="text-lg font-bold text-sky-500">65</span>
+            <div class="w-6 h-1.5 rounded-full bg-sky-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">12pm</span>
+            <span class="text-lg font-bold text-orange-500">58</span>
+            <div class="w-6 h-1.5 rounded-full bg-orange-500 mt-1"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Share Button -->
+    <section class="px-4 pb-8">
+      <button class="w-full bg-transparent hover:bg-ocean-50 text-ocean-600 border-2 border-ocean-600 font-medium py-3.5 rounded-xl transition-colors btn-press flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+        </svg>
+        Share Location
+      </button>
+    </section>
+
+  </div>
+
+  <!-- ==========================================
+       STATE 3: WATER QUALITY WARNING (Orange Alert)
+       Orange warning for recent rainfall
+       ========================================== -->
+
+  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
+    <div class="text-center py-2 bg-orange-500 text-xs text-white font-medium">State 3: Water Quality Warning (Orange Alert)</div>
+
+    <!-- Header - Sticky -->
+    <header class="sticky top-0 z-50 bg-gradient-to-r from-ocean-600 to-sky-500 text-white px-4 py-3 flex items-center gap-3 shadow-lg">
+      <button class="p-2 -ml-2 hover:bg-white/10 rounded-xl transition-colors btn-press" aria-label="Go back">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <h1 class="font-semibold text-lg tracking-tight">Mission Bay</h1>
+    </header>
+
+    <!-- Score Display -->
+    <section class="px-4 py-6 flex flex-col items-center bg-gradient-to-b from-gray-50 to-white">
+      <div class="w-32 h-32 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center score-glow-sky mb-4">
+        <span class="text-5xl font-bold text-white">70</span>
+      </div>
+      <span class="bg-sky-500 text-white text-sm font-semibold px-4 py-1.5 rounded-full flex items-center gap-2">
+        <span class="w-2 h-2 bg-white rounded-full animate-pulse-dot"></span>
+        Acceptable
+      </span>
+      <p class="text-gray-500 text-sm mt-2">Water quality affecting score</p>
+    </section>
+
+    <!-- Water Quality Warning Alert -->
+    <section class="px-4 pb-4">
+      <div class="bg-orange-50 border border-orange-200 rounded-2xl p-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-orange-800 mb-1">Water Quality Warning</h3>
+            <p class="text-sm text-orange-700 leading-relaxed">
+              Safeswim rates this location ORANGE due to recent rainfall (25mm in last 24 hours). Swimming not recommended for people with compromised immune systems. Avoid swallowing water.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Factor Cards -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">Conditions</h2>
+
+      <!-- Wind Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-ocean-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-ocean-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Wind</h3>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">Speed</p>
+            <p class="font-medium text-gray-900">8 km/h</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Direction</p>
+            <p class="font-medium text-gray-900">NE</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Gusts</p>
+            <p class="font-medium text-gray-900">12 km/h</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">Light onshore breeze. Good for paddling.</p>
+        </div>
+      </div>
+
+      <!-- Water Quality Card - Warning State -->
+      <div class="bg-white rounded-2xl shadow-md border-2 border-orange-300 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Water Quality</h3>
+          <span class="ml-auto bg-orange-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">Warning</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">Safeswim</p>
+            <p class="font-medium text-orange-600">Orange (Caution)</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Recent rain</p>
+            <p class="font-medium text-orange-600">25mm / 24hrs</p>
+          </div>
+        </div>
+        <div class="bg-orange-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-orange-700 leading-relaxed">Elevated bacteria levels possible due to stormwater runoff. Conditions expected to improve within 24-48 hours.</p>
+        </div>
+      </div>
+
+      <!-- Tide Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-ocean-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-ocean-600" viewBox="0 0 24 24" fill="none">
+              <path d="M3 19L12 5L21 19Z" fill="currentColor" opacity="0.2"/>
+              <rect x="0" y="9" width="24" height="15" fill="currentColor" opacity="0.6" clip-path="url(#tide-clip-3)"/>
+              <defs>
+                <clipPath id="tide-clip-3">
+                  <path d="M3 19L12 5L21 19Z"/>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Tide</h3>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">State</p>
+            <p class="font-medium text-gray-900">Rising</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Level</p>
+            <p class="font-medium text-gray-900">60%</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">High tide</p>
+            <p class="font-medium text-gray-900">10:30am</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">Rising tide will help flush out contaminants.</p>
+        </div>
+      </div>
+
+      <!-- Temperature Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-yellow-500" viewBox="0 0 24 24" fill="none">
+              <rect x="8" y="2" width="8" height="20" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+              <rect x="10" y="9" width="4" height="11" rx="2" fill="currentColor"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Temperature</h3>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">Air</p>
+            <p class="font-medium text-gray-900">22°C</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Feels like</p>
+            <p class="font-medium text-gray-900">24°C</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Water</p>
+            <p class="font-medium text-gray-900">20°C</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">Comfortable conditions for paddling.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Analysis Section -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">AI Analysis</h2>
+      <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-4 border border-orange-100">
+        <p class="text-sm text-gray-700 leading-relaxed mb-3">
+          Wind and tide conditions are excellent for SUP, but water quality is a concern following yesterday's heavy rainfall.
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed mb-3">
+          If you proceed, avoid splashing water in your face and don't swallow any water. Consider wearing water shoes to protect from debris.
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed font-medium">
+          Alternative: Takapuna Beach has green water quality today and similar wind conditions.
+        </p>
+      </div>
+    </section>
+
+    <!-- Forecast Strip -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">Forecast</h2>
+      <div class="overflow-x-auto hide-scrollbar -mx-4 px-4 -mt-2">
+        <div class="flex gap-2 py-2" style="width: max-content;">
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">7am</span>
+            <span class="text-lg font-bold text-sky-500">68</span>
+            <div class="w-6 h-1.5 rounded-full bg-sky-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-sky-50 border-2 border-sky-500 relative overflow-visible">
+            <span class="absolute -top-1 -right-1 w-5 h-5 bg-sky-500 rounded-full flex items-center justify-center">
+              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            </span>
+            <span class="text-xs text-gray-500 mb-1">8am</span>
+            <span class="text-lg font-bold text-sky-500">70</span>
+            <div class="w-6 h-1.5 rounded-full bg-sky-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">9am</span>
+            <span class="text-lg font-bold text-sky-500">68</span>
+            <div class="w-6 h-1.5 rounded-full bg-sky-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">10am</span>
+            <span class="text-lg font-bold text-sky-500">62</span>
+            <div class="w-6 h-1.5 rounded-full bg-sky-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">11am</span>
+            <span class="text-lg font-bold text-orange-500">55</span>
+            <div class="w-6 h-1.5 rounded-full bg-orange-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">12pm</span>
+            <span class="text-lg font-bold text-orange-500">48</span>
+            <div class="w-6 h-1.5 rounded-full bg-orange-500 mt-1"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Share Button -->
+    <section class="px-4 pb-8">
+      <button class="w-full bg-transparent hover:bg-ocean-50 text-ocean-600 border-2 border-ocean-600 font-medium py-3.5 rounded-xl transition-colors btn-press flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+        </svg>
+        Share Location
+      </button>
+    </section>
+
+  </div>
+
+  <!-- ==========================================
+       STATE 4: SEVERE WEATHER ALERT (Red Danger)
+       Thunderstorm warning - Do not proceed
+       ========================================== -->
+
+  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
+    <div class="text-center py-2 bg-red-600 text-xs text-white font-medium">State 4: Severe Weather Alert (Red Danger)</div>
+
+    <!-- Header - Sticky -->
+    <header class="sticky top-0 z-50 bg-gradient-to-r from-ocean-600 to-sky-500 text-white px-4 py-3 flex items-center gap-3 shadow-lg">
+      <button class="p-2 -ml-2 hover:bg-white/10 rounded-xl transition-colors btn-press" aria-label="Go back">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <h1 class="font-semibold text-lg tracking-tight">Mission Bay</h1>
+    </header>
+
+    <!-- Score Display -->
+    <section class="px-4 py-6 flex flex-col items-center bg-gradient-to-b from-red-50 to-white">
+      <div class="w-32 h-32 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center score-glow-red mb-4">
+        <span class="text-5xl font-bold text-white">25</span>
+      </div>
+      <span class="bg-red-500 text-white text-sm font-semibold px-4 py-1.5 rounded-full flex items-center gap-2">
+        <span class="w-2 h-2 bg-white rounded-full animate-pulse-dot"></span>
+        Unsuitable
+      </span>
+      <p class="text-gray-500 text-sm mt-2">Severe weather warning at 1pm</p>
+    </section>
+
+    <!-- Severe Weather Danger Alert -->
+    <section class="px-4 pb-4">
+      <div class="bg-red-50 border-2 border-red-300 rounded-2xl p-4 alert-danger">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-red-800 mb-1">Severe Weather Alert</h3>
+            <p class="text-sm text-red-700 leading-relaxed mb-2">
+              <strong>Thunderstorms forecast from 2pm.</strong> Do not paddle after 1pm. Lightning risk on open water is extremely dangerous and potentially fatal.
+            </p>
+            <p class="text-sm text-red-700 leading-relaxed font-medium">
+              Seek shelter immediately if you hear thunder or see lightning.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Factor Cards -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">Conditions</h2>
+
+      <!-- Wind Card - Warning State -->
+      <div class="bg-white rounded-2xl shadow-md border-2 border-orange-300 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Wind</h3>
+          <span class="ml-auto bg-orange-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">Gusty</span>
+        </div>
+        <div class="grid gap-2 mb-3" style="grid-template-columns: 70px 1fr 70px;">
+          <div>
+            <p class="text-xs text-gray-500">Speed</p>
+            <p class="font-medium text-orange-600">18 km/h</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Direction</p>
+            <p class="font-medium text-gray-900 whitespace-nowrap">SW <span class="text-red-600">(Offshore)</span></p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Gusts</p>
+            <p class="font-medium text-red-600">35 km/h</p>
+          </div>
+        </div>
+        <div class="bg-orange-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-orange-700 leading-relaxed">Strong offshore gusts ahead of storm front. Risk of being blown away from shore.</p>
+        </div>
+      </div>
+
+      <!-- Precipitation Card - Danger State -->
+      <div class="bg-white rounded-2xl shadow-md border-2 border-red-300 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Weather</h3>
+          <span class="ml-auto bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">Danger</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">Current</p>
+            <p class="font-medium text-gray-900">Overcast</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Forecast</p>
+            <p class="font-medium text-red-600">Storms</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Arrival</p>
+            <p class="font-medium text-red-600">2pm</p>
+          </div>
+        </div>
+        <div class="bg-red-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-red-700 leading-relaxed">Thunderstorms with lightning expected. Heavy rain, hail possible. DO NOT be on the water after 1pm.</p>
+        </div>
+      </div>
+
+      <!-- Tide Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-ocean-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-ocean-600" viewBox="0 0 24 24" fill="none">
+              <path d="M3 19L12 5L21 19Z" fill="currentColor" opacity="0.2"/>
+              <rect x="0" y="9" width="24" height="15" fill="currentColor" opacity="0.6" clip-path="url(#tide-clip-4)"/>
+              <defs>
+                <clipPath id="tide-clip-4">
+                  <path d="M3 19L12 5L21 19Z"/>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Tide</h3>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">State</p>
+            <p class="font-medium text-gray-900">Rising</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Level</p>
+            <p class="font-medium text-gray-900">60%</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">High tide</p>
+            <p class="font-medium text-gray-900">10:30am</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">Tide conditions are acceptable but weather overrides.</p>
+        </div>
+      </div>
+
+      <!-- Water Quality Card -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-3">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">Water Quality</h3>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">Safeswim</p>
+            <p class="font-medium text-green-600">Green (Safe)</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Note</p>
+            <p class="font-medium text-gray-500 text-xs">Will degrade after storm</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl px-3 py-2">
+          <p class="text-sm text-gray-600 leading-relaxed">Currently safe but expect orange rating after storm passes.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Analysis Section -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">AI Analysis</h2>
+      <div class="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-4 border border-red-100">
+        <p class="text-sm text-red-800 leading-relaxed mb-3 font-semibold">
+          DO NOT paddle at Mission Bay today. Severe weather makes water activities extremely dangerous.
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed mb-3">
+          Even before the storm arrives, strong offshore gusts (up to 35 km/h) could push you far from shore. Combined with the incoming thunderstorm, this creates a life-threatening situation.
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed mb-3">
+          Lightning on open water is particularly dangerous as you become the highest point. If caught in a storm, get to shore immediately and move away from the water.
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed font-medium">
+          Try again tomorrow - conditions forecast to be Ideal (85+) after the front passes.
+        </p>
+      </div>
+    </section>
+
+    <!-- Forecast Strip - Showing deteriorating conditions -->
+    <section class="px-4 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">Forecast</h2>
+      <div class="overflow-x-auto hide-scrollbar -mx-4 px-4 -mt-2">
+        <div class="flex gap-2 py-2" style="width: max-content;">
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200 relative overflow-visible">
+            <span class="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
+              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            </span>
+            <span class="text-xs text-gray-500 mb-1">10am</span>
+            <span class="text-lg font-bold text-orange-500">52</span>
+            <div class="w-6 h-1.5 rounded-full bg-orange-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">11am</span>
+            <span class="text-lg font-bold text-orange-500">45</span>
+            <div class="w-6 h-1.5 rounded-full bg-orange-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-white border border-gray-200">
+            <span class="text-xs text-gray-500 mb-1">12pm</span>
+            <span class="text-lg font-bold text-red-500">35</span>
+            <div class="w-6 h-1.5 rounded-full bg-red-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-red-50 border-2 border-red-500">
+            <span class="text-xs text-red-600 mb-1 font-medium">1pm</span>
+            <span class="text-lg font-bold text-red-500">25</span>
+            <div class="w-6 h-1.5 rounded-full bg-red-500 mt-1"></div>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-red-100 border border-red-300">
+            <span class="text-xs text-red-700 mb-1 font-bold">2pm</span>
+            <span class="text-lg font-bold text-red-600">10</span>
+            <svg class="w-4 h-4 text-red-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <div class="w-16 flex flex-col items-center p-2 rounded-xl bg-red-100 border border-red-300">
+            <span class="text-xs text-red-700 mb-1 font-bold">3pm</span>
+            <span class="text-lg font-bold text-red-600">5</span>
+            <svg class="w-4 h-4 text-red-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Share Button (Disabled state for dangerous conditions) -->
+    <section class="px-4 pb-8">
+      <button class="w-full bg-gray-400 text-white font-medium py-3.5 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed" disabled>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+        </svg>
+        Not Recommended Today
+      </button>
+      <p class="text-center text-xs text-gray-500 mt-2">Sharing disabled for unsafe conditions</p>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="text-center py-8 text-gray-400 text-sm">
+    <p>Location Detail Page UI Design - Better Weather For Life</p>
+    <p class="mt-1">4 States: Main View, UV Warning, Water Quality Warning, Severe Weather Alert</p>
+  </div>
+
+</body>
+</html>

@@ -22,7 +22,7 @@ The primary landing screen where users select an activity and see ranked locatio
 | | ====================================   | |
 | | Score: 85               Ideal          | |
 | |                                        | |
-| | Wind 8km/h NE   |  Tide: Incoming      | |
+| | Wind 8km/h NE   |  Tide: Rising 70%    | |
 | | Water: Green    |  Temp: 22°C          | |
 | |                                        | |
 | | Light onshore breeze, excellent        | |
@@ -34,7 +34,7 @@ The primary landing screen where users select an activity and see ranked locatio
 | | ===============================        | |
 | | Score: 62               Acceptable     | |
 | |                                        | |
-| | Wind 12km/h SW  |  Tide: Mid           | |
+| | Wind 12km/h SW  |  Tide: Rising 50%    | |
 | | Water: Green    |  Temp: 21°C          | |
 | |                                        | |
 | | Offshore wind component - take         | |
@@ -46,7 +46,7 @@ The primary landing screen where users select an activity and see ranked locatio
 | | ==========================             | |
 | | Score: 58               Marginal       | |
 | |                                        | |
-| | Wind 15km/h SW  |  Tide: Outgoing      | |
+| | Wind 15km/h SW  |  Tide: Falling 30%   | |
 | | Water: Green    |  Temp: 21°C          | |
 | |                                        | |
 | | Moderate winds and outgoing tide       | |

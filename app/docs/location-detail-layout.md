@@ -45,8 +45,8 @@ Detailed view of a single location showing full condition breakdown, AI explanat
 | +-----------------------------------+ |
 | | Tide                              | |
 | | --------------------------------- | |
-| | State:      Incoming              | |
-| | Height:     1.2m (Mid)            | |
+| | State:      Rising                | |
+| | Level:      60%                   | |
 | | High tide:  10:30am               | |
 | |                                   | |
 | | Rising tide with gentle flow.     | |
@@ -219,6 +219,9 @@ Additional condition card for snorkelling activity:
 - Clear description of the risk
 - Actionable guidance where possible
 
+### Tide Icon
+See [Home Screen Layout](home-layout.md#tide-icon) for icon specification.
+
 ### Factor Breakdown Cards
 - Vertical stack of condition cards
 - Each card contains:
@@ -253,6 +256,9 @@ Additional condition card for snorkelling activity:
 - Opens native share sheet
 - Shares link to location with current settings
 - Could include pre-formatted message
+- Disabled state for unsuitable conditions (severe weather alerts)
+  - Button grayed out with "Not Recommended Today" text
+  - Helper text explains sharing is disabled for safety
 
 ## Interactions
 
@@ -264,7 +270,10 @@ Additional condition card for snorkelling activity:
 ### Forecast Strip
 - Horizontal swipe to see more hours
 - Tap a time slot to update entire detail view for that hour (score, conditions, AI analysis all reflect the selected time)
-- Default view shows the best hour within the selected time range; best hour is visually highlighted
+- Default view shows the best hour within the selected time range
+- Visual indicators:
+  - **Best hour**: Star badge - indicates highest scoring hour in the time range
+  - **Selected hour**: Highlighted border - indicates currently displayed hour
 
 ### Share Flow
 1. Tap Share button
