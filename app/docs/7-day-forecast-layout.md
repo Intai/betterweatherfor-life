@@ -104,7 +104,6 @@ Rolling 7-day forecast (today + next 6 days) showing condition forecasts to help
 | |                                   | |
 | +-----------------------------------+ |
 |                                       |
-|              [v more]                 |
 +---------------------------------------+
 ```
 
@@ -252,8 +251,7 @@ For each day in the 7-day forecast:
 ## Responsive Considerations
 
 - Portrait: Cards stack vertically (scroll down)
-- Landscape: Cards scroll horizontally in single row
-- Day selector strip and cards scroll in sync
+- Landscape: Cards scroll horizontally in single row (no day selector strip - cards serve as navigation)
 - Swipe gesture works naturally in both orientations
 
 ## Landscape Wireframe
@@ -263,9 +261,6 @@ For each day in the 7-day forecast:
 | [<] 7-Day Forecast                                                              |
 +--------------------------------------------------------------------------------+
 | [SUP] [Kayaking] [Snorkelling] [Cycling]                                        |
-+--------------------------------------------------------------------------------+
-| [Mon] [Tue] [Wed] [Thu] [Fri] [Sat] [Sun]                                       |
-|  28    29    30    31    1     2     3                                          |
 +--------------------------------------------------------------------------------+
 | +---------------------+  +---------------------+  +---------------------+  -->  |
 | |  Friday 1 Feb [Best]|  |  Saturday 2 Feb     |  |  Sunday 3 Feb       |       |
