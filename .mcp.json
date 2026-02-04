@@ -1,16 +1,12 @@
 {
   "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": ["@playwright/mcp@latest", "--isolated"]
-    },
     "playwright-headless": {
       "command": "npx",
       "args": ["@playwright/mcp@latest", "--isolated", "--headless"]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@latest"]
     },
     "shadcn": {
       "command": "npx",

@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Better Weather For Life - Home Screen UI Design</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', 'system-ui', 'sans-serif'],
+            mono: ['Geist Mono', 'monospace'],
+          },
+          colors: {
+            ocean: {
+              50: '#e6f4fa',
+              100: '#cce9f5',
+              200: '#99d3eb',
+              300: '#66bde1',
+              400: '#33a7d7',
+              500: '#0891cd',
+              600: '#0074a4',
+              700: '#00577b',
+              800: '#003a52',
+              900: '#001d29',
+            },
+            sky: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+            sunset: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            },
+            earth: {
+              50: '#faf6f1',
+              100: '#f5ede3',
+              200: '#e8d9c5',
+              300: '#d9c4a5',
+              400: '#c9ad82',
+              500: '#b89b6a',
+              600: '#a18653',
+              700: '#846d43',
+              800: '#6b5837',
+              900: '#54452c',
+            },
+            forest: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            },
+            conditions: {
+              ideal: '#22c55e',
+              acceptable: '#0ea5e9',
+              marginal: '#f97316',
+              unsuitable: '#ef4444',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .btn-press:active {
+      transform: scale(0.98);
+    }
+    .card-hover {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.15);
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .animate-pulse-dot {
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    /* Score bar animation */
+    .score-bar {
+      transition: width 0.5s ease-out;
+    }
+    /* Hide scrollbar but keep functionality */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased bg-gray-50 min-h-screen">
+
+  <!-- Mobile Frame Container (375px) -->
+  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative">
+
+    <!-- Header - Sticky -->
+    <header class="sticky top-0 z-50 bg-gradient-to-r from-ocean-600 to-sky-500 text-white px-4 py-3 flex items-center justify-between shadow-lg">
+      <div class="flex items-center gap-2">
+        <svg class="w-6 h-6" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="8" fill="currentColor"/>
+          <path d="M20 2v6M20 32v6M2 20h6M32 20h6M6.3 6.3l4.2 4.2M29.5 29.5l4.2 4.2M6.3 33.7l4.2-4.2M29.5 10.5l4.2-4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="font-semibold text-lg tracking-tight">Better Weather for</span>
+      </div>
+      <button class="p-2 -mr-2 hover:bg-white/10 rounded-xl transition-colors btn-press" aria-label="Menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Activity Selector -->
+    <section class="px-4 py-4 border-b border-gray-100">
+      <div class="flex flex-wrap gap-2">
+        <button class="bg-ocean-600 text-white font-medium px-4 py-2 rounded-full transition-colors btn-press text-sm shadow-md shadow-ocean-600/30">
+          SUP
+        </button>
+        <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-full transition-colors btn-press text-sm">
+          Kayaking
+        </button>
+        <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-full transition-colors btn-press text-sm">
+          Snorkelling
+        </button>
+        <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-full transition-colors btn-press text-sm">
+          Cycling
+        </button>
+      </div>
+    </section>
+
+    <!-- Time Window Picker -->
+    <section class="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+      <div class="flex items-center gap-2">
+        <button class="flex-1 bg-ocean-600 text-white font-medium px-3 py-2.5 rounded-xl transition-colors btn-press text-sm flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap">
+          Today: All day
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <button class="flex-1 bg-white text-gray-700 font-medium px-3 py-2.5 rounded-xl transition-colors btn-press text-sm border border-gray-200 hover:bg-gray-50 whitespace-nowrap">
+          Tomorrow
+        </button>
+        <button class="flex-1 bg-white text-gray-700 font-medium px-3 py-2.5 rounded-xl transition-colors btn-press text-sm border border-gray-200 hover:bg-gray-50 whitespace-nowrap">
+          Pick date
+        </button>
+      </div>
+    </section>
+
+    <!-- Locations List Header -->
+    <section class="px-4 py-3 flex items-center justify-between">
+      <h2 class="text-lg font-semibold text-gray-900">Locations</h2>
+      <button class="border border-gray-300 hover:bg-gray-100 text-gray-600 hover:text-gray-900 p-1.5 rounded-full transition-colors btn-press" aria-label="Add location">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+      </button>
+    </section>
+
+    <!-- Location Cards List -->
+    <section class="px-4 pb-6 space-y-4">
+
+      <!-- Location Card 1 - Ideal -->
+      <div class="card-hover bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden cursor-pointer">
+        <div class="p-4">
+          <!-- Card Header -->
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <h3 class="font-semibold text-gray-900 text-base">Mission Bay</h3>
+              <p class="text-sm text-gray-500">Beach, Auckland Central</p>
+            </div>
+            <button class="-mr-2 -mt-2 p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600" aria-label="Remove location">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Score Bar -->
+          <div class="mb-3">
+            <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div class="score-bar h-full bg-green-500 rounded-full" style="width: 85%"></div>
+            </div>
+            <div class="flex items-center justify-between mt-1.5">
+              <span class="text-sm font-medium text-gray-700">Score: 85</span>
+              <span class="bg-green-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse-dot"></span>
+                Ideal
+              </span>
+            </div>
+          </div>
+
+          <!-- Conditions Grid -->
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-ocean-50 flex items-center justify-center">
+                <svg class="w-4 h-4 text-ocean-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Wind</p>
+                <p class="font-medium text-gray-900">8km/h NE</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-ocean-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-ocean-600" viewBox="0 0 24 24" fill="none">
+                  <defs>
+                    <clipPath id="chevron-up-1">
+                      <path d="M3 19L12 5L21 19Z"/>
+                    </clipPath>
+                  </defs>
+                  <!-- Light background shape -->
+                  <path d="M3 19L12 5L21 19Z" fill="currentColor" opacity="0.2"/>
+                  <!-- Fill from bottom, clipped to chevron - 70% fill: y = 19 - (14 × 0.70) = 9.2 -->
+                  <rect x="0" y="9.2" width="24" height="15" fill="currentColor" opacity="0.6" clip-path="url(#chevron-up-1)"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Tide</p>
+                <p class="font-medium text-gray-900">Rising 70%</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+                <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Water</p>
+                <p class="font-medium text-green-600">Green</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-yellow-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-yellow-500" viewBox="0 0 24 24" fill="none">
+                  <!-- Tube outline -->
+                  <rect x="8" y="2" width="8" height="20" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+                  <!-- Fill level - 22°C warm (55% fill) -->
+                  <rect x="10" y="9" width="4" height="11" rx="2" fill="currentColor"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Temp</p>
+                <p class="font-medium text-yellow-600">22°C</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Summary -->
+          <div class="bg-gray-50 rounded-xl px-3 py-2">
+            <p class="text-sm text-gray-600 leading-relaxed">Light onshore breeze, excellent for paddling this morning.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location Card 2 - Acceptable -->
+      <div class="card-hover bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden cursor-pointer">
+        <div class="p-4">
+          <!-- Card Header -->
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <h3 class="font-semibold text-gray-900 text-base">Takapuna Beach</h3>
+              <p class="text-sm text-gray-500">Beach, North Shore</p>
+            </div>
+            <button class="-mr-2 -mt-2 p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600" aria-label="Remove location">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Score Bar -->
+          <div class="mb-3">
+            <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div class="score-bar h-full bg-sky-500 rounded-full" style="width: 62%"></div>
+            </div>
+            <div class="flex items-center justify-between mt-1.5">
+              <span class="text-sm font-medium text-gray-700">Score: 62</span>
+              <span class="bg-sky-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                Acceptable
+              </span>
+            </div>
+          </div>
+
+          <!-- Conditions Grid -->
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-ocean-50 flex items-center justify-center">
+                <svg class="w-4 h-4 text-ocean-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Wind</p>
+                <p class="font-medium text-gray-900">12km/h SW</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-ocean-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-ocean-600" viewBox="0 0 24 24" fill="none">
+                  <defs>
+                    <clipPath id="chevron-up-2">
+                      <path d="M3 19L12 5L21 19Z"/>
+                    </clipPath>
+                  </defs>
+                  <!-- Light background shape -->
+                  <path d="M3 19L12 5L21 19Z" fill="currentColor" opacity="0.2"/>
+                  <!-- Fill from bottom, clipped to chevron - 50% fill: y = 19 - (14 × 0.50) = 12 -->
+                  <rect x="0" y="12" width="24" height="15" fill="currentColor" opacity="0.6" clip-path="url(#chevron-up-2)"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Tide</p>
+                <p class="font-medium text-gray-900">Rising 50%</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+                <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Water</p>
+                <p class="font-medium text-green-600">Green</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-500" viewBox="0 0 24 24" fill="none">
+                  <!-- Tube outline -->
+                  <rect x="8" y="2" width="8" height="20" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+                  <!-- Fill level - 21°C mild (52% fill) -->
+                  <rect x="10" y="10" width="4" height="10" rx="2" fill="currentColor"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Temp</p>
+                <p class="font-medium text-green-600">21°C</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Summary -->
+          <div class="bg-gray-50 rounded-xl px-3 py-2">
+            <p class="text-sm text-gray-600 leading-relaxed">Offshore wind component - take care near outer areas.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location Card 3 - Marginal -->
+      <div class="card-hover bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden cursor-pointer">
+        <div class="p-4">
+          <!-- Card Header -->
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <h3 class="font-semibold text-gray-900 text-base">St Heliers Bay</h3>
+              <p class="text-sm text-gray-500">Beach, East Auckland</p>
+            </div>
+            <button class="-mr-2 -mt-2 p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600" aria-label="Remove location">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Score Bar -->
+          <div class="mb-3">
+            <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div class="score-bar h-full bg-orange-500 rounded-full" style="width: 58%"></div>
+            </div>
+            <div class="flex items-center justify-between mt-1.5">
+              <span class="text-sm font-medium text-gray-700">Score: 58</span>
+              <span class="bg-orange-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                Marginal
+              </span>
+            </div>
+          </div>
+
+          <!-- Conditions Grid -->
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Wind</p>
+                <p class="font-medium text-orange-600">15km/h SW</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-orange-500" viewBox="0 0 24 24" fill="none">
+                  <defs>
+                    <clipPath id="chevron-down-3">
+                      <path d="M3 5L12 19L21 5Z"/>
+                    </clipPath>
+                  </defs>
+                  <!-- Light background shape -->
+                  <path d="M3 5L12 19L21 5Z" fill="currentColor" opacity="0.2"/>
+                  <!-- Fill from bottom, clipped to chevron - 30% fill: y = 19 - (14 × 0.30) = 14.8 -->
+                  <rect x="0" y="14.8" width="24" height="10" fill="currentColor" opacity="0.6" clip-path="url(#chevron-down-3)"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Tide</p>
+                <p class="font-medium text-orange-600">Falling 30%</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+                <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Water</p>
+                <p class="font-medium text-green-600">Green</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-cyan-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-cyan-500" viewBox="0 0 24 24" fill="none">
+                  <!-- Tube outline -->
+                  <rect x="8" y="2" width="8" height="20" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+                  <!-- Fill level - 15°C cool (37% fill) -->
+                  <rect x="10" y="13" width="4" height="7" rx="2" fill="currentColor"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs">Temp</p>
+                <p class="font-medium text-cyan-600">15°C</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Summary -->
+          <div class="bg-gray-50 rounded-xl px-3 py-2">
+            <p class="text-sm text-gray-600 leading-relaxed">Moderate winds and outgoing tide may create choppy conditions.</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <!--
+  ==========================================
+  ADDITIONAL STATES - Scroll down to view
+  ==========================================
+  -->
+
+  <div class="h-16"></div>
+
+  <!-- Empty State Version -->
+  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-8">
+    <div class="text-center py-2 bg-gray-100 text-xs text-gray-500 font-medium">Empty State</div>
+
+    <!-- Header - Sticky -->
+    <header class="sticky top-0 z-50 bg-gradient-to-r from-ocean-600 to-sky-500 text-white px-4 py-3 flex items-center justify-between shadow-lg">
+      <div class="flex items-center gap-2">
+        <svg class="w-6 h-6" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="8" fill="currentColor"/>
+          <path d="M20 2v6M20 32v6M2 20h6M32 20h6M6.3 6.3l4.2 4.2M29.5 29.5l4.2 4.2M6.3 33.7l4.2-4.2M29.5 10.5l4.2-4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="font-semibold text-lg tracking-tight">Better Weather for</span>
+      </div>
+      <button class="p-2 -mr-2 hover:bg-white/10 rounded-xl transition-colors btn-press" aria-label="Menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Activity Selector -->
+    <section class="px-4 py-4 border-b border-gray-100">
+      <div class="flex flex-wrap gap-2">
+        <button class="bg-ocean-600 text-white font-medium px-4 py-2 rounded-full transition-colors btn-press text-sm shadow-md shadow-ocean-600/30">
+          SUP
+        </button>
+        <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-full transition-colors btn-press text-sm">
+          Kayaking
+        </button>
+        <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-full transition-colors btn-press text-sm">
+          Snorkelling
+        </button>
+        <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-full transition-colors btn-press text-sm">
+          Cycling
+        </button>
+      </div>
+    </section>
+
+    <!-- Time Window Picker -->
+    <section class="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+      <div class="flex items-center gap-2">
+        <button class="flex-1 bg-ocean-600 text-white font-medium px-3 py-2.5 rounded-xl transition-colors btn-press text-sm flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap">
+          Today: All day
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <button class="flex-1 bg-white text-gray-700 font-medium px-3 py-2.5 rounded-xl transition-colors btn-press text-sm border border-gray-200 hover:bg-gray-50 whitespace-nowrap">
+          Tomorrow
+        </button>
+        <button class="flex-1 bg-white text-gray-700 font-medium px-3 py-2.5 rounded-xl transition-colors btn-press text-sm border border-gray-200 hover:bg-gray-50 whitespace-nowrap">
+          Pick date
+        </button>
+      </div>
+    </section>
+
+    <!-- Locations List Header -->
+    <section class="px-4 py-3 flex items-center justify-between">
+      <h2 class="text-lg font-semibold text-gray-900">Locations</h2>
+      <button class="border border-gray-300 hover:bg-gray-100 text-gray-600 hover:text-gray-900 p-1.5 rounded-full transition-colors btn-press" aria-label="Add location">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+      </button>
+    </section>
+
+    <!-- Empty State -->
+    <section class="px-4 pb-6 flex-1">
+      <div class="flex flex-col items-center justify-center py-16 px-6">
+        <div class="w-20 h-20 bg-ocean-50 rounded-2xl flex items-center justify-center mb-4">
+          <svg class="w-10 h-10 text-ocean-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">No locations yet</h3>
+        <p class="text-gray-500 text-sm text-center mb-6">Tap + to add your first spot</p>
+        <button class="bg-ocean-600 hover:bg-ocean-700 text-white font-medium px-6 py-3 rounded-xl transition-colors btn-press flex items-center gap-2 shadow-lg shadow-ocean-600/30">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Add Location
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <div class="h-16"></div>
+
+  <!-- Add Location Modal -->
+  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-8">
+    <div class="text-center py-2 bg-gray-100 text-xs text-gray-500 font-medium">Add Location Modal</div>
+
+    <!-- Modal Overlay -->
+    <div class="fixed inset-0 bg-black/40 z-40" style="position: absolute;"></div>
+
+    <!-- Modal Content -->
+    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 shadow-2xl" style="max-height: 80%;">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-4 py-4 border-b border-gray-100">
+        <button class="p-2 -ml-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-500" aria-label="Close">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        <h2 class="text-lg font-semibold text-gray-900">Add Location</h2>
+        <div class="w-9"></div>
+      </div>
+
+      <!-- Search Input -->
+      <div class="px-4 py-3">
+        <div class="relative">
+          <input type="text" placeholder="Search locations..." class="w-full px-4 py-3 pl-10 rounded-xl border border-gray-200 focus:border-ocean-500 focus:ring-2 focus:ring-ocean-500/20 outline-none transition-all bg-gray-50">
+          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Search Results -->
+      <div class="px-4 pb-8">
+        <div class="space-y-1">
+          <button class="w-full text-left px-4 py-3 hover:bg-ocean-50 rounded-xl transition-colors">
+            <p class="font-medium text-gray-900">Mission Bay</p>
+            <p class="text-sm text-gray-500">Beach, Auckland Central</p>
+          </button>
+          <button class="w-full text-left px-4 py-3 hover:bg-ocean-50 rounded-xl transition-colors">
+            <p class="font-medium text-gray-900">Takapuna Beach</p>
+            <p class="text-sm text-gray-500">Beach, North Shore</p>
+          </button>
+          <button class="w-full text-left px-4 py-3 hover:bg-ocean-50 rounded-xl transition-colors">
+            <p class="font-medium text-gray-900">Goat Island</p>
+            <p class="text-sm text-gray-500">Marine Reserve, Leigh</p>
+          </button>
+          <button class="w-full text-left px-4 py-3 hover:bg-ocean-50 rounded-xl transition-colors">
+            <p class="font-medium text-gray-900">Maraetai Beach</p>
+            <p class="text-sm text-gray-500">Beach, East Auckland</p>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="h-16"></div>
+
+  <!-- Hamburger Menu Expanded -->
+  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative">
+    <div class="text-center py-2 bg-gray-100 text-xs text-gray-500 font-medium">Hamburger Menu</div>
+
+    <!-- Menu Overlay -->
+    <div class="fixed inset-0 bg-black/40 z-40" style="position: absolute;"></div>
+
+    <!-- Menu Drawer -->
+    <div class="absolute top-0 left-0 bottom-0 w-72 bg-white z-50 shadow-2xl">
+      <!-- Menu Header -->
+      <div class="flex items-center justify-between px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-ocean-600 to-sky-500">
+        <div class="flex items-center gap-2 text-white">
+          <svg class="w-6 h-6" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="8" fill="currentColor"/>
+            <path d="M20 2v6M20 32v6M2 20h6M32 20h6M6.3 6.3l4.2 4.2M29.5 29.5l4.2 4.2M6.3 33.7l4.2-4.2M29.5 10.5l4.2-4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span class="font-semibold text-lg">Better Weather for</span>
+        </div>
+        <button class="p-2 -mr-2 hover:bg-white/10 rounded-xl transition-colors text-white" aria-label="Close menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Menu Items -->
+      <nav class="px-3 py-4">
+        <div class="space-y-1">
+          <a href="#" class="flex items-center justify-between px-4 py-3 hover:bg-ocean-50 rounded-xl transition-colors text-gray-700 hover:text-ocean-600">
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span class="font-medium">7-Day Forecast</span>
+            </div>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </a>
+          <a href="#" class="flex items-center justify-between px-4 py-3 hover:bg-ocean-50 rounded-xl transition-colors text-gray-700 hover:text-ocean-600">
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span class="font-medium">Settings</span>
+            </div>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </a>
+          <a href="#" class="flex items-center justify-between px-4 py-3 hover:bg-ocean-50 rounded-xl transition-colors text-gray-700 hover:text-ocean-600">
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span class="font-medium">About</span>
+            </div>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Menu Footer -->
+      <div class="absolute bottom-0 left-0 right-0 px-4 py-4 border-t border-gray-100">
+        <p class="text-xs text-gray-400 text-center">Version 1.0.0</p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

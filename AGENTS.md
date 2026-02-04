@@ -41,7 +41,7 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
   - Use markdown files for product and UX design. Do not include code blocks in product design.
   - Use static HTML files for UML diagrams.
   - Use markdown files for UI layout design in ASCII wireframe format.
-  - Use static HTML files for UI design. Use `mcp__playwright__browser_navigate` and `mcp__playwright__browser_take_screenshot` to take screenshots from one iteration to be fed into the next to improve. Ask for human feedback after each iteration.
+  - Use static HTML files for UI design. Use `mcp__chrome-devtools__navigate_page` and `mcp__chrome-devtools__take_screenshot` to take screenshots from one iteration to be fed into the next to improve. Ask for human feedback after each iteration.
 - When executing multiple tasks in parallel, run only the unit test files directly related to the task requirements with 100% coverage.
 - Verify that all unit tests are passing after implementation.
 - Combine assertions for basic rendering into a single test - only separate tests when testing different states, behaviors, or edge cases.
