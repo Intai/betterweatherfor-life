@@ -145,7 +145,21 @@
   <!-- Page Title -->
   <div class="text-center mb-8">
     <h1 class="text-2xl font-bold text-gray-900">7-Day Forecast Page - UI Design</h1>
-    <p class="text-gray-500 mt-1">7 States: Main View, Empty State, Landscape, Tablet, Tablet Landscape, Desktop, Desktop Empty</p>
+    <nav class="flex flex-wrap justify-center gap-2 mt-3">
+      <a href="#main-view" class="text-sm text-ocean-600 hover:text-ocean-800 hover:underline">Main View</a>
+      <span class="text-gray-300">•</span>
+      <a href="#empty-state" class="text-sm text-ocean-600 hover:text-ocean-800 hover:underline">Empty State</a>
+      <span class="text-gray-300">•</span>
+      <a href="#landscape" class="text-sm text-ocean-600 hover:text-ocean-800 hover:underline">Landscape</a>
+      <span class="text-gray-300">•</span>
+      <a href="#tablet" class="text-sm text-ocean-600 hover:text-ocean-800 hover:underline">Tablet</a>
+      <span class="text-gray-300">•</span>
+      <a href="#tablet-landscape" class="text-sm text-ocean-600 hover:text-ocean-800 hover:underline">Tablet Landscape</a>
+      <span class="text-gray-300">•</span>
+      <a href="#desktop" class="text-sm text-ocean-600 hover:text-ocean-800 hover:underline">Desktop</a>
+      <span class="text-gray-300">•</span>
+      <a href="#desktop-empty" class="text-sm text-ocean-600 hover:text-ocean-800 hover:underline">Desktop Empty</a>
+    </nav>
   </div>
 
   <!-- ==========================================
@@ -153,7 +167,7 @@
        Portrait mobile view with daily cards
        ========================================== -->
 
-  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
+  <div id="main-view" class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
     <div class="text-center py-2 bg-gray-800 text-xs text-white font-medium">State 1: Main View (Portrait)</div>
 
     <!-- Header - Sticky -->
@@ -474,7 +488,7 @@
        No locations added
        ========================================== -->
 
-  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
+  <div id="empty-state" class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
     <div class="text-center py-2 bg-gray-800 text-xs text-white font-medium">State 2: Empty State (No Locations)</div>
 
     <!-- Header - Sticky -->
@@ -575,7 +589,7 @@
        Horizontal card scroll
        ========================================== -->
 
-  <div class="max-w-[812px] mx-auto bg-white shadow-2xl relative mb-16 overflow-hidden" style="height: 375px;">
+  <div id="landscape" class="max-w-[812px] mx-auto bg-white shadow-2xl relative mb-16 overflow-hidden" style="height: 375px;">
     <div class="text-center py-2 bg-gray-800 text-xs text-white font-medium">State 3: Landscape View (Horizontal Cards)</div>
 
     <!-- Header - Sticky -->
@@ -805,7 +819,7 @@
        Two-column grid layout for day cards
        ========================================== -->
 
-  <div class="max-w-[768px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
+  <div id="tablet" class="max-w-[768px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
     <div class="text-center py-2 bg-gray-800 text-xs text-white font-medium">State 4: Tablet View (768px width)</div>
 
     <!-- Header - Sticky -->
@@ -1127,7 +1141,7 @@
        All 7 days visible with minimal scrolling
        ========================================== -->
 
-  <div class="max-w-[1024px] mx-auto bg-white shadow-2xl relative mb-16 overflow-hidden" style="min-height: 600px;">
+  <div id="tablet-landscape" class="max-w-[1024px] mx-auto bg-white shadow-2xl relative mb-16 overflow-hidden" style="min-height: 600px;">
     <div class="text-center py-2 bg-gray-800 text-xs text-white font-medium">State 5: Tablet Landscape View (1024px width)</div>
 
     <!-- Header - Sticky -->
@@ -1414,7 +1428,7 @@
        Persistent sidebar with 3-column card grid
        ========================================== -->
 
-  <div class="max-w-[1280px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16 flex">
+  <div id="desktop" class="max-w-[1280px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16 flex">
     <div class="absolute top-0 left-0 right-0 text-center py-2 bg-gray-800 text-xs text-white font-medium z-50">State 6: Desktop View (1280px width)</div>
 
     <!-- Persistent Sidebar -->
@@ -1759,7 +1773,7 @@
        Persistent sidebar with empty state content
        ========================================== -->
 
-  <div class="max-w-[1280px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16 flex">
+  <div id="desktop-empty" class="max-w-[1280px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16 flex">
     <div class="absolute top-0 left-0 right-0 text-center py-2 bg-gray-800 text-xs text-white font-medium z-50">State 7: Desktop Empty State (1280px width)</div>
 
     <!-- Persistent Sidebar -->
@@ -1904,7 +1918,6 @@
   <!-- Footer -->
   <div class="text-center py-8 text-gray-400 text-sm">
     <p>7-Day Forecast Page UI Design - Better Weather For Life</p>
-    <p class="mt-1">7 States: Main View, Empty State, Landscape, Tablet, Tablet Landscape, Desktop, Desktop Empty</p>
   </div>
 
 </body>

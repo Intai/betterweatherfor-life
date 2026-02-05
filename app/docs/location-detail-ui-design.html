@@ -147,7 +147,15 @@
   <!-- Page Title -->
   <div class="text-center mb-8">
     <h1 class="text-2xl font-bold text-gray-900">Location Detail Page - UI Design</h1>
-    <p class="text-gray-500 mt-1">4 States: Main View, UV Warning, Water Quality Warning, Severe Weather Alert</p>
+    <nav class="flex flex-wrap justify-center gap-2 mt-3">
+      <a href="#main-view" class="text-sm text-ocean-600 hover:text-ocean-800 hover:underline">Main View</a>
+      <span class="text-gray-300">•</span>
+      <a href="#uv-warning" class="text-sm text-ocean-600 hover:text-ocean-800 hover:underline">UV Warning</a>
+      <span class="text-gray-300">•</span>
+      <a href="#water-quality-warning" class="text-sm text-ocean-600 hover:text-ocean-800 hover:underline">Water Quality Warning</a>
+      <span class="text-gray-300">•</span>
+      <a href="#severe-weather-alert" class="text-sm text-ocean-600 hover:text-ocean-800 hover:underline">Severe Weather Alert</a>
+    </nav>
   </div>
 
   <!-- ==========================================
@@ -155,7 +163,7 @@
        Mission Bay, Score 85, Ideal
        ========================================== -->
 
-  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
+  <div id="main-view" class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
     <div class="text-center py-2 bg-gray-800 text-xs text-white font-medium">State 1: Main View (No Alerts)</div>
 
     <!-- Header - Sticky -->
@@ -419,7 +427,7 @@
        Yellow info alert for UV Index 9
        ========================================== -->
 
-  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
+  <div id="uv-warning" class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
     <div class="text-center py-2 bg-yellow-500 text-xs text-white font-medium">State 2: UV Index Warning (Info Alert)</div>
 
     <!-- Header - Sticky -->
@@ -631,7 +639,7 @@
        Orange warning for recent rainfall
        ========================================== -->
 
-  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
+  <div id="water-quality-warning" class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
     <div class="text-center py-2 bg-orange-500 text-xs text-white font-medium">State 3: Water Quality Warning (Orange Alert)</div>
 
     <!-- Header - Sticky -->
@@ -877,7 +885,7 @@
        Thunderstorm warning - Do not proceed
        ========================================== -->
 
-  <div class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
+  <div id="severe-weather-alert" class="max-w-[375px] mx-auto bg-white min-h-screen shadow-2xl relative mb-16">
     <div class="text-center py-2 bg-red-600 text-xs text-white font-medium">State 4: Severe Weather Alert (Red Danger)</div>
 
     <!-- Header - Sticky -->
@@ -1132,7 +1140,6 @@
   <!-- Footer -->
   <div class="text-center py-8 text-gray-400 text-sm">
     <p>Location Detail Page UI Design - Better Weather For Life</p>
-    <p class="mt-1">4 States: Main View, UV Warning, Water Quality Warning, Severe Weather Alert</p>
   </div>
 
 </body>
