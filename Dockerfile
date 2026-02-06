@@ -1,7 +1,14 @@
 # Development stage
-FROM node:22-alpine AS dev
+FROM node:22-alpine AS development
 
 WORKDIR /app
+
+ARG NODE_ENV
+ARG NODE_CONFIG_ENV
+ARG BUILD
+ENV NODE_ENV=${NODE_ENV:-development}
+ENV NODE_CONFIG_ENV=$NODE_CONFIG_ENV
+ENV BUILD=$BUILD
 
 COPY package*.json ./
 RUN npm ci
@@ -17,6 +24,13 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+ARG NODE_ENV
+ARG NODE_CONFIG_ENV
+ARG BUILD
+ENV NODE_ENV=${NODE_ENV:-development}
+ENV NODE_CONFIG_ENV=$NODE_CONFIG_ENV
+ENV BUILD=$BUILD
+
 COPY package*.json ./
 RUN npm ci
 
@@ -25,7 +39,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:22-alpine AS prod
+FROM node:22-alpine AS production
 
 WORKDIR /app
 

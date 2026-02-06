@@ -1,17 +1,22 @@
+volumes:
+  web_node_modules:
+
 services:
   web:
     build:
       context: .
-      target: ${TARGET:-dev}
+      target: ${NODE_ENV:-development}
+      args:
+        NODE_ENV: ${NODE_ENV:-development}
+        NODE_CONFIG_ENV: ${NODE_CONFIG_ENV:-}
+        BUILD: 1770282002
     volumes:
       - .:/app
-      - /app/node_modules
-      - /app/.next
+      - web_node_modules:/app/node_modules
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=${NODE_ENV:-development}
-      - WATCHPACK_POLLING=true
 
   nginx:
     image: nginx:alpine
