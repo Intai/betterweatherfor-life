@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from 'next/font/google'
+import I18nProvider from '@/app/components/i18n-provider'
 import './globals.css'
 
 const geistSans = Geist({
@@ -46,7 +47,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
+        <I18nProvider>{children}</I18nProvider>
       </body>
     </html>
   )

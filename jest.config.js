@@ -19,6 +19,7 @@ const customJestConfig = {
     '<rootDir>/.next/',
     '/config/',
     '/docs/',
+    '/shadcn/',
   ],
   collectCoverageFrom: [
     '**/*.{js,jsx}',
@@ -28,6 +29,7 @@ const customJestConfig = {
     '!**/coverage/**',
     '!**/config/**',
     '!**/docs/**',
+    '!**/shadcn/**',
   ],
   coverageThreshold: {
     global: {

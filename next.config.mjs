@@ -1,6 +1,10 @@
+import config from 'config'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  env: {
+    BUILD: config.get('build'),
+  },
 }
 
 export default nextConfig

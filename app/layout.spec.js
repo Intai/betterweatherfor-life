@@ -5,6 +5,12 @@ jest.mock('next/font/google', () => ({
   Geist_Mono: () => ({ variable: '--font-geist-mono' }),
 }))
 
+jest.mock('@/app/components/i18n-provider', () => {
+  return function MockI18nProvider({ children }) {
+    return children
+  }
+})
+
 describe('RootLayout', () => {
   it('should render html with lang attribute', () => {
     const result = RootLayout({ children: <div>Test</div> })
@@ -21,11 +27,13 @@ describe('RootLayout', () => {
     expect(body.props.className).toContain('antialiased')
   })
 
-  it('should render children inside body', () => {
+  it('should render children inside body wrapped in I18nProvider', () => {
     const children = <div>Test Content</div>
     const result = RootLayout({ children })
     const body = result.props.children
-    expect(body.props.children).toEqual(children)
+    const i18nProvider = body.props.children
+    expect(i18nProvider.type.name).toBe('MockI18nProvider')
+    expect(i18nProvider.props.children).toEqual(children)
   })
 })
 

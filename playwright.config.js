@@ -9,7 +9,7 @@ export default defineConfig({
   maxFailures: 1,
   retries: 0,
   workers: 1,
-  timeout: 120000, // 2 minutes for all tests
+  timeout: 60000, // 1 minute for all tests
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:3000',

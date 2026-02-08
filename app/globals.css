@@ -1,18 +1,159 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #001d29;
+
+  --card: #ffffff;
+  --card-foreground: #001d29;
+
+  --popover: #ffffff;
+  --popover-foreground: #001d29;
+
+  --primary: #0074a4;
+  --primary-light: #0ea5e9;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f0f9ff;
+  --secondary-foreground: #001d29;
+
+  --muted: #e0f2fe;
+  --muted-foreground: #075985;
+
+  --accent: #f0f9ff;
+  --accent-foreground: #001d29;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #cce9f5;
+  --input: #cce9f5;
+  --ring: #0074a4;
+
+  --radius: 0.75rem;
+
+  --sidebar-background: #ffffff;
+  --sidebar-foreground: #001d29;
+  --sidebar-primary: #0074a4;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e6f4fa;
+  --sidebar-accent-foreground: #0074a4;
+  --sidebar-border: #cce9f5;
+  --sidebar-ring: #0074a4;
+
+  --chart-1: #0074a4;
+  --chart-2: #0ea5e9;
+  --chart-3: #f97316;
+  --chart-4: #22c55e;
+  --chart-5: #b89b6a;
+  --sidebar: hsl(0 0% 98%);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #001d29;
+  --foreground: #e6f4fa;
+
+  --card: #003a52;
+  --card-foreground: #e6f4fa;
+
+  --popover: #003a52;
+  --popover-foreground: #e6f4fa;
+
+  --primary: #0891cd;
+  --primary-light: #38bdf8;
+  --primary-foreground: #ffffff;
+
+  --secondary: #003a52;
+  --secondary-foreground: #e6f4fa;
+
+  --muted: #003a52;
+  --muted-foreground: #99d3eb;
+
+  --accent: #003a52;
+  --accent-foreground: #e6f4fa;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #00577b;
+  --input: #00577b;
+  --ring: #0891cd;
+
+  --sidebar-background: #001d29;
+  --sidebar-foreground: #e6f4fa;
+  --sidebar-primary: #0891cd;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #003a52;
+  --sidebar-accent-foreground: #e6f4fa;
+  --sidebar-border: #00577b;
+  --sidebar-ring: #0891cd;
+
+  --chart-1: #33a7d7;
+  --chart-2: #38bdf8;
+  --chart-3: #fb923c;
+  --chart-4: #4ade80;
+  --chart-5: #c9ad82;
+  --sidebar: hsl(240 5.9% 10%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }

@@ -1,0 +1,13 @@
+{
+  "sidebar": {
+    "appName": "Better Weather for",
+    "closeMenu": "Close menu",
+    "nav": {
+      "home": "Home",
+      "forecast": "7-Day Forecast",
+      "settings": "Settings",
+      "about": "About"
+    },
+    "version": "Version {{version}}"
+  }
+}
