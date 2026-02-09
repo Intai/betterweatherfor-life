@@ -1,5 +1,6 @@
 {
   "enabledPlugins": {
-    "story-flow@story-flow": true
+    "story-flow@story-flow": true,
+    "junior-flow@story-flow": true
   }
 }
