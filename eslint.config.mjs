@@ -62,6 +62,7 @@ const eslintConfig = defineConfig([
       'space-infix-ops': 'warn',
 
       // React specific
+      'react/jsx-filename-extension': ['warn', { extensions: ['.jsx'] }],
       'react/react-in-jsx-scope': 'off', // Not needed in Next.js
 
       // Import order enforcement

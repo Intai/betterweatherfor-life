@@ -47,7 +47,7 @@ export default function AppSidebar() {
           <Button
             variant="ghost"
             size="icon"
-            className="size-7 -mr-1 text-sidebar-primary-foreground md:hidden"
+            className="size-7 -mr-1 text-sidebar-primary-foreground xl:hidden"
             aria-label={t('sidebar.closeMenu')}
             onClick={toggleSidebar}
             data-testid="app-sidebar-close-button"

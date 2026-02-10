@@ -16,7 +16,7 @@ As a user, I want a responsive top appbar that adapts to the current page and sc
 
 **Parallel tasks 1-3:**
 
-1. Use frontend-developer subagent to create top appbar component @app/components/top-appbar.js. Build a responsive header component that renders different content per breakpoint and route:
+1. Use frontend-developer subagent to create top appbar component @app/components/app-top-appbar.js. Build a responsive header component that renders different content per breakpoint and route:
   1. mobile/tablet on /home — sticky header with AppLogo, app name from `t('sidebar.appName')`, and SidebarTrigger hamburger button aligned right, hidden at md breakpoint (`md:hidden`);
   2. mobile/tablet on /forecast — sticky header with ArrowLeft back button (navigates to /home) and "7-Day Forecast" page title, hidden at md breakpoint (`md:hidden`);
   3. desktop on all pages — sticky header showing only the page title derived from the current pathname mapped to the nav item's i18n key, hidden below md breakpoint (`hidden md:flex`).

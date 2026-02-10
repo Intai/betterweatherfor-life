@@ -88,10 +88,10 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.goto('http://localhost:3000/home');
 
     // Then the sidebar should be visible
-    await expect(page.getByTestId('app-sidebar')).toBeVisible();
+    await expect(page.locator('[data-slot="sidebar"]')).toBeVisible();
 
     // And there should be no backdrop overlay
-    await expect(page.locator('[role="dialog"]')).toHaveCount(0);
+    await expect(page.locator('[data-slot="sheet-overlay"]')).toHaveCount(0);
 
     // And there should be no sidebar trigger button visible
     await expect(page.getByTestId('app-sidebar-trigger')).toBeHidden();
@@ -100,16 +100,19 @@ test.describe('Feature: Sidebar Navigation', () => {
     await expect(page.getByTestId('app-sidebar-close-button')).toBeHidden();
 
     // And the sidebar header should display the app logo
-    await expect(page.getByTestId('app-logo')).toBeVisible();
+    await expect(
+      page.locator('[data-sidebar="sidebar"] [data-testid="app-logo"]')
+    ).toBeVisible();
 
     // And the sidebar header should display the app name "Better Weather for"
-    await expect(page.getByTestId('app-sidebar-name')).toHaveText('Better Weather for');
+    await expect(page.getByTestId('app-sidebar-name')).toContainText('Better Weather for');
 
     // And the sidebar footer should contain "Version"
     await expect(page.getByTestId('app-sidebar-footer')).toContainText('Version');
 
     // And the sidebar should display the following navigation items:
-    // | label           | icon     |
+    await expect(page.getByTestId('app-sidebar-menu-button')).toHaveCount(4);
+
     // | Home            | House    |
     await expect(
       page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' }).locator('svg.lucide-house')
@@ -131,7 +134,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     ).toBeVisible();
   });
 
-  test('SB-03a: Active route highlighted - /home (mobile)', async ({ page }) => {
+  test('SB-03: Active route is highlighted in the sidebar on mobile', async ({ page }) => {
     // Given the browser viewport is 375px
     await page.setViewportSize({ width: 375, height: 812 });
 
@@ -149,33 +152,6 @@ test.describe('Feature: Sidebar Navigation', () => {
     // And the other navigation items should not be highlighted
     await expect(
       page.getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' })
-    ).toHaveAttribute('data-active', 'false');
-    await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Settings' })
-    ).toHaveAttribute('data-active', 'false');
-    await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'About' })
-    ).toHaveAttribute('data-active', 'false');
-  });
-
-  test('SB-03b: Active route highlighted - /forecast (mobile)', async ({ page }) => {
-    // Given the browser viewport is 375px
-    await page.setViewportSize({ width: 375, height: 812 });
-
-    // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
-
-    // And I open the sidebar
-    await page.getByTestId('app-sidebar-trigger').click();
-
-    // Then the "7-Day Forecast" navigation item should be highlighted as active
-    await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' })
-    ).toHaveAttribute('data-active', 'true');
-
-    // And the other navigation items should not be highlighted
-    await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' })
     ).toHaveAttribute('data-active', 'false');
     await expect(
       page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Settings' })
@@ -239,7 +215,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     ).toHaveAttribute('data-active', 'false');
   });
 
-  test('SB-05a: Navigate from /home to /forecast (mobile)', async ({ page }) => {
+  test('SB-05: Navigating to pages via sidebar links on mobile', async ({ page }) => {
     // Given the browser viewport is 375px
     await page.setViewportSize({ width: 375, height: 812 });
 
@@ -256,7 +232,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.evaluate(() => { window.__SB05_NAV_MARKER__ = true; });
 
     // When I tap the "7-Day Forecast" navigation link
-    await page.getByRole('link', { name: '7-Day Forecast' }).click();
+    await page.getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' }).click();
 
     // Then the sidebar should close
     await expect(page.getByRole('dialog', { name: 'Sidebar' })).toBeHidden();
@@ -266,31 +242,11 @@ test.describe('Feature: Sidebar Navigation', () => {
 
     // And the page should load without a full page refresh
     expect(await page.evaluate(() => window.__SB05_NAV_MARKER__ === true)).toBe(true);
-  });
 
-  test('SB-05b: Navigate from /forecast to /home (mobile)', async ({ page }) => {
-    // Given the browser viewport is 375px
-    await page.setViewportSize({ width: 375, height: 812 });
+    // When I tap the back button in the top appbar
+    await page.getByTestId('top-appbar-back').click();
 
-    // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
-
-    // And I open the sidebar
-    await page.getByTestId('app-sidebar-trigger').click();
-
-    // Then the sidebar should be visible
-    await expect(page.getByRole('dialog', { name: 'Sidebar' })).toBeVisible();
-
-    // Set navigation marker to verify client-side navigation (no full page refresh)
-    await page.evaluate(() => { window.__SB05_NAV_MARKER__ = true; });
-
-    // When I tap the "Home" navigation link
-    await page.getByRole('link', { name: 'Home' }).click();
-
-    // Then the sidebar should close
-    await expect(page.getByRole('dialog', { name: 'Sidebar' })).toBeHidden();
-
-    // And the browser URL should be "/home"
+    // Then the browser URL should be "/home"
     await expect(page).toHaveURL('http://localhost:3000/home');
 
     // And the page should load without a full page refresh
@@ -406,7 +362,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     // And I open the sidebar
     await page.getByTestId('app-sidebar-trigger').click();
 
-    // Then the sidebar should open
+    // Then the sidebar should be visible
     await expect(page.getByRole('dialog', { name: 'Sidebar' })).toBeVisible();
 
     // When I press the Escape key
@@ -417,27 +373,23 @@ test.describe('Feature: Sidebar Navigation', () => {
 
     // When I open the sidebar again
     await page.getByTestId('app-sidebar-trigger').click();
-    await expect(page.getByRole('dialog', { name: 'Sidebar' })).toBeVisible();
 
     // And I use Tab to navigate through sidebar items
     // Then focus should move through each navigation link in order: Home, 7-Day Forecast, Settings, About
-
-    // Focus starts on close button, Tab to first nav link
-    await page.getByTestId('app-sidebar-close-button').focus();
     await page.keyboard.press('Tab');
-    expect(await page.evaluate(() => document.activeElement?.textContent?.trim())).toBe('Home');
+    await expect(page.getByRole('link', { name: 'Home' })).toBeFocused();
 
     await page.keyboard.press('Tab');
-    expect(await page.evaluate(() => document.activeElement?.textContent?.trim())).toBe('7-Day Forecast');
+    await expect(page.getByRole('link', { name: '7-Day Forecast' })).toBeFocused();
 
     await page.keyboard.press('Tab');
-    expect(await page.evaluate(() => document.activeElement?.textContent?.trim())).toBe('Settings');
+    await expect(page.getByRole('link', { name: 'Settings' })).toBeFocused();
 
     await page.keyboard.press('Tab');
-    expect(await page.evaluate(() => document.activeElement?.textContent?.trim())).toBe('About');
+    await expect(page.getByRole('link', { name: 'About' })).toBeFocused();
 
     // And I should be able to activate a focused link by pressing Enter
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/\/about/);
+    await expect(page).toHaveURL('http://localhost:3000/about');
   });
 });

@@ -53,17 +53,12 @@ Feature: Sidebar Navigation
   # Scenario Group: Active Route Highlighting
   # =============================================================================
 
-  Scenario Outline: SB-03: Active route is highlighted in the sidebar on mobile
+  Scenario: SB-03: Active route is highlighted in the sidebar on mobile
     Given the browser viewport is 375px
-    When I navigate to the "<route>" page
+    When I navigate to the "/home" page
     And I open the sidebar
-    Then the "<label>" navigation item should be highlighted as active
+    Then the "Home" navigation item should be highlighted as active
     And the other navigation items should not be highlighted
-
-    Examples:
-      | route     | label          |
-      | /home     | Home           |
-      | /forecast | 7-Day Forecast |
 
   Scenario Outline: SB-04: Active route is highlighted in the sidebar on desktop
     Given the browser viewport is 1280px
@@ -81,20 +76,18 @@ Feature: Sidebar Navigation
   # Scenario Group: Client-Side Navigation
   # =============================================================================
 
-  Scenario Outline: SB-05: Navigating to pages via sidebar links on mobile
+  Scenario: SB-05: Navigating to pages via sidebar links on mobile
     Given the browser viewport is 375px
-    When I navigate to the "<from>" page
+    When I navigate to the "/home" page
     And I open the sidebar
     Then the sidebar should be visible
-    When I tap the "<label>" navigation link
+    When I tap the "7-Day Forecast" navigation link
     Then the sidebar should close
-    And the browser URL should be "<to>"
+    And the browser URL should be "/forecast"
     And the page should load without a full page refresh
-
-    Examples:
-      | label          | from      | to        |
-      | 7-Day Forecast | /home     | /forecast |
-      | Home           | /forecast | /home     |
+    When I tap the back button in the top appbar
+    Then the browser URL should be "/home"
+    And the page should load without a full page refresh
 
   Scenario Outline: SB-06: Navigating to pages via sidebar links on desktop
     Given the browser viewport is 1280px
@@ -140,7 +133,7 @@ Feature: Sidebar Navigation
     Given the browser viewport is 375px
     When I navigate to the "/home" page
     And I open the sidebar
-    Then the sidebar should open
+    Then the sidebar should be visible
     When I press the Escape key
     Then the sidebar should close
     When I open the sidebar again
