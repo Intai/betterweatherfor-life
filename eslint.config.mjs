@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     'node_modules/**',
     'next-env.d.ts',
     '**/docs/*',
+    'shadcn/**',
   ]), {
     plugins: {
       import: importPlugin,
@@ -22,6 +23,7 @@ const eslintConfig = defineConfig([
     rules: {
       // Enforce consistent code style
       'array-bracket-spacing': 'warn',
+      'arrow-parens': ['warn', 'as-needed'],
       'arrow-spacing': 'warn',
       'block-spacing': 'warn',
       'brace-style': 'warn',

@@ -60,7 +60,7 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
+              {navItems.map(item => (
                 <SidebarMenuItem key={item.titleKey}>
                   <SidebarMenuButton
                     asChild

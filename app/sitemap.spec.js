@@ -6,7 +6,7 @@ describe('sitemap', () => {
     const result = sitemap()
     expect(Array.isArray(result)).toBe(true)
     expect(result.length).toBeGreaterThan(0)
-    result.forEach((entry) => {
+    result.forEach(entry => {
       expect(entry).toHaveProperty('url')
       expect(entry).toHaveProperty('lastModified')
       expect(entry.lastModified).toBeInstanceOf(Date)

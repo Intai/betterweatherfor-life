@@ -39,7 +39,7 @@ jest.mock('lucide-react', () => ({
 }))
 
 jest.mock('@/shadcn/components/ui/button', () => ({
-  Button: (props) => <button {...props} />,
+  Button: props => <button {...props} />,
 }))
 
 jest.mock('@/shadcn/components/ui/sidebar', () => ({

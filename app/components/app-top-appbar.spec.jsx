@@ -13,7 +13,7 @@ jest.mock('next/link', () => {
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key) => {
+    t: key => {
       const translations = {
         'sidebar.appName': 'Better Weather for',
         'sidebar.nav.home': 'Home',
@@ -28,11 +28,11 @@ jest.mock('react-i18next', () => ({
 }))
 
 jest.mock('lucide-react', () => ({
-  ChevronLeft: (props) => <svg data-testid="icon-chevron-left" {...props} />,
+  ChevronLeft: props => <svg data-testid="icon-chevron-left" {...props} />,
 }))
 
 jest.mock('@/shadcn/components/ui/sidebar', () => ({
-  SidebarTrigger: (props) => <button {...props} data-testid="sidebar-trigger" />,
+  SidebarTrigger: props => <button {...props} data-testid="sidebar-trigger" />,
 }))
 
 jest.mock('@/app/components/app-logo', () => {

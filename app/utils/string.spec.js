@@ -1,4 +1,4 @@
-import { deslugify, upperFirst } from './string'
+import { deslugify, kebabToCamel, upperFirst } from './string'
 
 describe('upperFirst', () => {
   it('should capitalize the first character', () => {
@@ -20,6 +20,28 @@ describe('upperFirst', () => {
 
   it('should preserve already capitalized strings', () => {
     expect(upperFirst('Hello')).toBe('Hello')
+  })
+})
+
+describe('kebabToCamel', () => {
+  it('should convert kebab-case to camelCase', () => {
+    expect(kebabToCamel('hello-world')).toBe('helloWorld')
+  })
+
+  it('should handle multiple hyphens', () => {
+    expect(kebabToCamel('my-long-name')).toBe('myLongName')
+  })
+
+  it('should return single word unchanged', () => {
+    expect(kebabToCamel('hello')).toBe('hello')
+  })
+
+  it('should handle trailing hyphen', () => {
+    expect(kebabToCamel('hello-')).toBe('hello')
+  })
+
+  it('should handle consecutive hyphens', () => {
+    expect(kebabToCamel('hello--world')).toBe('helloWorld')
   })
 })
 

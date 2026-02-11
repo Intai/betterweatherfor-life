@@ -13,5 +13,24 @@
   "topAppbar": {
     "openMenu": "Open menu",
     "back": "Back"
+  },
+  "home": {
+    "activities": {
+      "sup": "SUP",
+      "kayaking": "Kayaking",
+      "snorkelling": "Snorkelling",
+      "cycling": "Cycling"
+    },
+    "timeWindow": {
+      "today": "Today",
+      "today_withRange": "Today: {{range}}",
+      "tomorrow": "Tomorrow",
+      "tomorrow_withRange": "Tomorrow: {{range}}",
+      "pickDate": "Pick date",
+      "allDay": "All day",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
+    }
   }
 }
