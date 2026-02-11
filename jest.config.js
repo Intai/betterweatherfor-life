@@ -23,6 +23,7 @@ const customJestConfig = {
   ],
   collectCoverageFrom: [
     '**/*.{js,jsx}',
+    '!**/constants.{js,mjs}',
     '!**/*.config.{js,mjs}',
     '!**/node_modules/**',
     '!**/.next/**',

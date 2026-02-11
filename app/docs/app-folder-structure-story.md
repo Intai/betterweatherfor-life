@@ -12,12 +12,6 @@ Set up the Next.js app folder structure with route groups for SEO-optimized mark
 - `(marketing)/` - Server-side rendered pages for SEO
   - Marketing landing page at `/`
   - Static pages (`/about`, `/privacy`)
-  - City-scoped routes for pre-defined locations:
-    | Route Pattern | Example | Purpose |
-    |---------------|---------|---------|
-    | `/[city]/home` | `/sydney/home` | Ranked locations for city |
-    | `/[city]/forecast` | `/sydney/forecast` | 7-day forecast for city |
-    | `/[city]/location/[geolocation]` | `/sydney/location/-33.89,151.27` | Location detail |
 - `(app)/` - Client-side rendered pages for the app
   - App shell layout with navigation
   - User-facing app routes:
@@ -26,6 +20,12 @@ Set up the Next.js app folder structure with route groups for SEO-optimized mark
     | `/home` | User's saved locations from Dexie (in the future stories) |
     | `/forecast` | User's 7-day forecast view |
     | `/location/[geolocation]` | Location detail (geolocation format: `lat,lng`) |
+  - City-scoped routes for pre-defined locations:
+    | Route Pattern | Example | Purpose |
+    |---------------|---------|---------|
+    | `/[city]/home` | `/sydney/home` | Ranked locations for city |
+    | `/[city]/forecast` | `/sydney/forecast` | 7-day forecast for city |
+    | `/[city]/location/[geolocation]` | `/sydney/location/-33.89,151.27` | Location detail |
 - All files are empty for now.
 
 ## Tasks
@@ -47,16 +47,8 @@ Set up the Next.js app folder structure with route groups for SEO-optimized mark
    ├── page.js              # Landing page (/)
    ├── about/
    │   └── page.js          # /about
-   ├── privacy/
-   │   └── page.js          # /privacy
-   └── [city]/
-       ├── home/
-       │   └── page.js      # /[city]/home
-       ├── forecast/
-       │   └── page.js      # /[city]/forecast
-       └── location/
-           └── [geolocation]/
-               └── page.js  # /[city]/location/[geolocation]
+   └── privacy/
+       └── page.js          # /privacy
    ```
 3. Use frontend-developer agent to create app route group:
    ```
@@ -66,8 +58,16 @@ Set up the Next.js app folder structure with route groups for SEO-optimized mark
    │   └── page.js      # /home
    ├── forecast/
    │   └── page.js      # /forecast
-   └── location/
-       └── [geolocation]/
-           └── page.js  # /location/[geolocation]
+   ├── location/
+   │   └── [geolocation]/
+   │       └── page.js  # /location/[geolocation]
+   └── [city]/
+       ├── home/
+       │   └── page.js      # /[city]/home
+       ├── forecast/
+       │   └── page.js      # /[city]/forecast
+       └── location/
+           └── [geolocation]/
+               └── page.js  # /[city]/location/[geolocation]
    ```
 4. Use qa-tester agent to plan test scenarios in @app/docs/app-folder-structure.feature.
