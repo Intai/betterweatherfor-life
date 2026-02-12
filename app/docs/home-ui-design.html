@@ -1091,7 +1091,7 @@
 
   <!-- ==========================================
        STATE 6: TABLET LANDSCAPE VIEW (1024px width)
-       Horizontal scrolling location cards
+       Auto-fill grid location cards
        ========================================== -->
 
   <div id="tablet-landscape" class="max-w-[1024px] mx-auto bg-white shadow-2xl relative mb-16 overflow-hidden" style="min-height: 600px;">
@@ -1159,13 +1159,13 @@
       </button>
     </section>
 
-    <!-- Horizontal Scrolling Location Cards -->
-    <section class="px-6 py-4 overflow-x-auto hide-scrollbar">
-      <div class="flex gap-4 items-stretch" style="width: max-content;">
+    <!-- Auto-fill Grid Location Cards -->
+    <section class="px-6 pb-6">
+      <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
 
         <!-- Location Card 1 - Ideal -->
-        <div class="card-hover bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden cursor-pointer w-[280px] flex-shrink-0">
-          <div class="p-4 flex flex-col h-full">
+        <div class="card-hover bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden cursor-pointer">
+          <div class="p-4">
             <!-- Card Header -->
             <div class="flex items-start justify-between mb-3">
               <div>
@@ -1249,15 +1249,15 @@
             </div>
 
             <!-- AI Summary -->
-            <div class="bg-gray-50 rounded-xl px-3 py-2 mt-auto">
+            <div class="bg-gray-50 rounded-xl px-3 py-2">
               <p class="text-sm text-gray-600 leading-relaxed">Light onshore breeze, excellent for paddling this morning.</p>
             </div>
           </div>
         </div>
 
         <!-- Location Card 2 - Acceptable -->
-        <div class="card-hover bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden cursor-pointer w-[280px] flex-shrink-0">
-          <div class="p-4 flex flex-col h-full">
+        <div class="card-hover bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden cursor-pointer">
+          <div class="p-4">
             <div class="flex items-start justify-between mb-3">
               <div>
                 <h3 class="font-semibold text-gray-900 text-base">Takapuna Beach</h3>
@@ -1334,15 +1334,15 @@
               </div>
             </div>
 
-            <div class="bg-gray-50 rounded-xl px-3 py-2 mt-auto">
+            <div class="bg-gray-50 rounded-xl px-3 py-2">
               <p class="text-sm text-gray-600 leading-relaxed">Offshore wind component - take care near outer areas.</p>
             </div>
           </div>
         </div>
 
         <!-- Location Card 3 - Marginal -->
-        <div class="card-hover bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden cursor-pointer w-[280px] flex-shrink-0">
-          <div class="p-4 flex flex-col h-full">
+        <div class="card-hover bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden cursor-pointer">
+          <div class="p-4">
             <div class="flex items-start justify-between mb-3">
               <div>
                 <h3 class="font-semibold text-gray-900 text-base">St Heliers Bay</h3>
@@ -1419,7 +1419,7 @@
               </div>
             </div>
 
-            <div class="bg-gray-50 rounded-xl px-3 py-2 mt-auto">
+            <div class="bg-gray-50 rounded-xl px-3 py-2">
               <p class="text-sm text-gray-600 leading-relaxed">Moderate winds and outgoing tide may create choppy conditions.</p>
             </div>
           </div>

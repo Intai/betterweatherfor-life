@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ChevronLeft } from 'lucide-react'
+import { identity, memoizeWith } from 'ramda'
 import { SidebarTrigger } from '@/shadcn/components/ui/sidebar'
 import AppLogo from './app-logo'
 
@@ -32,6 +33,8 @@ const renderMobileHome = ({ t }) => (
   </header>
 )
 
+const getNavItem = memoizeWith(identity, pathname => navItems['/' + pathname.split('/').pop()])
+
 const renderMobileSub = ({ t, pathname }) => (
   <header
     className="sticky top-0 z-50 bg-linear-to-r from-primary to-primary-light text-primary-foreground px-4 py-3 flex items-center gap-3 shadow-lg"
@@ -41,7 +44,7 @@ const renderMobileSub = ({ t, pathname }) => (
       <ChevronLeft className="w-5 h-5" />
     </Link>
     <span className="font-semibold text-lg tracking-tight">
-      {navItems[pathname] ? t(navItems[pathname].titleKey) : ''}
+      {getNavItem(pathname) ? t(getNavItem(pathname).titleKey) : ''}
     </span>
   </header>
 )
@@ -52,7 +55,7 @@ const renderDesktop = ({ t, pathname }) => (
     data-testid="top-appbar-desktop"
   >
     <h1 className="font-semibold text-lg tracking-tight">
-      {navItems[pathname] ? t(navItems[pathname].titleKey) : ''}
+      {getNavItem(pathname) ? t(getNavItem(pathname).titleKey) : ''}
     </h1>
   </header>
 )
@@ -64,7 +67,7 @@ export default function TopAppbar() {
   return (
     <>
       <div className="xl:hidden">
-        {pathname === '/home'
+        {pathname.endsWith('/home')
           ? renderMobileHome({ t })
           : renderMobileSub({ t, pathname })}
       </div>

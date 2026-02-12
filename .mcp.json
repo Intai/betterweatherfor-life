@@ -4,10 +4,6 @@
       "command": "npx",
       "args": ["@playwright/mcp@latest", "--isolated", "--headless"]
     },
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["chrome-devtools-mcp@latest", "--isolated"]
-    },
     "shadcn": {
       "command": "npx",
       "args": ["shadcn@latest", "mcp"]

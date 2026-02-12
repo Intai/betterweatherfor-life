@@ -60,6 +60,13 @@ describe('TopAppbar', () => {
     expect(desktop.querySelector('h1')).toHaveTextContent('Home')
   })
 
+  it('should render mobile home appbar for /auckland/home', () => {
+    mockUsePathname.mockReturnValue('/auckland/home')
+    render(<TopAppbar />)
+    expect(screen.queryByTestId('top-appbar-mobile-sub')).not.toBeInTheDocument()
+    expect(screen.getByTestId('top-appbar-mobile-home')).toHaveTextContent('Better Weather for')
+  })
+
   it('should render page title "7-Day Forecast" for /forecast', () => {
     mockUsePathname.mockReturnValue('/forecast')
     render(<TopAppbar />)
@@ -72,6 +79,16 @@ describe('TopAppbar', () => {
     expect(backLink).toHaveAttribute('href', '/home')
     expect(backLink).toHaveAttribute('aria-label', 'Back')
     expect(backLink.querySelector('svg[data-testid="icon-chevron-left"]')).toBeInTheDocument()
+    const desktop = screen.getByTestId('top-appbar-desktop')
+    expect(desktop.querySelector('h1')).toHaveTextContent('7-Day Forecast')
+  })
+
+  it('should render page title "7-Day Forecast" for /auckland/forecast', () => {
+    mockUsePathname.mockReturnValue('/auckland/forecast')
+    render(<TopAppbar />)
+    expect(screen.queryByTestId('top-appbar-mobile-home')).not.toBeInTheDocument()
+    const header = screen.getByTestId('top-appbar-mobile-sub')
+    expect(header).toHaveTextContent('7-Day Forecast')
     const desktop = screen.getByTestId('top-appbar-desktop')
     expect(desktop.querySelector('h1')).toHaveTextContent('7-Day Forecast')
   })

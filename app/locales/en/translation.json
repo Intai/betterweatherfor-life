@@ -21,6 +21,25 @@
       "snorkelling": "Snorkelling",
       "cycling": "Cycling"
     },
+    "conditions": {
+      "score": "Score",
+      "acceptable": "Acceptable",
+      "ideal": "Ideal",
+      "marginal": "Marginal",
+      "temp": "Temp",
+      "tide": "Tide",
+      "unsuitable": "Unsuitable",
+      "water": "Water",
+      "wind": "Wind"
+    },
+    "locations": {
+      "addLocation": "Add location",
+      "empty": {
+        "subtitle": "Tap + to add your first spot",
+        "title": "No locations yet"
+      },
+      "title": "Locations"
+    },
     "timeWindow": {
       "today": "Today",
       "today_withRange": "Today: {{range}}",

@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, createElement, useContext, useState } from 'react'
+import { dissoc } from 'ramda'
 import { createStore, useStore } from 'zustand'
 import { ALL_DAY, TODAY } from '@/app/(app)/constants'
 import { SUP } from '../constants'
@@ -10,6 +11,7 @@ const defaultState = {
   selectedDay: TODAY,
   selectedDate: null,
   selectedTimeRange: ALL_DAY,
+  forecast: {},
 }
 
 export function createForecastStore(initialState) {
@@ -20,6 +22,7 @@ export function createForecastStore(initialState) {
     setDay: day => set({ selectedDay: day }),
     setDate: date => set({ selectedDate: date }),
     setTimeRange: timeRange => set({ selectedTimeRange: timeRange }),
+    removeForecast: key => set(state => ({ forecast: dissoc(key, state.forecast) })),
   }))
 }
 

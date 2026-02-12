@@ -33,14 +33,9 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
 - `npm run lint` to lint all files.
   - `npm run lint -- "path/to/file.js*"` to lint a specific file.
 - `npm test -- --silent` to run all unit tests.
-  - `npm test -- "path/to/file.test.js*" --testNamePattern="matching string" --silent` to run specific unit tests in a spec file.
+  - `npm test -- --runTestsByPath "path/to/file.test.js" --testNamePattern="matching string" --silent` to run specific unit tests in a spec file.
 
 ## Convention
 
-- Have design files next to relevant source code structurally.
-  - Use markdown files for product and UX design. Do not include code blocks in product design.
-  - Use static HTML files for UML diagrams.
-  - Use markdown files for UI layout design in ASCII wireframe format.
-  - Use static HTML files for UI design. Use `mcp__chrome-devtools__navigate_page` and `mcp__chrome-devtools__take_screenshot` to take screenshots from one iteration to be fed into the next to improve. Ask for human feedback after each iteration.
 - Our own file names are in hyphenated lower case.
 - Implement in JavaScript instead of TypeScript.

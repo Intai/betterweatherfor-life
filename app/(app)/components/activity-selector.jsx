@@ -12,7 +12,7 @@ export default function ActivitySelector() {
   const setActivity = useForecastStore(prop('setActivity'))
 
   return (
-    <section className="px-4 py-3 border-b">
+    <section className="px-4 py-3 md:px-6 border-b">
       <div className="flex flex-wrap gap-2" data-testid="activity-selector">
         {ACTIVITIES.map(activity => (
           <Button
