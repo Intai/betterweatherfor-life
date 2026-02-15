@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import CityHomePage, { generateMetadata } from './page'
 
-jest.mock('@/app/utils/date', () => ({
-  formatForecastDate: () => '2026-02-12',
+const mockGetForecastsByCity = jest.fn()
+
+jest.mock('@/db/queries/forecasts', () => ({
+  getForecastsByCity: (...args) => mockGetForecastsByCity(...args),
 }))
 
 let capturedInitialState
@@ -32,13 +34,33 @@ jest.mock('@/app/(app)/components/location-list', () => {
   }
 })
 
+const mockForecast = {
+  'sup;2026-02-14;all-day;-36.8547,174.8317': {
+    name: 'Mission Bay',
+    area: 'Beach, Auckland Central',
+    timeZone: 'Pacific/Auckland',
+    score: 85,
+    condition: 'ideal',
+    wind: { speed: '8km/h', direction: 'NE', condition: 'ideal' },
+    tide: { state: 'Rising', percentage: 70, condition: 'ideal' },
+    water: 'Green',
+    temp: '22\u00B0C',
+    precipitation: null,
+    daylight: null,
+    summary: 'Light onshore breeze.',
+  },
+}
+
 describe('CityHomePage', () => {
   beforeEach(() => {
     capturedInitialState = undefined
+    mockGetForecastsByCity.mockResolvedValue(mockForecast)
   })
 
-  it('should render ActivitySelector, TimeWindowPicker, and LocationList inside ForecastStoreProvider in correct order', () => {
-    render(<CityHomePage />)
+  it('should render ActivitySelector, TimeWindowPicker, and LocationList inside ForecastStoreProvider in correct order', async () => {
+    const params = Promise.resolve({ city: 'auckland' })
+    const Page = await CityHomePage({ params })
+    render(Page)
 
     const provider = screen.getByTestId('forecast-store-provider')
     const activitySelector = screen.getByTestId('activity-selector')
@@ -54,22 +76,43 @@ describe('CityHomePage', () => {
     expect(children.indexOf(timeWindowPicker)).toBeLessThan(children.indexOf(locationList))
   })
 
-  it('should pass initialState with 3 forecast entries to ForecastStoreProvider', () => {
-    render(<CityHomePage />)
+  it('should fetch forecasts by city slug and pass them as initialState', async () => {
+    const params = Promise.resolve({ city: 'auckland' })
+    const Page = await CityHomePage({ params })
+    render(Page)
 
-    expect(capturedInitialState).toBeDefined()
-    expect(Object.keys(capturedInitialState.forecast)).toHaveLength(3)
-    expect(capturedInitialState.forecast).toHaveProperty(['sup;2026-02-12;all-day;-36.8547,174.8317'])
-    expect(capturedInitialState.forecast).toHaveProperty(['sup;2026-02-12;all-day;-36.7878,174.7768'])
-    expect(capturedInitialState.forecast).toHaveProperty(['sup;2026-02-12;all-day;-36.8508,174.8593'])
+    expect(mockGetForecastsByCity).toHaveBeenCalledWith('auckland')
+    expect(capturedInitialState).toEqual({ forecast: mockForecast })
   })
 
-  it('should return correct title and description from generateMetadata', async () => {
-    const metadata = await generateMetadata({ params: Promise.resolve({ city: 'new-plymouth' }) })
+  it('should pass an empty forecast map when the database returns no results', async () => {
+    mockGetForecastsByCity.mockResolvedValue({})
+    const params = Promise.resolve({ city: 'wellington' })
+    const Page = await CityHomePage({ params })
+    render(Page)
 
-    expect(metadata.title).toBe('New Plymouth - Best Outdoor Spots')
-    expect(metadata.description).toBe(
-      'Find the best spots for SUP, kayaking, snorkeling, and cycling in New Plymouth based on current weather and sea conditions.',
-    )
+    expect(mockGetForecastsByCity).toHaveBeenCalledWith('wellington')
+    expect(capturedInitialState).toEqual({ forecast: {} })
+  })
+})
+
+describe('generateMetadata', () => {
+  it('should return correct title with deslugified city name', async () => {
+    const params = Promise.resolve({ city: 'new-plymouth' })
+    const result = await generateMetadata({ params })
+    expect(result.title).toBe('New Plymouth - Best Outdoor Spots')
+  })
+
+  it('should return correct description', async () => {
+    const params = Promise.resolve({ city: 'auckland' })
+    const result = await generateMetadata({ params })
+    expect(result.description).toBe('Find the best spots for SUP, kayaking, snorkeling, and cycling in Auckland based on current weather and sea conditions.')
+  })
+
+  it('should return openGraph metadata', async () => {
+    const params = Promise.resolve({ city: 'wellington' })
+    const result = await generateMetadata({ params })
+    expect(result.openGraph.title).toBe('Wellington - Best Outdoor Spots')
+    expect(result.openGraph.description).toBe('Find the best spots for SUP, kayaking, snorkeling, and cycling in Wellington based on current weather and sea conditions.')
   })
 })

@@ -42,14 +42,22 @@ describe('LocationCardWind', () => {
   })
 
   it.each([
-    ['N', -90],
-    ['NE', -45],
-    ['E', 0],
-    ['SE', 45],
-    ['S', 90],
-    ['SW', 135],
-    ['W', 180],
-    ['NW', -135],
+    ['N', 90],
+    ['NNE', 112.5],
+    ['NE', 135],
+    ['ENE', 157.5],
+    ['E', 180],
+    ['ESE', -157.5],
+    ['SE', -135],
+    ['SSE', -112.5],
+    ['S', -90],
+    ['SSW', -67.5],
+    ['SW', -45],
+    ['WSW', -22.5],
+    ['W', 0],
+    ['WNW', 22.5],
+    ['NW', 45],
+    ['NNW', 67.5],
   ])('should rotate icon to %ideg for %s direction', (direction, degrees) => {
     const { container } = render(<LocationCardWind wind={{ speed: '10km/h', direction, condition: 'ideal' }} />)
     const svg = container.querySelector('svg')

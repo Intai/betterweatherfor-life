@@ -27,6 +27,11 @@ describe('LocationCardTide', () => {
     expect(container.innerHTML).toBe('')
   })
 
+  it('should render nothing when tide.percentage is missing', () => {
+    const { container } = render(<LocationCardTide tide={{ state: 'Rising', condition: 'ideal' }} />)
+    expect(container.innerHTML).toBe('')
+  })
+
   it.each([
     ['ideal', 'var(--condition-ideal)'],
     ['acceptable', 'var(--condition-acceptable)'],

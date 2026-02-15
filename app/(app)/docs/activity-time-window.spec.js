@@ -330,12 +330,6 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     // Then the "Pick date" day option should be highlighted as selected
     await expect(pickDateButton).toHaveAttribute('class', /bg-primary/);
 
-    // And the "Today" and "Tomorrow" buttons should be unselected
-    const todayButton = page.getByTestId('today-button');
-    const tomorrowButton = page.getByTestId('tomorrow-button');
-    await expect(todayButton).toHaveAttribute('class', /bg-secondary/);
-    await expect(tomorrowButton).toHaveAttribute('class', /bg-secondary/);
-
     // And a popover should appear
     const popover = page.getByRole('dialog');
     await expect(popover).toBeVisible();
@@ -344,31 +338,46 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     const calendar = page.getByTestId('pick-date-calendar');
     await expect(calendar).toBeVisible();
 
-    // And the calendar should allow selecting dates from today through 14 days ahead
+    // And the calendar should allow selecting dates from today through 14 days ahead, which can across 2 months
     // And dates before today should be disabled
     // And dates beyond 14 days from today should be disabled
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const maxDate = new Date(today);
+    maxDate.setDate(today.getDate() + 14);
+    const beyondMaxDate = new Date(today);
+    beyondMaxDate.setDate(today.getDate() + 15);
 
     // Verify today's date button is enabled
-    const todayDate = today.getDate();
-    const todayCalendarButton = calendar.locator(`table button:not([disabled])`).filter({ hasText: new RegExp(`^${todayDate}$`) });
-    await expect(todayCalendarButton.first()).toBeVisible();
+    const todayCalendarButton = calendar.locator('table button:not([disabled])').filter({ hasText: new RegExp(`^${today.getDate()}$`) });
+    await expect(todayCalendarButton.first()).toBeEnabled();
 
-    // Verify enabled day count: today through 14 days ahead = 15 days
-    const enabledDays = calendar.locator('table button:not([disabled])');
-    const enabledCount = await enabledDays.count();
-    expect(enabledCount).toBe(15);
+    // Verify a date before today is disabled
+    if (today.getDate() > 1) {
+      const beforeTodayButton = calendar.locator('table button[disabled]').filter({ hasText: new RegExp(`^${today.getDate() - 1}$`) });
+      await expect(beforeTodayButton.first()).toBeVisible();
+    }
 
-    // Verify disabled days exist (before today and beyond 14 days)
-    const disabledDays = calendar.locator('table button[disabled]');
-    const disabledCount = await disabledDays.count();
-    expect(disabledCount).toBeGreaterThan(0);
+    // If the 14-day window spans 2 months, navigate to the next month to verify boundary
+    if (maxDate.getMonth() !== today.getMonth()) {
+      await page.getByRole('button', { name: 'Go to the Next Month' }).click();
 
-    // Verify a date before today is disabled (the 1st of the month if before today)
-    if (todayDate > 1) {
-      const firstDayButton = calendar.locator('table button[disabled]').filter({ hasText: /^1$/ });
-      await expect(firstDayButton.first()).toBeVisible();
+      // Verify the last valid date (14 days ahead) is enabled
+      const maxDateButton = calendar.locator('table button:not([disabled])').filter({ hasText: new RegExp(`^${maxDate.getDate()}$`) });
+      await expect(maxDateButton.first()).toBeEnabled();
+
+      // Verify a date beyond 14 days is disabled
+      const beyondButton = calendar.locator('table button[disabled]').filter({ hasText: new RegExp(`^${beyondMaxDate.getDate()}$`) });
+      await expect(beyondButton.first()).toBeVisible();
+    } else {
+      // All dates within the same month
+      const maxDateButton = calendar.locator('table button:not([disabled])').filter({ hasText: new RegExp(`^${maxDate.getDate()}$`) });
+      await expect(maxDateButton.first()).toBeEnabled();
+
+      if (beyondMaxDate.getMonth() === today.getMonth()) {
+        const beyondButton = calendar.locator('table button[disabled]').filter({ hasText: new RegExp(`^${beyondMaxDate.getDate()}$`) });
+        await expect(beyondButton.first()).toBeVisible();
+      }
     }
 
     // And the popover should contain a radio group below the calendar with the following time range options:
@@ -773,8 +782,11 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     // Then a popover should open with the calendar
     await expect(page.getByRole('dialog')).toBeVisible();
 
-    // When I use arrow keys to navigate to 2 days from today in the calendar
-    // Focus lands on today's date; press ArrowRight twice to reach 2 days ahead
+    // When I focus on today in the calendar
+    const calendar = page.getByTestId('pick-date-calendar');
+    await calendar.getByRole('button', { name: /Today/ }).evaluate((el) => el.focus());
+
+    // And I use arrow keys to navigate to 2 days from today in the calendar
     await page.keyboard.press('ArrowRight');
     await page.keyboard.press('ArrowRight');
 

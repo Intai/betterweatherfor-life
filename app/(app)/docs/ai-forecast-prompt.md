@@ -8,19 +8,23 @@ Use the Task tool with `subagent_type="general-purpose"` to execute the followin
   When are the tide turning times according to https://tides.niwa.co.nz/?latitude=-36.97484844433063&longitude=174.62043566419308&startDate=2026-02-13&numberOfDays=10 Respond in JSON format without any explanation. Use playwright-headless MCP.
   ```
 - ```
-  What are the wind speed, direction, precipitation and temperature at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://windy.app/poi/-36.97478682491218/174.62047576904297 Respond in JSON format without any explanation. Use playwright-headless MCP. Wind directions are like `<td style="transform: rotate(246deg)">↑</td>`, which can be identified by selector `#cellsTable tr.windywidgetwindDirection td`. e.g. rotate(246deg) of ↑ is ENE. Other selectors:
+  What are the wind speed, direction, precipitation and temperature at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://windy.app/poi/-36.97478682491218/174.62047576904297 Respond in JSON format without any explanation. Use playwright-headless MCP. Wind directions are like `<td style="transform: rotate(246deg)">↑</td>`, which can be identified by selector `#cellsTable tr.windywidgetwindDirection td`. The ↑ arrow rotated by X degrees points in the direction the wind blows TO. Wind direction is named by where it comes FROM (the opposite). Formula: compass direction = (X + 180) mod 360. e.g. rotate(45deg) → arrow points NE (45°) → wind comes FROM SW (225°) = SW. rotate(246deg) → arrow points WSW (246°) → wind comes FROM ENE (66°) = ENE. Other selectors:
     | Hours | #cellsTable tr.windywidgethours |
-    | Temperatures | #cellsTable tr.windywidgetairTemp |
-    | Wind speed | #cellsTable tr.windywidgetwindSpeed |
-    | Precipitation | #cellsTable tr#percipCell text.precip-graph-value |
+    | Temperatures (°C) | #cellsTable tr.windywidgetairTemp |
+    | Wind speed (m/s) | #cellsTable tr.windywidgetwindSpeed |
+    | Precipitation (mm/3hr)  | #cellsTable tr#percipCell text.precip-graph-value |
   ```
 - ```
   What are the sunrise and sunset times at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days? Use https://api.sunrise-sunset.org/json?lat=-36.97484844433063&lng=174.62043566419308&date={date}&formatted=0 for each date. Respond in JSON format without any explanation, converting UTC times to the local timezone of the geolocation. Include sunrise, sunset, and civilTwilightEnd for each date.
   ```
 
+Close all browser pages after data fetching.
+
 ## Scoring Criteria
 
 Score each activity using the criteria below. Condition levels: ideal (80-100), acceptable (60-79), marginal (40-59), unsuitable (<40).
+
+The overall score and condition for each entry is determined by the worst-case factor. For example, if wind is "marginal" (40-59) and all other factors are "ideal" (80-100), the overall score must fall within the "marginal" range (40-59).
 
 ### Wind thresholds (km/h)
 
@@ -61,6 +65,8 @@ Rain beyond a drizzle degrades all activities significantly. Wet conditions redu
 
 Cycling: Not affected by tide, set the `tide` field to `null` in the output.
 
+`tide.percentage` = current tide height as a proportion between low and high tide. 0% = low tide, 100% = high tide. Must be between 0 and 100. Interpolate linearly between the nearest low and high tide turning times from the NIWA data.
+
 ### Water quality (graduated by immersion)
 
 | Quality | Snorkelling | SUP | Kayaking |
@@ -70,7 +76,9 @@ Cycling: Not affected by tide, set the `tide` field to `null` in the output.
 | Red | Unsuitable | Unsuitable | Marginal |
 | Black | Unsuitable | Unsuitable | Unsuitable |
 
-Set the `water` field to `null` in the output for cycling (not affected by water quality) and for dates beyond the 3-day data range (the start date + next 2 days).
+Cycling: Not affected by water quality, always set the `water` field to `null` in the output.
+
+Water activities: Set the `water` field to `null` for dates beyond the 3-day data range (the start date + next 2 days).
 
 ### Temperature (°C)
 
@@ -98,8 +106,6 @@ Calculate the percentage of usable-light hours within each time window:
 | Marginal | 60-74% of window in daylight | 60-74% of window before civil twilight end |
 | Unsuitable | <60% of window in daylight | <60% of window before civil twilight end |
 
-If daylight is "unsuitable", cap the overall score at 35 regardless of other factors.
-
 ## JSON Output
 
 **Write the JSON output to `forecast.json` in the project root directory.**
@@ -114,6 +120,8 @@ Time windows:
 
 When a time window spans multiple hours, use the worst-case condition (e.g. highest wind speed, highest precipitation, worst water quality, strongest tidal flow, lowest daylight percentage) to determine the score.
 
+The `summary` field must explain how conditions affect the specific activity — never use generic labels like "Unsuitable conditions". Mention the dominant factor(s) and why they matter for that activity. Good: "43km/h SW wind is too strong for stable stand-up paddling." Good: "Light 8km/h tailwind, great riding conditions." Bad: "Unsuitable conditions."
+
 Output in the following JSON format:
 ```
 {
@@ -121,6 +129,9 @@ Output in the following JSON format:
     name: 'Armour Bay Beach',
     area: 'Beach, Auckland',
     timeZone: 'Pacific/Auckland',
+    activity: 'sup',
+    date: '2026-02-13',
+    timeRange: 'all-day',
     score: 85,
     condition: 'ideal',
     wind: { speed: '8km/h', direction: 'NE', condition: 'ideal' },
@@ -130,6 +141,23 @@ Output in the following JSON format:
     temp: '22°C',
     daylight: { sunset: '20:22', condition: 'ideal' },
     summary: 'Light onshore breeze, excellent for paddling this morning.',
+  },
+  'cycling;2026-02-13;morning;-36.97484844433063,174.62043566419308': {
+    name: 'Armour Bay Beach',
+    area: 'Beach, Auckland',
+    timeZone: 'Pacific/Auckland',
+    activity: 'cycling',
+    date: '2026-02-13',
+    timeRange: 'morning',
+    score: 90,
+    condition: 'ideal',
+    wind: { speed: '12km/h', direction: 'S', condition: 'ideal' },
+    precipitation: { amount: '0mm', condition: 'ideal' },
+    tide: null,
+    water: null,
+    temp: '19°C',
+    daylight: { civilTwilightEnd: '20:50', condition: 'ideal' },
+    summary: 'Light 12km/h tailwind with clear skies, great riding conditions.',
   },
 }
 ```

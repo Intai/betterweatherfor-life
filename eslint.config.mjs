@@ -48,7 +48,7 @@ const eslintConfig = defineConfig([
       'no-use-before-define': 'warn',
       'object-curly-spacing': ['warn', 'always'],
       'operator-linebreak': ['warn', 'before'],
-      quotes: ['error', 'single'],
+      quotes: ['error', 'single', { allowTemplateLiterals: true }],
       semi: ['error', 'never'],
       'sort-imports': ['warn', {
         'ignoreCase': true,

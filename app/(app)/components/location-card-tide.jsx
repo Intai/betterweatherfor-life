@@ -2,6 +2,7 @@
 
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isNil } from 'ramda'
 
 function getTideColor(condition) {
   switch (condition) {
@@ -46,7 +47,7 @@ export default function LocationCardTide({ tide }) {
   const clipId = useId()
   const color = getTideColor(tide?.condition)
 
-  return tide && (
+  return tide && !isNil(tide.percentage) && (
     <div className="flex items-center gap-2 text-sm">
       <div
         className="w-8 h-8 rounded-lg flex items-center justify-center"

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { execSync } from 'child_process';
 
 // ============================================================
 // Helper Functions
@@ -17,6 +18,9 @@ async function setupBackground(page) {
 
 test.describe('Feature: Home Locations', () => {
   test('LOC-01: Location card displays all required sections', async ({ page }) => {
+    // @purge-data - Restore the seed data to initial state
+    execSync('make reseed', { stdio: 'inherit' });
+
     // Given the browser viewport is 375px
     await page.setViewportSize({ width: 375, height: 812 });
 

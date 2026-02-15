@@ -1,8 +1,28 @@
 volumes:
+  db_data:
   web_node_modules:
 
 services:
+  db:
+    image: postgres:18-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=betterweather
+      - POSTGRES_USER=betterweather
+      - POSTGRES_PASSWORD=betterweather
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U betterweather -d betterweather"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   web:
+    depends_on:
+      db:
+        condition: service_healthy
     build:
       context: .
       target: ${NODE_ENV:-development}
@@ -10,21 +30,22 @@ services:
         NODE_ENV: ${NODE_ENV:-development}
         NODE_CONFIG_ENV: ${NODE_CONFIG_ENV:-}
         BUILD: 1770282002
+    ports:
+      - "3000:3000"
     volumes:
       - .:/app
       - web_node_modules:/app/node_modules
-    ports:
-      - "3000:3000"
     environment:
       - NODE_ENV=${NODE_ENV:-development}
+      - DATABASE_URL=postgres://betterweather:betterweather@db:5432/betterweather
 
   nginx:
+    profiles:
+      - prod
+    depends_on:
+      - web
     image: nginx:alpine
     ports:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - web
-    profiles:
-      - prod

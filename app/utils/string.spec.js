@@ -1,11 +1,13 @@
 import {
   deslugify,
+  joinByComma,
   joinByDot,
   joinBySemicolon,
   joinBySeparators,
   joinBySlash,
   joinBySpace,
   kebabToCamel,
+  slugify,
   upperFirst,
 } from './string'
 
@@ -51,6 +53,52 @@ describe('kebabToCamel', () => {
 
   it('should handle consecutive hyphens', () => {
     expect(kebabToCamel('hello--world')).toBe('helloWorld')
+  })
+})
+
+describe('slugify', () => {
+  it('should convert a string to a URL-safe slug', () => {
+    expect(slugify('My App Name!')).toBe('my-app-name')
+  })
+
+  it('should replace spaces with hyphens', () => {
+    expect(slugify('Hello World')).toBe('hello-world')
+  })
+
+  it('should replace underscores with hyphens', () => {
+    expect(slugify('hello_world')).toBe('hello-world')
+  })
+
+  it('should handle mixed spaces and underscores', () => {
+    expect(slugify('Test___App--Name')).toBe('test-app-name')
+  })
+
+  it('should remove special characters', () => {
+    expect(slugify('hello@world#foo')).toBe('helloworldfoo')
+  })
+
+  it('should trim leading and trailing whitespace', () => {
+    expect(slugify('  hello  ')).toBe('hello')
+  })
+
+  it('should strip leading and trailing hyphens', () => {
+    expect(slugify('--hello--')).toBe('hello')
+  })
+
+  it('should collapse consecutive hyphens', () => {
+    expect(slugify('hello---world')).toBe('hello-world')
+  })
+
+  it('should return an already valid slug unchanged', () => {
+    expect(slugify('hello-world')).toBe('hello-world')
+  })
+
+  it('should handle a single word', () => {
+    expect(slugify('hello')).toBe('hello')
+  })
+
+  it('should convert uppercase to lowercase', () => {
+    expect(slugify('HELLO')).toBe('hello')
   })
 })
 
@@ -108,6 +156,10 @@ describe('joinBySeparators', () => {
   it('should support currying', () => {
     const joinWithCommaAnd = joinBySeparators(', ', ' & ')
     expect(joinWithCommaAnd(['a', 'b', 'c'])).toBe('a, b & c')
+  })
+
+  it('should join with commas', () => {
+    expect(joinByComma(['a', 'b', 'c'])).toBe('a,b,c')
   })
 
   it('should join with dots', () => {

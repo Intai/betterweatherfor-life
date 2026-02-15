@@ -128,7 +128,7 @@ Feature: Activity Selector and Time Window Picker
     Then the "Pick date" day option should be highlighted as selected
     And a popover should appear
     And the popover should contain a calendar at the top
-    And the calendar should allow selecting dates from today through 14 days ahead
+    And the calendar should allow selecting dates from today through 14 days ahead, which can across 2 months
     And dates beyond 14 days from today should be disabled
     And dates before today should be disabled
     And the popover should contain a radio group below the calendar with the following time range options:
@@ -249,7 +249,8 @@ Feature: Activity Selector and Time Window Picker
     And I focus on the "Pick date" day option button
     And I press Enter on the "Pick date" day option button
     Then a popover should open with the calendar
-    When I use arrow keys to navigate to 2 days from today in the calendar
+    When I focus on today in the calendar
+    And I use arrow keys to navigate to 2 days from today in the calendar
     And I press Enter to select a date
     And I use Tab to navigate to the radio group
     And I hold ArrowDown key down

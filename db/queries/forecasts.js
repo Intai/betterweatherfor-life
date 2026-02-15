@@ -1,0 +1,45 @@
+import { eq } from 'drizzle-orm'
+import { buildForecastKey } from '../../app/utils/forecast.js'
+import { indexByToValue } from '../../app/utils/list.js'
+import db from '../index.js'
+import { forecasts } from '../schema/forecasts.js'
+import { locations } from '../schema/locations.js'
+
+const getForecastKey = ({ locations, forecasts }) => {
+  const coordinates = `${locations.latitude},${locations.longitude}`
+  return buildForecastKey(forecasts.activity, forecasts.date, forecasts.timeRange, coordinates)
+}
+
+const getForecastValue = ({ locations, forecasts }) => ({
+  name: locations.name,
+  area: locations.area,
+  timeZone: locations.timeZone,
+  score: forecasts.score,
+  condition: forecasts.condition,
+  wind: forecasts.wind,
+  tide: forecasts.tide,
+  water: forecasts.water,
+  temp: forecasts.temp,
+  precipitation: forecasts.precipitation,
+  daylight: forecasts.daylight,
+  summary: forecasts.summary,
+})
+
+const indexByForecastKey = indexByToValue(getForecastKey, getForecastValue)
+
+/**
+ * Query all forecasts for a city and return them in the store shape
+ * keyed by "activity;date;timeRange;lat,lng".
+ *
+ * @param {string} citySlug - The city slug to filter locations by.
+ * @returns {Promise<object>} Forecast map keyed by forecast key.
+ */
+export async function getForecastsByCity(citySlug) {
+  return indexByForecastKey(
+    await db
+      .select()
+      .from(forecasts)
+      .innerJoin(locations, eq(forecasts.locationId, locations.id))
+      .where(eq(locations.citySlug, citySlug))
+  )
+}

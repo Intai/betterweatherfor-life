@@ -1,3 +1,9 @@
 {
-  "build": "BUILD"
+  "build": "BUILD",
+  "database": {
+    "url": "DATABASE_URL"
+  },
+  "logging": {
+    "level": "LOGGING_LEVEL"
+  }
 }

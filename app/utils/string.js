@@ -17,6 +17,29 @@ export function upperFirst(str) {
  */
 export const kebabToCamel = str => str.replace(/-[a-zA-Z]/g, s => s[1].toUpperCase()).replace(/-/g, '')
 
+/**
+ * Converts a string into a URL-safe slug suitable for file names.
+ * - Converts to lowercase
+ * - Replaces spaces and underscores with hyphens
+ * - Removes special characters (keeps only alphanumeric and hyphens)
+ * - Removes leading/trailing hyphens
+ * - Collapses multiple consecutive hyphens into a single hyphen
+ *
+ * @param {string} str - The input string to slugify.
+ * @returns {string} A URL-safe slug suitable for file names.
+ *
+ * @example
+ * slugify("My App Name!") // Returns: "my-app-name"
+ * slugify("Hello World") // Returns: "hello-world"
+ * slugify("  Test___App--Name  ") // Returns: "test-app-name"
+ */
+export const slugify = str =>  str
+  .toLowerCase()
+  .trim()
+  .replace(/[\s_]+/g, '-')
+  .replace(/[^\w-]+/g, '')
+  .replace(/--+/g, '-')
+  .replace(/^-+|-+$/g, '')
 
 /**
  * Convert URL slug to display name (e.g., "new-plymouth" → "New Plymouth")
@@ -46,6 +69,7 @@ export const joinBySeparators = curry((separator, lastSeparator, strings) => {
     : `${filtered.slice(0, - 1).join(separator)}${lastSeparator}${filtered[filtered.length - 1]}`
 })
 
+export const joinByComma = joinBySeparators(',', ',')
 export const joinByDot = joinBySeparators('.', '.')
 export const joinBySemicolon = joinBySeparators(';', ';')
 export const joinBySlash = joinBySeparators('/', '/')

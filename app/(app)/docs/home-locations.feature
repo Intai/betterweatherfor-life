@@ -17,6 +17,7 @@ Feature: Home Locations
   # Scenario Group: Location Card Layout and Content
   # =============================================================================
 
+  @purge-data
   Scenario: LOC-01: Location card displays all required sections
     Given the browser viewport is 375px
     When I navigate to the "/auckland/home" page

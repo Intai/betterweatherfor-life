@@ -19,14 +19,22 @@ function getWindColor(condition) {
 
 function getWindRotation(direction) {
   switch (direction) {
-  case 'N': return -90
-  case 'NE': return -45
-  case 'E': return 0
-  case 'SE': return 45
-  case 'S': return 90
-  case 'SW': return 135
-  case 'W': return 180
-  case 'NW': return -135
+  case 'N': return 90
+  case 'NNE': return 112.5
+  case 'NE': return 135
+  case 'ENE': return 157.5
+  case 'E': return 180
+  case 'ESE': return -157.5
+  case 'SE': return -135
+  case 'SSE': return -112.5
+  case 'S': return -90
+  case 'SSW': return -67.5
+  case 'SW': return -45
+  case 'WSW': return -22.5
+  case 'W': return 0
+  case 'WNW': return 22.5
+  case 'NW': return 45
+  case 'NNW': return 67.5
   default: return null
   }
 }

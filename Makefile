@@ -1,16 +1,34 @@
-.PHONY: dev dev-bg dev-stop prod prod-stop
+.PHONY: help dev dev-bg dev-stop prod prod-stop db-migrate db-seed db-forecast db-studio reseed
+.DEFAULT_GOAL := help
 
-dev:
+help: ## Show available commands
+	@grep -E '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-16s %s\n", $$1, $$2}'
+
+dev: ## Start development environment
 	docker compose up
 
-dev-bg:
+dev-bg: ## Start development environment in background
 	docker compose up -d
 
-dev-stop:
+dev-stop: ## Stop development environment
 	docker compose down
 
-prod:
+prod: ## Start production environment
 	NODE_ENV=production NODE_CONFIG_ENV=production docker compose --profile prod up
 
-prod-stop:
+prod-stop: ## Stop production environment
 	docker compose --profile prod down
+
+db-migrate: ## Push database schema changes
+	npx drizzle-kit push
+
+db-seed: ## Seed database with initial data
+	node db/seed.js
+
+db-forecast: ## Update forecasts, e.g. make db-forecast or make db-forecast location=mission-bay
+	node db/update-forecasts.js $(location)
+
+db-studio: ## Open Drizzle Studio database UI
+	npx drizzle-kit studio
+
+reseed: db-seed ## Alias for db-seed
