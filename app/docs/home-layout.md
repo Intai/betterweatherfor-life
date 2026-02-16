@@ -53,6 +53,21 @@ The primary landing screen where users select an activity and see ranked locatio
 | | may create choppy conditions.          | |
 | +----------------------------------------+ |
 |                                            |
+| +----------------------------------------+ |
+| | Goat Island                        [x] | |
+| |                                        | |
+| |        +------------------+            | |
+| |        | (cloud-download) |            | |
+| |        +------------------+            | |
+| |                                        | |
+| |        Forecast scheduled              | |
+| |                                        | |
+| |   We've scheduled this location        | |
+| |   for forecast collection. Check       | |
+| |   back later — we'll have              | |
+| |   conditions ready for you.            | |
+| +----------------------------------------+ |
+|                                            |
 +--------------------------------------------+
 ```
 
@@ -91,7 +106,7 @@ The primary landing screen where users select an activity and see ranked locatio
 
 ```
 +---------------------------------------+
-| [x]     Add Location                  |
+|        Add Location              [x]  |
 +---------------------------------------+
 |                                       |
 | +-----------------------------------+ |
@@ -119,7 +134,7 @@ The primary landing screen where users select an activity and see ranked locatio
 
 ```
 +---------------------------------------+
-| [x] Menu                              |
+| Menu                             [x]  |
 +---------------------------------------+
 |                                       |
 | +-----------------------------------+ |
@@ -212,6 +227,21 @@ The primary landing screen where users select an activity and see ranked locatio
 - No animation/transition - instant rendering
 
 - Entire card tappable to navigate to Location Detail
+
+### Scheduled Location Card
+
+When a location is newly added and forecast data has not yet been collected, the card displays a calm "scheduled" state instead of scores and conditions.
+
+- Same outer shell as a normal location card (bg-white, rounded-2xl, shadow-md) but with `border-dashed border-gray-200` to visually distinguish from active cards
+- **Card header** — identical to normal cards: location name, area/type subtitle, remove (x) button
+- **Scheduled body** replaces score bar, conditions grid, and AI summary:
+  - Centered `ocean-50` rounded icon container with a cloud-download icon (representing data gathering from sources) in `ocean-400`
+  - "Forecast scheduled" as `text-sm font-semibold text-gray-700` heading
+  - Muted description text in `text-xs text-gray-400`
+- **No loading spinner** — purely static, calm design
+- **Not tappable** — no `cursor-pointer` or `card-hover` class since there's no detail to view yet
+- Card is shorter than a normal scored card
+- Scheduled cards appear at the bottom of the list, after all scored cards
 
 ### Condition Badge Colours
 - Ideal (80-100): Green background
