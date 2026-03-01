@@ -34,6 +34,7 @@
     },
     "locations": {
       "addLocation": "Add location",
+      "removeLocation": "Remove location",
       "empty": {
         "subtitle": "Tap + to add your first spot",
         "title": "No locations yet"

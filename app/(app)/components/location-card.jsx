@@ -48,7 +48,7 @@ function LocationCard({
             variant="ghost"
             size="icon-sm"
             className="text-muted-foreground/70"
-            aria-label={t('home.conditions.removeLocation')}
+            aria-label={t('home.locations.removeLocation')}
             onClick={() => removeForecast(forecastKey)}
             data-testid="remove-location-button"
           >
