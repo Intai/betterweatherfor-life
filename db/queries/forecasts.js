@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { and, eq, or } from 'drizzle-orm'
 import { buildForecastKey } from '../../app/utils/forecast.js'
 import { indexByToValue } from '../../app/utils/list.js'
 import db from '../index.js'
@@ -41,5 +41,30 @@ export async function getForecastsByCity(citySlug) {
       .from(forecasts)
       .innerJoin(locations, eq(forecasts.locationId, locations.id))
       .where(eq(locations.citySlug, citySlug))
+  )
+}
+
+/**
+ * Query all forecasts for a set of latitude/longitude pairs and return them
+ * in the store shape keyed by "activity;date;timeRange;lat,lng".
+ *
+ * @param {Array<[string, string]>} latLngPairs - Array of [latitude, longitude] pairs.
+ * @returns {Promise<object>} Forecast map keyed by forecast key.
+ */
+export async function getForecastsByLocations(latLngPairs) {
+  if (!latLngPairs || latLngPairs.length === 0) {
+    return {}
+  }
+
+  return indexByForecastKey(
+    await db
+      .select()
+      .from(forecasts)
+      .innerJoin(locations, eq(forecasts.locationId, locations.id))
+      .where(or(
+        ...latLngPairs.map(([lat, lng]) =>
+          and(eq(locations.latitude, lat), eq(locations.longitude, lng))
+        )
+      ))
   )
 }

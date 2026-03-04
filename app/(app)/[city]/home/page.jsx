@@ -6,8 +6,8 @@ import { deslugify } from '@/app/utils/string'
 import { getForecastsByCity } from '@/db/queries/forecasts'
 
 export async function generateMetadata({ params }) {
-  const { city } = await params
-  const cityName = deslugify(city)
+  const { city: citySlug } = await params
+  const cityName = deslugify(citySlug)
 
   return {
     title: `${cityName} - Best Outdoor Spots`,
@@ -20,11 +20,11 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function CityHomePage({ params }) {
-  const { city } = await params
-  const forecast = await getForecastsByCity(city)
+  const { city: citySlug } = await params
+  const forecast = await getForecastsByCity(citySlug)
 
   return (
-    <ForecastStoreProvider initialState={{ forecast }}>
+    <ForecastStoreProvider initialState={{ citySlug, forecast, isLoaded: true }}>
       <ActivitySelector />
       <TimeWindowPicker />
       <LocationList />

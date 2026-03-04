@@ -1,9 +1,0 @@
-{
-  "build": "0.0.0",
-  "database": {
-    "url": "postgres://betterweather:betterweather@localhost:5432/betterweather"
-  },
-  "logging": {
-    "level": "debug"
-  }
-}

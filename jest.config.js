@@ -19,7 +19,6 @@ const customJestConfig = {
     '<rootDir>/.next/',
     '/config/',
     '/docs/',
-    '/shadcn/',
   ],
   collectCoverageFrom: [
     '**/*.{js,jsx}',

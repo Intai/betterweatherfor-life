@@ -33,9 +33,11 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
 - `npm run lint` to lint all files.
   - `npm run lint -- "path/to/file.js*"` to lint a specific file.
 - `npm test -- --silent` to run all unit tests.
-  - `npm test -- --runTestsByPath "path/to/file.test.js" --testNamePattern="matching string" --silent` to run specific unit tests in a spec file.
+  - `npm test -- --runTestsByPath "path/to/file.spec.js*" --testNamePattern="matching string" --silent` to run specific unit tests in a spec file.
 
 ## Convention
 
 - Our own file names are in hyphenated lower case.
 - Implement in JavaScript instead of TypeScript.
+- Name test files with `*.spec.js*`.
+- Write JSDoc for exported functions in utils, store actions/selectors, and db queries.

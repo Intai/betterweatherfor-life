@@ -8,11 +8,11 @@ As an outdoor enthusiast, I want to search for and add new locations to my list 
 - Typing in the search input triggers Google Places autocomplete after a 300ms debounce. Results appear as a scrollable list showing location name (bold) and area (muted) for each suggestion.
 - The Google Maps JavaScript SDK is lazy-loaded via `@googlemaps/js-api-loader` when the modal first opens. A new `AutocompleteSessionToken` is created per modal open for billing optimization.
 - Tapping a search result fetches place details from the SDK, persists the location to the server via `POST /api/locations`, saves it to localStorage, updates the store, and closes the modal.
-- The `POST /api/locations` route accepts `{ name, area, citySlug, latitude, longitude }`, derives timezone from coordinates using `geo-tz`, upserts into the locations table (source: `'geocoded'`), and returns `{ id, name, area, latitude, longitude, timeZone }`.
+- The `POST /api/locations` route accepts `{ name, area, citySlug, latitude, longitude }`, derives timezone from coordinates using `geo-tz`, upserts into the locations table (source: `'geocoded'`), and returns `{ name, area, latitude, longitude, timeZone }`.
 - A `GET /api/forecasts` route accepts `?locations=lat,lng;lat,lng;...` and returns forecast data for matching locations in the same `{ [key]: entry }` map format the store uses.
 - The user's saved locations are stored in localStorage. On page load, the store reads localStorage and fetches forecasts via `GET /api/forecasts`. Locations without forecast data render as Scheduled Location Cards.
 - The Scheduled Location Card matches the design in @app/docs/home-ui-design.html and @app/docs/home-layout.md: dashed border, location name/area header, remove (x) button, cloud icon, "Forecast scheduled" heading, and description text. Scheduled cards appear after scored cards.
-- Components never call APIs or localStorage directly — all side effects flow through store actions (`addLocation`, `removeLocation`, `syncLocations`).
+- Components never call APIs or localStorage directly — all side effects flow through store actions (`addLocation`, `removeLocation`, `initLocations`).
 - Implement a reusable `debounce(fn, delay)` utility that handles both sync and async functions. For async, reject previous pending promises with a custom `DebounceAbortError`.
 - Implement a generic `local-storage.js` utility for JSON localStorage access with error handling, and a `location-storage.js` module built on top of it.
 - The Google Maps API key follows the existing config convention: `config/default.json` → `config/custom-environment-variables.json` → `next.config.mjs` env block. Client code accesses via `process.env.GOOGLE_MAPS_API_KEY`.
@@ -25,7 +25,7 @@ As an outdoor enthusiast, I want to search for and add new locations to my list 
 1. Use backend-developer subagent to install `@googlemaps/js-api-loader` and `geo-tz` dependencies.
 2. Use backend-developer subagent to add Google Maps API key config. Add `"googleMaps": { "apiKey": "" }` to @config/default.json, add `"googleMaps": { "apiKey": "GOOGLE_MAPS_API_KEY" }` to @config/custom-environment-variables.json, add `GOOGLE_MAPS_API_KEY: config.get('googleMaps.apiKey')` to the `env` block in @next.config.mjs, and add `GOOGLE_MAPS_API_KEY=` to @.env.example.
 3. Use frontend-developer subagent to add shadcn Dialog component @shadcn/components/ui/dialog.jsx. Build on `radix-ui` Dialog primitive (already a transitive dependency via Sheet). Export `Dialog`, `DialogTrigger`, `DialogOverlay`, `DialogContent`, `DialogHeader`, `DialogTitle`, `DialogClose`. Style `DialogContent` as centred on tablet/desktop (sm+) and bottom-anchored with rounded top corners on mobile. Match styling from @app/docs/home-ui-design.html.
-4. Use frontend-developer subagent to add i18n translation keys @app/locales/en/translation.json. Add `home.locations.searchPlaceholder` ("Search locations..."), `home.locations.noResults` ("No results found"), `home.locations.searchError` ("Search failed. Please try again."), `home.locations.scheduled.badge` ("Scheduled"), `home.locations.scheduled.title` ("Forecast scheduled"), `home.locations.scheduled.description` ("We've scheduled this location for forecast collection. Check back later — we'll have conditions ready for you.").
+4. Use frontend-developer subagent to add i18n translation keys @app/locales/en/translation.json. Add `home.locations.searchPlaceholder` ("Search locations..."), `home.locations.noResults` ("No results found"), `home.locations.searchError` ("Search failed. Please try again."), `home.locations.scheduled.title` ("Forecast scheduled"), `home.locations.scheduled.description` ("We've scheduled this location for forecast collection. Check back later — we'll have conditions ready for you.").
 5. Use qa-tester subagent to plan BDD scenarios @app/(app)/docs/add-location-modal.feature.
 
 **Sequential tasks 6-7:**
@@ -36,7 +36,7 @@ As an outdoor enthusiast, I want to search for and add new locations to my list 
 **Sequential tasks 8-9:**
 
 8. Use frontend-developer subagent to create generic localStorage utility @app/utils/local-storage.js. Export `getItem(key, fallback)` that reads and parses JSON returning `fallback` if missing or corrupt, and `setItem(key, value)` that JSON.stringifies and writes.
-9. Use frontend-developer subagent to create location storage utility @app/utils/location-storage.js. Built on `local-storage.js`. Export `getLocations()` (returns array, fallback `[]`), `addLocation({ id, name, area, latitude, longitude, timeZone })` (appends, deduplicates by `id`), and `removeLocation(id)` (filters out by id).
+9. Use frontend-developer subagent to create location storage utility @app/utils/location-storage.js. Built on `local-storage.js`. Export `buildLocationKey(latitude, longitude)` returning `` `${latitude},${longitude}` ``, `getLocations()` (returns object, fallback `{}`), `addLocation({ name, area, latitude, longitude, timeZone })` (uses `assoc(key, value, locations)`), and `removeLocation(key)` (uses `dissoc(key, locations)`).
 
 **Sequential task 10 after task 1 completes:**
 
@@ -45,7 +45,7 @@ As an outdoor enthusiast, I want to search for and add new locations to my list 
 **Sequential tasks 11-12 after task 1 completes:**
 
 11. Use backend-developer subagent to create `upsertLocation` query @db/queries/locations.js. Accept `{ name, area, citySlug, latitude, longitude, timeZone, source }`, insert into locations table using `onConflictDoUpdate` on the `(latitude, longitude)` unique index, return the upserted row.
-12. Use backend-developer subagent to create `POST /api/locations` route @app/api/locations/route.js. Validate body `{ name, area, citySlug, latitude, longitude }`, derive timezone using `geo-tz` `find()`, call `upsertLocation()` with source `'geocoded'`, return `{ id, name, area, latitude, longitude, timeZone }`.
+12. Use backend-developer subagent to create `POST /api/locations` route @app/api/locations/route.js. Validate body `{ name, area, citySlug, latitude, longitude }`, derive timezone using `geo-tz` `find()`, call `upsertLocation()` with source `'geocoded'`, return `{ name, area, latitude, longitude, timeZone }`.
 
 **Sequential tasks 13-14:**
 
@@ -54,16 +54,16 @@ As an outdoor enthusiast, I want to search for and add new locations to my list 
 
 **Sequential tasks 15-16 after task 9 completes:**
 
-15. Use frontend-developer subagent to update forecast store @app/(app)/stores/forecast-store.js. Add `citySlug: null` and `locations: null` to defaultState. Add `addLocation({ name, area, citySlug, latitude, longitude })` action that calls `POST /api/locations`, saves to localStorage via `location-storage.js`, and appends to `locations` state. Add `removeLocation(id)` action that removes from localStorage and filters from `locations` state. Add `syncLocations()` action that reads localStorage via `getLocations()`, sets `locations` state, calls `GET /api/forecasts` for all saved locations, and merges fetched forecast data into the `forecast` map.
-16. Use frontend-developer subagent to update forecast selectors @app/(app)/stores/forecast-selectors.js. Add `useScheduledLocations()` selector that reads `locations` and `forecast` from store and returns locations that have no matching entries in `forecast` for the current activity/day/timeRange.
+15. Use frontend-developer subagent to update forecast store @app/(app)/stores/forecast-store.js. Import `buildLocationKey` from `location-storage` and `assoc` from Ramda. `addLocation`: after API response, use the API response directly as `loc`, save to localStorage, update state with `assoc(key, loc, state.locations || {})`. `removeLocation(key)`: call `deleteLocation(key)`, update state with `dissoc(key, state.locations || {})`. `initLocations`: `getLocations()` returns object; use `Object.keys(locations)` for the coordinate param (keys are already `"lat,lng"`), join with `';'`.
+16. Use frontend-developer subagent to update forecast selectors @app/(app)/stores/forecast-selectors.js. Add `getScheduledLocationEntries` / `useScheduledLocationEntries` that reads `locations` and `forecast` from store and returns `[key, location]` pairs (locations without matching forecast entries), sorted by name ascending.
 
 **Parallel after tasks 3, 7, 10, 15 complete:**
 
-17. Use frontend-developer subagent to create ScheduledLocationCard component @app/(app)/components/scheduled-location-card.jsx. Match the design in @app/docs/home-ui-design.html and @app/docs/home-layout.md: dashed border (`border-dashed`), CardHeader with name and area, remove (x) button calling `removeLocation(id)` from store, centered cloud icon, "Forecast scheduled" heading, description text. Use shadcn Card components and i18n for all text.
+17. Use frontend-developer subagent to create ScheduledLocationCard component @app/(app)/components/scheduled-location-card.jsx. Match the design in @app/docs/home-ui-design.html and @app/docs/home-layout.md: dashed border (`border-dashed`), CardHeader with name and area, remove (x) button calling `removeLocation(locationKey)` from store. Receives `{ locationKey, name, area }` props. Use shadcn Card components and i18n for all text.
 18. Use frontend-developer subagent to update city home page @app/(app)/[city]/home/page.jsx. Pass `citySlug: city` in `ForecastStoreProvider initialState`.
 19. Use frontend-developer subagent to create AddLocationModal component @app/(app)/components/add-location-modal.jsx. Self-contained `'use client'` component rendering both the + button trigger and the Dialog. Local state: `open`, `inputValue`, `suggestions`, `isSearching`. On modal open: lazy-load Google Places via `loadPlacesLibrary()`, create new `AutocompleteSessionToken`. Debounce search input (300ms) using `debounce()` from `function.js`, catch `DebounceAbortError` silently. Call `AutocompleteService.getPlacePredictions()` with input + session token. Render results as bold `mainText` + muted `secondaryText`. On result tap: call `fetchFields` for place details, then `addLocation()` on store, then close modal. Read `citySlug` from forecast store. Match design from @app/docs/home-ui-design.html and @app/docs/home-layout.md.
 
 **Parallel after tasks 16, 17, 19 complete:**
 
 20. Use frontend-developer subagent to update LocationListHeader @app/(app)/components/location-list-header.jsx. Replace the standalone `<Button>` with `<AddLocationModal />` which renders the + button as its own trigger.
-21. Use frontend-developer subagent to update LocationList @app/(app)/components/location-list.jsx. Call `syncLocations()` from store in a `useEffect` on mount. Use `useScheduledLocations()` selector and render `ScheduledLocationCard` for each, after scored cards.
+21. Use frontend-developer subagent to update LocationList @app/(app)/components/location-list.jsx. Call `initLocations()` from store in a `useEffect` on mount. Use `useScheduledLocationEntries()` selector and render `ScheduledLocationCard` for each `[key, location]` entry, passing `key` as React key and `locationKey` prop.

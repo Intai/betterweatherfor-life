@@ -17,19 +17,28 @@ jest.mock('@/app/(app)/components/time-window-picker', () => {
   }
 })
 
+jest.mock('@/app/(app)/components/location-list', () => {
+  return function MockLocationList() {
+    return <div data-testid="location-list" />
+  }
+})
+
 describe('HomePage', () => {
-  it('should render ActivitySelector and TimeWindowPicker inside ForecastStoreProvider', () => {
+  it('should render ActivitySelector, TimeWindowPicker, and LocationList inside ForecastStoreProvider', () => {
     render(<HomePage />)
 
     const provider = screen.getByTestId('forecast-store-provider')
     const activitySelector = screen.getByTestId('activity-selector')
     const timeWindowPicker = screen.getByTestId('time-window-picker')
+    const locationList = screen.getByTestId('location-list')
 
-    // Both components are children of the store provider
+    // All components are children of the store provider
     expect(provider).toContainElement(activitySelector)
     expect(provider).toContainElement(timeWindowPicker)
-    // ActivitySelector renders before TimeWindowPicker in DOM order
+    expect(provider).toContainElement(locationList)
+    // Components render in correct DOM order
     const children = [...provider.children]
     expect(children.indexOf(activitySelector)).toBeLessThan(children.indexOf(timeWindowPicker))
+    expect(children.indexOf(timeWindowPicker)).toBeLessThan(children.indexOf(locationList))
   })
 })

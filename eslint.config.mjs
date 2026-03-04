@@ -2,6 +2,7 @@ import js from '@eslint/js'
 import { defineConfig, globalIgnores } from 'eslint/config'
 import nextVitals from 'eslint-config-next/core-web-vitals'
 import importPlugin from 'eslint-plugin-import'
+import reactPlugin from 'eslint-plugin-react'
 
 const eslintConfig = defineConfig([
   js.configs.recommended,
@@ -19,6 +20,7 @@ const eslintConfig = defineConfig([
   ]), {
     plugins: {
       import: importPlugin,
+      react: reactPlugin,
     },
     rules: {
       // Enforce consistent code style
@@ -107,6 +109,18 @@ const eslintConfig = defineConfig([
       }],
       'import/newline-after-import': ['error', { count: 1 }],
       'import/no-duplicates': 'error',
+    },
+  },
+  {
+    files: ['**/*.cjs'],
+    languageOptions: {
+      globals: {
+        module: 'readonly',
+        require: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+      },
     },
   },
   {

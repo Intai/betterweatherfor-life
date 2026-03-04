@@ -39,6 +39,14 @@
         "subtitle": "Tap + to add your first spot",
         "title": "No locations yet"
       },
+      "noResults": "No results found",
+      "scheduled": {
+        "badge": "Scheduled",
+        "description": "We've scheduled this location for forecast collection. Check back later — we'll have conditions ready for you.",
+        "title": "Forecast scheduled"
+      },
+      "searchError": "Search failed. Please try again.",
+      "searchPlaceholder": "Search locations...",
       "title": "Locations"
     },
     "timeWindow": {

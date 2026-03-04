@@ -4,15 +4,11 @@ jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: key => key.split('.').pop() }),
 }))
 
-jest.mock('@/shadcn/components/ui/button', () => ({
-  Button: ({ children, variant, ...props }) => (
-    <button data-variant={variant} {...props}>{children}</button>
-  ),
-}))
-
-jest.mock('lucide-react', () => ({
-  Plus: props => <svg data-testid="plus-icon" {...props} />,
-}))
+jest.mock('@/app/(app)/components/add-location-modal', () => {
+  return function MockAddLocationModal() {
+    return <button data-testid="add-location-button" />
+  }
+})
 
 import LocationListHeader from './location-list-header'
 
@@ -23,16 +19,7 @@ describe('LocationListHeader', () => {
     const heading = screen.getByTestId('locations-heading')
     expect(heading).toHaveTextContent('title')
     expect(heading.tagName).toBe('H2')
-  })
-
-  it('should render the add location button with translated aria-label', () => {
-    render(<LocationListHeader />)
-
     const button = screen.getByTestId('add-location-button')
-    expect(button).toHaveAttribute('aria-label', 'addLocation')
-    expect(button).toHaveAttribute('data-variant', 'outline')
-    expect(button).toHaveClass('rounded-full')
-    const icon = screen.getByTestId('plus-icon')
-    expect(button).toContainElement(icon)
+    expect(button).toBeInTheDocument()
   })
 })

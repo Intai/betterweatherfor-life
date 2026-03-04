@@ -1,5 +1,7 @@
 import { curry } from 'ramda'
 
+export const emptyArray = []
+
 /**
  * Build an object from a list by deriving keys and values via mapping functions.
  * @param {Function} funcKey - Function called with (item, index) to produce each key.

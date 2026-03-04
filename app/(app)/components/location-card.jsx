@@ -1,6 +1,5 @@
 'use client'
 
-import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { prop } from 'ramda'
@@ -20,7 +19,7 @@ import LocationCardTide from './location-card-tide'
 import LocationCardWater from './location-card-water'
 import LocationCardWind from './location-card-wind'
 
-function LocationCard({
+export default function LocationCard({
   forecastKey,
   name,
   area,
@@ -77,5 +76,3 @@ function LocationCard({
     </Card>
   )
 }
-
-export default memo(LocationCard)

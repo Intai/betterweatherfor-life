@@ -1,19 +1,50 @@
 'use client'
 
-import { useForecastEntries } from '@/app/(app)/stores/forecast-selectors'
+import { useEffect } from 'react'
+import { prop } from 'ramda'
+import { useForecastEntries, useScheduledLocationEntries } from '@/app/(app)/stores/forecast-selectors'
+import { useForecastStore } from '@/app/(app)/stores/forecast-store'
+import { selectIsLoaded } from '@/app/utils/zustand'
+import { Skeleton } from '@/shadcn/components/ui/skeleton'
 import LocationCard from './location-card'
+import LocationCardSkeleton from './location-card-skeleton'
 import LocationListEmpty from './location-list-empty'
 import LocationListHeader from './location-list-header'
+import ScheduledLocationCard from './scheduled-location-card'
+
+function renderSkeleton(length) {
+  return (
+    <>
+      <section className="px-4 py-3 md:px-6 md:py-4">
+        <Skeleton className="my-1 h-7 w-32 md:h-7" />
+      </section>
+      <section className="px-4 pb-6 md:px-6">
+        <div className="space-y-4 md:grid md:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] md:gap-4 md:space-y-0">
+          {Array.from({ length }, (_, i) => (
+            <LocationCardSkeleton key={i} />
+          ))}
+        </div>
+      </section>
+    </>
+  )
+}
 
 export default function LocationList() {
   const entries = useForecastEntries()
-  const isEmpty = entries.length <= 0
+  const scheduledLocations = useScheduledLocationEntries()
+  const isLoaded = useForecastStore(selectIsLoaded)
+  const isEmpty = entries.length <= 0 && scheduledLocations.length <= 0
+  const initLocations = useForecastStore(prop('initLocations'))
+
+  useEffect(() => {
+    initLocations()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div data-testid="location-list">
-      <LocationListHeader />
-      {isEmpty && <LocationListEmpty />}
-      {!isEmpty && (
+      {isLoaded ? <LocationListHeader /> : renderSkeleton(scheduledLocations.length)}
+      {isLoaded && isEmpty && <LocationListEmpty />}
+      {isLoaded && !isEmpty && (
         <section className="px-4 pb-6 md:px-6">
           <div className="space-y-4 md:grid md:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] md:gap-4 md:space-y-0">
             {entries.map(([key, entry]) => (
@@ -29,6 +60,14 @@ export default function LocationList() {
                 water={entry.water}
                 temp={entry.temp}
                 summary={entry.summary}
+              />
+            ))}
+            {scheduledLocations.map(([key, location]) => (
+              <ScheduledLocationCard
+                key={key}
+                locationKey={key}
+                name={location.name}
+                area={location.area}
               />
             ))}
           </div>

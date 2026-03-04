@@ -82,7 +82,7 @@ describe('CityHomePage', () => {
     render(Page)
 
     expect(mockGetForecastsByCity).toHaveBeenCalledWith('auckland')
-    expect(capturedInitialState).toEqual({ forecast: mockForecast })
+    expect(capturedInitialState).toEqual({ citySlug: 'auckland', forecast: mockForecast, isLoaded: true })
   })
 
   it('should pass an empty forecast map when the database returns no results', async () => {
@@ -92,7 +92,7 @@ describe('CityHomePage', () => {
     render(Page)
 
     expect(mockGetForecastsByCity).toHaveBeenCalledWith('wellington')
-    expect(capturedInitialState).toEqual({ forecast: {} })
+    expect(capturedInitialState).toEqual({ citySlug: 'wellington', forecast: {}, isLoaded: true  })
   })
 })
 

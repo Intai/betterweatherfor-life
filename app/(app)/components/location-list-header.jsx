@@ -1,8 +1,7 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
-import { Plus } from 'lucide-react'
-import { Button } from '@/shadcn/components/ui/button'
+import AddLocationModal from '@/app/(app)/components/add-location-modal'
 
 export default function LocationListHeader() {
   const { t } = useTranslation()
@@ -15,15 +14,7 @@ export default function LocationListHeader() {
       >
         {t('home.locations.title')}
       </h2>
-      <Button
-        variant="outline"
-        size="icon"
-        className="rounded-full"
-        aria-label={t('home.locations.addLocation')}
-        data-testid="add-location-button"
-      >
-        <Plus className="w-4 h-4" />
-      </Button>
+      <AddLocationModal />
     </section>
   )
 }

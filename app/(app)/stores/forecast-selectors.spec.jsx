@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { TODAY } from '@/app/(app)/constants'
 import { buildForecastKey } from '@/app/utils/forecast'
 import { ForecastStoreProvider } from './forecast-store'
-import { buildForecastEntries, useForecastEntries } from './forecast-selectors'
+import { buildForecastEntries, buildScheduledLocationEntries, useForecastEntries, useScheduledLocationEntries } from './forecast-selectors'
 
 jest.mock('@/app/utils/date', () => ({
   formatForecastDate: jest.fn(() => '2026-02-11'),
@@ -11,6 +11,12 @@ jest.mock('@/app/utils/date', () => ({
 const makeForecast = (overrides = {}) => ({
   name: 'Mission Bay',
   score: 85,
+  timeZone: 'Pacific/Auckland',
+  ...overrides,
+})
+
+const makeLocation = (overrides = {}) => ({
+  name: 'Mission Bay',
   timeZone: 'Pacific/Auckland',
   ...overrides,
 })
@@ -80,6 +86,86 @@ describe('useForecastEntries', () => {
     )
 
     const entries = JSON.parse(screen.getByTestId('entries').textContent)
+    expect(entries).toEqual([])
+  })
+})
+
+describe('buildScheduledLocationEntries', () => {
+  const locations = {
+    '-36.8547,174.8317': makeLocation({ name: 'Mission Bay' }),
+    '-36.8400,174.7670': makeLocation({ name: 'Takapuna Beach' }),
+    '-36.7900,174.8200': makeLocation({ name: 'Browns Bay' }),
+  }
+
+  const forecastKeys = [
+    buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8547,174.8317'),
+  ]
+
+  it('should return locations without a matching forecast key', () => {
+    const entries = buildScheduledLocationEntries('sup', TODAY, null, 'all-day', forecastKeys)(locations)
+    const keys = entries.map(([key]) => key)
+
+    expect(keys).toHaveLength(2)
+    expect(keys).toContain('-36.8400,174.7670')
+    expect(keys).toContain('-36.7900,174.8200')
+    expect(keys).not.toContain('-36.8547,174.8317')
+  })
+
+  it('should sort results by name ascending', () => {
+    const entries = buildScheduledLocationEntries('sup', TODAY, null, 'all-day', forecastKeys)(locations)
+    const names = entries.map(([, entry]) => entry.name)
+    expect(names).toEqual(['Browns Bay', 'Takapuna Beach'])
+  })
+
+  it('should return empty array when locations is null', () => {
+    const entries = buildScheduledLocationEntries('sup', TODAY, null, 'all-day', forecastKeys)(null)
+    expect(entries).toEqual([])
+  })
+
+  it('should return empty array when all locations have forecasts', () => {
+    const allKeys = Object.keys(locations).map(coord =>
+      buildForecastKey('sup', '2026-02-11', 'all-day', coord)
+    )
+    const entries = buildScheduledLocationEntries('sup', TODAY, null, 'all-day', allKeys)(locations)
+    expect(entries).toEqual([])
+  })
+})
+
+describe('useScheduledLocationEntries', () => {
+  function ScheduledEntriesConsumer() {
+    const entries = useScheduledLocationEntries()
+    return <div data-testid="scheduled-entries">{JSON.stringify(entries)}</div>
+  }
+
+  it('should return a location missing forecast', () => {
+    const locations = {
+      '-36.8547,174.8317': makeLocation({ name: 'Mission Bay' }),
+      '-36.8400,174.7670': makeLocation({ name: 'Takapuna Beach' }),
+    }
+    const forecast = {
+      [buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 72 }),
+    }
+
+    render(
+      <ForecastStoreProvider initialState={{ locations, forecast }}>
+        <ScheduledEntriesConsumer />
+      </ForecastStoreProvider>
+    )
+
+    const entries = JSON.parse(screen.getByTestId('scheduled-entries').textContent)
+    expect(entries).toHaveLength(1)
+    expect(entries[0][0]).toBe('-36.8400,174.7670')
+    expect(entries[0][1].name).toBe('Takapuna Beach')
+  })
+
+  it('should return empty array when locations is null', () => {
+    render(
+      <ForecastStoreProvider>
+        <ScheduledEntriesConsumer />
+      </ForecastStoreProvider>
+    )
+
+    const entries = JSON.parse(screen.getByTestId('scheduled-entries').textContent)
     expect(entries).toEqual([])
   })
 })

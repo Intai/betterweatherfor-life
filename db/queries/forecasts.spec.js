@@ -9,13 +9,15 @@ jest.mock('@/db', () => ({
 }))
 
 jest.mock('drizzle-orm', () => ({
+  and: jest.fn((...args) => ({ op: 'and', args })),
   eq: jest.fn((a, b) => ({ op: 'eq', a, b })),
+  or: jest.fn((...args) => ({ op: 'or', args })),
 }))
 
-const { eq } = require('drizzle-orm')
+const { and, eq, or } = require('drizzle-orm')
 const { forecasts } = require('@/db/schema/forecasts')
 const { locations } = require('@/db/schema/locations')
-const { getForecastsByCity } = require('./forecasts')
+const { getForecastsByCity, getForecastsByLocations } = require('./forecasts')
 
 describe('getForecastsByCity', () => {
   beforeEach(() => {
@@ -114,5 +116,80 @@ describe('getForecastsByCity', () => {
     const result = await getForecastsByCity('wellington')
     expect(mockWhere).toHaveBeenCalledWith(eq(locations.citySlug, 'wellington'))
     expect(result).toEqual({})
+  })
+})
+
+describe('getForecastsByLocations', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('should return an empty object when latLngPairs is empty', async () => {
+    const result = await getForecastsByLocations([])
+    expect(mockSelect).not.toHaveBeenCalled()
+    expect(result).toEqual({})
+  })
+
+  it('should return an empty object when latLngPairs is undefined', async () => {
+    const result = await getForecastsByLocations(undefined)
+    expect(mockSelect).not.toHaveBeenCalled()
+    expect(result).toEqual({})
+  })
+
+  it('should join forecasts with locations, filter by lat/lng pairs, and return the store-shaped map', async () => {
+    const rows = [{
+      forecasts: {
+        activity: 'sup',
+        date: '2026-02-14',
+        timeRange: 'all-day',
+        score: 85,
+        condition: 'ideal',
+        wind: { speed: '8km/h', direction: 'NE', condition: 'ideal' },
+        tide: { state: 'Rising', percentage: 70, condition: 'ideal' },
+        water: 'Green',
+        temp: '22\u00B0C',
+        precipitation: null,
+        daylight: null,
+        summary: 'Light onshore breeze.',
+      },
+      locations: {
+        name: 'Mission Bay',
+        area: 'Beach, Auckland Central',
+        latitude: '-36.8547',
+        longitude: '174.8317',
+        timeZone: 'Pacific/Auckland',
+      },
+    }]
+
+    mockWhere.mockResolvedValue(rows)
+
+    const result = await getForecastsByLocations([
+      ['-36.8547', '174.8317'],
+      ['-36.7878', '174.7768'],
+    ])
+
+    expect(mockSelect).toHaveBeenCalledWith()
+    expect(mockFrom).toHaveBeenCalledWith(forecasts)
+    expect(mockInnerJoin).toHaveBeenCalledWith(locations, eq(forecasts.locationId, locations.id))
+    expect(mockWhere).toHaveBeenCalledWith(or(
+      and(eq(locations.latitude, '-36.8547'), eq(locations.longitude, '174.8317')),
+      and(eq(locations.latitude, '-36.7878'), eq(locations.longitude, '174.7768')),
+    ))
+    expect(result).toEqual({
+      'sup;2026-02-14;all-day;-36.8547,174.8317': {
+        name: 'Mission Bay',
+        area: 'Beach, Auckland Central',
+        timeZone: 'Pacific/Auckland',
+        score: 85,
+        condition: 'ideal',
+        wind: { speed: '8km/h', direction: 'NE', condition: 'ideal' },
+        tide: { state: 'Rising', percentage: 70, condition: 'ideal' },
+        water: 'Green',
+        temp: '22\u00B0C',
+        precipitation: null,
+        daylight: null,
+        summary: 'Light onshore breeze.',
+      },
+    })
   })
 })
