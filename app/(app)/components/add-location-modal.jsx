@@ -37,6 +37,8 @@ export default function AddLocationModal() {
   const placesRef = useRef(null)
   const sessionTokenRef = useRef(null)
   const debouncedSearchRef = useRef(null)
+  const inputRef = useRef(null)
+  const firstSuggestionRef = useRef(null)
 
   const initPlaces = useCallback(async () => {
     if (placesRef.current) {
@@ -95,6 +97,31 @@ export default function AddLocationModal() {
     }
   }, [t])
 
+  const handleInputKeyDown = useCallback(e => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      firstSuggestionRef.current?.focus()
+    }
+  }, [])
+
+  const handleSuggestionKeyDown = useCallback(e => {
+    if (e.key === 'ArrowDown') {
+      // Move focus to the next suggestion in the list.
+      e.preventDefault()
+      e.currentTarget.nextElementSibling?.focus()
+    } else if (e.key === 'ArrowUp') {
+      // Move focus to the previous suggestion, or back to the search input
+      // when already at the first suggestion.
+      e.preventDefault()
+      const prev = e.currentTarget.previousElementSibling
+      if (prev) {
+        prev.focus()
+      } else {
+        inputRef.current.focus()
+      }
+    }
+  }, [])
+
   const handleSelect = useCallback(async prediction => {
     const { Place } = placesRef.current
     const place = new Place({ id: prediction.place_id })
@@ -145,10 +172,12 @@ export default function AddLocationModal() {
               <Search />
             </InputGroupAddon>
             <InputGroupInput
+              ref={inputRef}
               type="text"
               placeholder={t('home.locations.searchPlaceholder')}
               value={inputValue}
               onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
               className="h-auto py-3"
               data-testid="location-search-input"
             />
@@ -170,11 +199,13 @@ export default function AddLocationModal() {
               {t('home.locations.noResults')}
             </p>
           )}
-          {!error && suggestions.map(prediction => (
+          {!error && suggestions.map((prediction, index) => (
             <button
               key={prediction.place_id}
+              ref={index === 0 ? firstSuggestionRef : undefined}
               className="w-full text-left px-4 py-3 hover:bg-accent rounded-xl transition-colors"
               onClick={() => handleSelect(prediction)}
+              onKeyDown={handleSuggestionKeyDown}
               data-testid="suggestion-item"
             >
               <p className="font-medium text-sm">

@@ -46,7 +46,7 @@ jest.mock('@/shadcn/components/ui/button', () => ({
 jest.mock('@/shadcn/components/ui/input-group', () => ({
   InputGroup: ({ children, ...props }) => <div data-testid="input-group" {...props}>{children}</div>,
   InputGroupAddon: ({ children, ...props }) => <div data-testid="input-group-addon" {...props}>{children}</div>,
-  InputGroupInput: props => <input {...props} />,
+  InputGroupInput: ({ ref, ...props }) => <input ref={ref} {...props} />,
 }))
 
 const mockLoadPlacesLibrary = jest.fn()
@@ -421,6 +421,103 @@ describe('AddLocationModal', () => {
       fireEvent.click(screen.getByTestId('suggestion-item'))
     })
     expect(mockPush).toHaveBeenCalledWith('/home')
+  })
+
+  it('should focus first suggestion on ArrowDown from input', async () => {
+    const predictions = [
+      makePrediction('p1', 'Mission Bay', 'Beach, Auckland Central'),
+      makePrediction('p2', 'Takapuna Beach', 'Beach, North Shore'),
+    ]
+    mockDebouncedFn.mockResolvedValue(predictions)
+
+    render(<AddLocationModal />)
+    await openDialog()
+
+    fireEvent.change(screen.getByTestId('location-search-input'), {
+      target: { value: 'Beach' },
+    })
+    await waitFor(() => expect(screen.getAllByTestId('suggestion-item')).toHaveLength(2))
+    fireEvent.keyDown(screen.getByTestId('location-search-input'), { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(screen.getAllByTestId('suggestion-item')[0])
+  })
+
+  it('should focus next suggestion on ArrowDown from a suggestion', async () => {
+    const predictions = [
+      makePrediction('p1', 'Mission Bay', 'Beach, Auckland Central'),
+      makePrediction('p2', 'Takapuna Beach', 'Beach, North Shore'),
+    ]
+    mockDebouncedFn.mockResolvedValue(predictions)
+
+    render(<AddLocationModal />)
+    await openDialog()
+
+    fireEvent.change(screen.getByTestId('location-search-input'), {
+      target: { value: 'Beach' },
+    })
+    await waitFor(() => expect(screen.getAllByTestId('suggestion-item')).toHaveLength(2))
+    const items = screen.getAllByTestId('suggestion-item')
+    items[0].focus()
+    fireEvent.keyDown(items[0], { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(items[1])
+  })
+
+  it('should focus previous suggestion on ArrowUp from a suggestion', async () => {
+    const predictions = [
+      makePrediction('p1', 'Mission Bay', 'Beach, Auckland Central'),
+      makePrediction('p2', 'Takapuna Beach', 'Beach, North Shore'),
+    ]
+    mockDebouncedFn.mockResolvedValue(predictions)
+
+    render(<AddLocationModal />)
+    await openDialog()
+
+    fireEvent.change(screen.getByTestId('location-search-input'), {
+      target: { value: 'Beach' },
+    })
+    await waitFor(() => expect(screen.getAllByTestId('suggestion-item')).toHaveLength(2))
+    const items = screen.getAllByTestId('suggestion-item')
+    items[1].focus()
+    fireEvent.keyDown(items[1], { key: 'ArrowUp' })
+    expect(document.activeElement).toBe(items[0])
+  })
+
+  it('should focus input on ArrowUp from first suggestion', async () => {
+    const predictions = [
+      makePrediction('p1', 'Mission Bay', 'Beach, Auckland Central'),
+    ]
+    mockDebouncedFn.mockResolvedValue(predictions)
+
+    render(<AddLocationModal />)
+    await openDialog()
+
+    fireEvent.change(screen.getByTestId('location-search-input'), {
+      target: { value: 'Beach' },
+    })
+    await waitFor(() => expect(screen.getAllByTestId('suggestion-item')).toHaveLength(1))
+    const item = screen.getByTestId('suggestion-item')
+    item.focus()
+    fireEvent.keyDown(item, { key: 'ArrowUp' })
+    expect(document.activeElement).toBe(screen.getByTestId('location-search-input'))
+  })
+
+  it('should stay on last suggestion on ArrowDown when no next sibling', async () => {
+    const predictions = [
+      makePrediction('p1', 'Mission Bay', 'Beach, Auckland Central'),
+      makePrediction('p2', 'Takapuna Beach', 'Beach, North Shore'),
+    ]
+    mockDebouncedFn.mockResolvedValue(predictions)
+
+    render(<AddLocationModal />)
+    await openDialog()
+
+    fireEvent.change(screen.getByTestId('location-search-input'), {
+      target: { value: 'Beach' },
+    })
+    await waitFor(() => expect(screen.getAllByTestId('suggestion-item')).toHaveLength(2))
+    const items = screen.getAllByTestId('suggestion-item')
+    items[1].focus()
+    fireEvent.keyDown(items[1], { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(items[1])
   })
 
   it('should reset input value and error when dialog reopens', async () => {
