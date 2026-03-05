@@ -39,6 +39,11 @@ describe('getForecastsByCity', () => {
         precipitation: null,
         daylight: null,
         summary: 'Light onshore breeze.',
+        uv: { index: 4, condition: 'ideal' },
+        humidity: null,
+        visibility: null,
+        analysis: 'Good conditions.',
+        hourly: [{ time: '06:00', score: 82, condition: 'ideal' }],
       },
       locations: {
         name: 'Mission Bay',
@@ -61,6 +66,11 @@ describe('getForecastsByCity', () => {
         precipitation: { chance: 10 },
         daylight: { sunrise: '06:30', sunset: '20:15' },
         summary: 'Offshore wind component.',
+        uv: { index: 6, condition: 'acceptable' },
+        humidity: null,
+        visibility: null,
+        analysis: 'Moderate wind.',
+        hourly: [{ time: '08:00', score: 60, condition: 'acceptable' }],
       },
       locations: {
         name: 'Takapuna Beach',
@@ -93,6 +103,11 @@ describe('getForecastsByCity', () => {
         precipitation: null,
         daylight: null,
         summary: 'Light onshore breeze.',
+        uv: { index: 4, condition: 'ideal' },
+        humidity: null,
+        visibility: null,
+        analysis: 'Good conditions.',
+        hourly: [{ time: '06:00', score: 82, condition: 'ideal' }],
       },
       'kayaking;2026-02-15;morning;-36.7878,174.7768': {
         name: 'Takapuna Beach',
@@ -107,6 +122,11 @@ describe('getForecastsByCity', () => {
         precipitation: { chance: 10 },
         daylight: { sunrise: '06:30', sunset: '20:15' },
         summary: 'Offshore wind component.',
+        uv: { index: 6, condition: 'acceptable' },
+        humidity: null,
+        visibility: null,
+        analysis: 'Moderate wind.',
+        hourly: [{ time: '08:00', score: 60, condition: 'acceptable' }],
       },
     })
   })
@@ -151,6 +171,11 @@ describe('getForecastsByLocations', () => {
         precipitation: null,
         daylight: null,
         summary: 'Light onshore breeze.',
+        uv: { index: 4, condition: 'ideal' },
+        humidity: null,
+        visibility: null,
+        analysis: 'Good conditions.',
+        hourly: [{ time: '06:00', score: 82, condition: 'ideal' }],
       },
       locations: {
         name: 'Mission Bay',
@@ -189,6 +214,11 @@ describe('getForecastsByLocations', () => {
         precipitation: null,
         daylight: null,
         summary: 'Light onshore breeze.',
+        uv: { index: 4, condition: 'ideal' },
+        humidity: null,
+        visibility: null,
+        analysis: 'Good conditions.',
+        hourly: [{ time: '06:00', score: 82, condition: 'ideal' }],
       },
     })
   })

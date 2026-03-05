@@ -8,7 +8,7 @@ import LocationCardWater from './location-card-water'
 
 describe('LocationCardWater', () => {
   it('should render water quality text', () => {
-    const { container } = render(<LocationCardWater water="Green" />)
+    const { container } = render(<LocationCardWater water={{ quality: 'Green' }} />)
 
     expect(screen.getByText('water')).toBeInTheDocument()
     expect(screen.getByText('Green')).toBeInTheDocument()
@@ -28,13 +28,13 @@ describe('LocationCardWater', () => {
   })
 
   it.each([
-    ['Green', 'var(--condition-ideal)'],
-    ['Orange', 'var(--condition-marginal)'],
-    ['Red', 'var(--condition-unsuitable)'],
-    ['Black', 'var(--condition-unsuitable)'],
-    ['Unknown', 'var(--condition-default)'],
-  ])('should use condition color for %s quality', (quality, expectedColor) => {
-    const { container } = render(<LocationCardWater water={quality} />)
+    [{ quality: 'Green' }, 'var(--condition-ideal)'],
+    [{ quality: 'Orange' }, 'var(--condition-marginal)'],
+    [{ quality: 'Red' }, 'var(--condition-unsuitable)'],
+    [{ quality: 'Black' }, 'var(--condition-unsuitable)'],
+    [{ quality: 'Unknown' }, 'var(--condition-default)'],
+  ])('should use condition color for %j quality', (water, expectedColor) => {
+    const { container } = render(<LocationCardWater water={water} />)
     const svg = container.querySelector('svg')
     const iconContainer = svg.parentElement
     expect(iconContainer).toHaveStyle({ color: expectedColor })

@@ -26,9 +26,9 @@ function WaterIcon() {
 
 export default function LocationCardWater({ water }) {
   const { t } = useTranslation()
-  const color = getWaterColor(water)
+  const color = getWaterColor(water?.quality)
 
-  return water && (
+  return water?.quality && (
     <div className="flex items-center gap-2 text-sm">
       <div
         className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -38,7 +38,7 @@ export default function LocationCardWater({ water }) {
       </div>
       <div>
         <p className="text-muted-foreground/70 text-xs">{t('home.conditions.water')}</p>
-        <p className="font-medium" style={{ color }}>{water}</p>
+        <p className="font-medium" style={{ color }}>{water.quality}</p>
       </div>
     </div>
   )

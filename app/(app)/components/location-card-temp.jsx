@@ -35,7 +35,7 @@ function TempIcon({ tempValue }) {
 
 export default function LocationCardTemp({ temp }) {
   const { t } = useTranslation()
-  const tempValue = parseTempValue(temp)
+  const tempValue = parseTempValue(temp?.air)
 
   return tempValue && (
     <div className="flex items-center gap-2 text-sm">
@@ -47,7 +47,7 @@ export default function LocationCardTemp({ temp }) {
       </div>
       <div>
         <p className="text-muted-foreground/70 text-xs">{t('home.conditions.temp')}</p>
-        <p className="font-medium">{temp}</p>
+        <p className="font-medium">{temp.air}</p>
       </div>
     </div>
   )

@@ -49,7 +49,12 @@ const pickForecast = pick([
   'temp',
   'precipitation',
   'daylight',
+  'uv',
+  'humidity',
+  'visibility',
   'summary',
+  'analysis',
+  'hourly',
 ])
 
 async function upsertForecast(locationId, forecastValue) {
@@ -71,7 +76,12 @@ async function upsertForecast(locationId, forecastValue) {
         temp: values.temp,
         precipitation: values.precipitation,
         daylight: values.daylight,
+        uv: values.uv,
+        humidity: values.humidity,
+        visibility: values.visibility,
         summary: values.summary,
+        analysis: values.analysis,
+        hourly: values.hourly,
         updatedAt: sql`now()`,
       },
     })

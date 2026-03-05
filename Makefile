@@ -19,8 +19,8 @@ prod: ## Start production environment
 prod-stop: ## Stop production environment
 	docker compose --profile prod down
 
-db-migrate: ## Push database schema changes
-	npx drizzle-kit push
+db-migrate: ## Migrate database schema changes
+	npx drizzle-kit migrate
 
 db-seed: ## Seed database with initial data
 	node db/seed.js

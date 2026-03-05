@@ -60,6 +60,11 @@ const makeForecastValue = (overrides = {}) => ({
   precipitation: { amount: '0mm', condition: 'ideal' },
   daylight: { sunset: '20:22', condition: 'ideal' },
   summary: 'Light onshore breeze.',
+  uv: { index: 4, condition: 'ideal' },
+  humidity: null,
+  visibility: null,
+  analysis: 'Good conditions.',
+  hourly: [{ time: '06:00', score: 82, condition: 'ideal' }],
   ...overrides,
 })
 
@@ -122,6 +127,11 @@ describe('db/update-forecasts', () => {
         precipitation: { amount: '0mm', condition: 'ideal' },
         daylight: { sunset: '20:22', condition: 'ideal' },
         summary: 'Light onshore breeze.',
+        uv: { index: 4, condition: 'ideal' },
+        humidity: null,
+        visibility: null,
+        analysis: 'Good conditions.',
+        hourly: [{ time: '06:00', score: 82, condition: 'ideal' }],
       })
       const { forecasts } = require('@/db/schema/forecasts')
       expect(mockOnConflictDoUpdate).toHaveBeenCalledWith({
@@ -130,6 +140,11 @@ describe('db/update-forecasts', () => {
           score: 85,
           condition: 'ideal',
           summary: 'Light onshore breeze.',
+          uv: { index: 4, condition: 'ideal' },
+          humidity: null,
+          visibility: null,
+          analysis: 'Good conditions.',
+          hourly: [{ time: '06:00', score: 82, condition: 'ideal' }],
         }),
       })
     })

@@ -34,7 +34,7 @@ Detailed view of a single location showing full condition breakdown, AI explanat
 | | Wind                              | |
 | | --------------------------------- | |
 | | Speed:      8 km/h                | |
-| | Direction:  NE (Onshore)          | |
+| | Direction:  NE                    | |
 | | Gusts:      12 km/h               | |
 | |                                   | |
 | | Light onshore breeze. Ideal for   | |
@@ -185,11 +185,13 @@ Additional condition card for snorkelling activity:
 | | --------------------------------- | |
 | | Estimate:   Good (8-10m)          | |
 | | Swell:      0.5m                  | |
-| | Recent rain: None (5 days)        | |
+| | Wind:       5 km/h                | |
+| | Water:      Green                 | |
 | |                                   | |
-| | Excellent underwater visibility   | |
-| | expected. No recent runoff        | |
-| | affecting water clarity.          | |
+| | Low swell and calm winds mean     | |
+| | minimal sediment disturbance.     | |
+| | No recent rainfall keeping        | |
+| | water clarity high.               | |
 | +-----------------------------------+ |
 ```
 

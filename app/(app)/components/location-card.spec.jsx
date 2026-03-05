@@ -24,8 +24,8 @@ describe('LocationCard', () => {
     condition: 'ideal',
     wind: { speed: '8km/h', direction: 'NE', condition: 'ideal' },
     tide: { state: 'Rising', percentage: 70, condition: 'ideal' },
-    water: 'Green',
-    temp: '22°C',
+    water: { quality: 'Green' },
+    temp: { air: '22°C' },
     summary: 'Light onshore breeze, excellent for paddling this morning.',
   }
 

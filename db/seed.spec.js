@@ -147,6 +147,11 @@ describe('db/seed', () => {
       set: expect.objectContaining({
         score: 85,
         condition: 'ideal',
+        uv: { index: 4, condition: 'ideal' },
+        humidity: null,
+        visibility: null,
+        analysis: 'Good conditions.',
+        hourly: [{ time: '06:00', score: 82, condition: 'ideal' }],
       }),
     })
     expect(mockDelete).toHaveBeenCalledWith(forecasts)

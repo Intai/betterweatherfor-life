@@ -8,7 +8,7 @@ import LocationCardTemp from './location-card-temp'
 
 describe('LocationCardTemp', () => {
   it('should render temperature icon and text for valid temp', () => {
-    const { container } = render(<LocationCardTemp temp="22°C" />)
+    const { container } = render(<LocationCardTemp temp={{ air: '22°C' }} />)
 
     expect(screen.getByText('temp')).toBeInTheDocument()
     expect(screen.getByText('22°C')).toBeInTheDocument()
@@ -25,25 +25,25 @@ describe('LocationCardTemp', () => {
     expect(container.innerHTML).toBe('')
   })
 
-  it('should render nothing when temp is empty string', () => {
-    const { container } = render(<LocationCardTemp temp="" />)
+  it('should render nothing when temp has no air value', () => {
+    const { container } = render(<LocationCardTemp temp={{}} />)
     expect(container.innerHTML).toBe('')
   })
 
-  it('should render nothing when temp has no numeric value', () => {
-    const { container } = render(<LocationCardTemp temp="no data" />)
+  it('should render nothing when temp.air has no numeric value', () => {
+    const { container } = render(<LocationCardTemp temp={{ air: 'no data' }} />)
     expect(container.innerHTML).toBe('')
   })
 
   it.each([
-    ['5°C', 'var(--temp-cold)'],
-    ['12°C', 'var(--temp-cool)'],
-    ['17°C', 'var(--temp-mild)'],
-    ['22°C', 'var(--temp-warm)'],
-    ['27°C', 'var(--temp-hot)'],
-    ['35°C', 'var(--temp-extreme)'],
-    ['-5°C', 'var(--temp-cold)'],
-  ])('should use currentColor for temp %s', (temp, expectedColor) => {
+    [{ air: '5°C' }, 'var(--temp-cold)'],
+    [{ air: '12°C' }, 'var(--temp-cool)'],
+    [{ air: '17°C' }, 'var(--temp-mild)'],
+    [{ air: '22°C' }, 'var(--temp-warm)'],
+    [{ air: '27°C' }, 'var(--temp-hot)'],
+    [{ air: '35°C' }, 'var(--temp-extreme)'],
+    [{ air: '-5°C' }, 'var(--temp-cold)'],
+  ])('should use currentColor for temp %j', (temp, expectedColor) => {
     const { container } = render(<LocationCardTemp temp={temp} />)
     const svg = container.querySelector('svg')
     expect(svg).toHaveStyle({ color: expectedColor })

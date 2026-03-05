@@ -22,7 +22,12 @@ const getForecastValue = ({ locations, forecasts }) => ({
   temp: forecasts.temp,
   precipitation: forecasts.precipitation,
   daylight: forecasts.daylight,
+  uv: forecasts.uv,
+  humidity: forecasts.humidity,
+  visibility: forecasts.visibility,
   summary: forecasts.summary,
+  analysis: forecasts.analysis,
+  hourly: forecasts.hourly,
 })
 
 const indexByForecastKey = indexByToValue(getForecastKey, getForecastValue)
