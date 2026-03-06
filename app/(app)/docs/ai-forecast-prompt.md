@@ -1,32 +1,42 @@
+Do not output any text. Only use tools. Write all output to the JSON file specified below.
+
 ## Data Fetching
 
-Use the Task tool with `subagent_type="general-purpose"` to execute the following 4 in parallel:
+Use the Task tool with `subagent_type="general-purpose"` to execute the following 6 in parallel:
 - ```
-  What is the water quality at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 2 days according to https://safeswim.org.nz/api/locations/{slug}, where the `WATER_QUALITY` array is every hour from now? Respond in JSON format without any explanation, where `waterQuality` must be strictly Green, Orange, Red or Black. Use playwright-headless MCP. Find the closest location slug by https://safeswim.org.nz/api/locations.
+  What is the water quality at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 2 days according to https://safeswim.org.nz/api/locations/{slug}, where the `WATER_QUALITY` array is every hour from now? Respond in JSON format without any explanation, where `waterQuality` must be strictly Green, Orange, Red or Black. Use cURL. Find the closest location slug by https://safeswim.org.nz/api/locations.
   ```
 - ```
-  When are the tide turning times according to https://tides.niwa.co.nz/?latitude=-36.97484844433063&longitude=174.62043566419308&startDate=2026-02-13&numberOfDays=10 Respond in JSON format without any explanation. Use playwright-headless MCP.
+  When are the tide turning times according to https://tides.niwa.co.nz/?latitude=-36.97484844433063&longitude=174.62043566419308&startDate=2026-02-13&numberOfDays=10 Respond in JSON format without any explanation. Use playwright-headless MCP. Close the Playwright browser when finishes.
   ```
 - ```
-  What are the wind speed, direction, precipitation and temperature at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://windy.app/poi/-36.97484844433063/174.62043566419308 Respond in JSON format without any explanation. Use playwright-headless MCP. Wind directions are like `<td style="transform: rotate(246deg)">↑</td>`, which can be identified by selector `#cellsTable tr.windywidgetwindDirection td`. The ↑ arrow rotated by X degrees points in the direction the wind blows TO. Wind direction is named by where it comes FROM (the opposite). Formula: compass direction = (X + 180) mod 360. e.g. rotate(45deg) → arrow points NE (45°) → wind comes FROM SW (225°) = SW. rotate(246deg) → arrow points WSW (246°) → wind comes FROM ENE (66°) = ENE. Other selectors:
+  What is the swell at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://windy.app/poi/-36.97484844433063/174.62043566419308 Respond in JSON format without any explanation. Use playwright-headless MCP. Close the Playwright browser when finishes. Selectors:
     | Hours | #cellsTable tr.windywidgethours |
-    | Temperatures (°C) | #cellsTable tr.windywidgetairTemp |
-    | Wind speed (m/s) | #cellsTable tr.windywidgetwindSpeed |
-    | Wind gust (m/s) | #cellsTable tr.windywidgetwindGust |
-    | Precipitation (mm/3hr) | #cellsTable tr#percipCell text.precip-graph-value |
     | Swell height (m) | #cellsTable tr.windywidgetwavesheight |
   ```
 - ```
-  What are the feels-like temperature, UV index, precipitation probability and humidity at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://weather.googleapis.com/v1/forecast/days:lookup?key=${GOOGLE_WEATHER_API_KEY}&location.latitude=-36.97484844433063&location.longitude=174.62043566419308&pageSize=10 Respond in JSON format without any explanation. Use playwright-headless MCP.
+  What are the temperature, feels-like temperature, UV index, precipitation probability, precipitation quantity, wind cardinal direction (e.g. NE, SW WSW, ENE), wind speed, wind gust and humidity at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://weather.googleapis.com/v1/forecast/hours:lookup?key=${GOOGLE_WEATHER_API_KEY}&location.latitude=-36.97484844433063&location.longitude=174.62043566419308&hours=240&pageSize=24 Respond in JSON format without any explanation. Use cURL. Pass the nextPageToken value into the pageToken to fetch all 10 days.
   ```
 - ```
-  What is the sea surface temperature at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://marine-api.open-meteo.com/v1/marine?latitude=-36.97484844433063&longitude=174.62043566419308&hourly=sea_surface_temperature&forecast_days=9 Respond in JSON format without any explanation. Use playwright-headless MCP.
+  What is the sea surface temperature at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://marine-api.open-meteo.com/v1/marine?latitude=-36.97484844433063&longitude=174.62043566419308&hourly=sea_surface_temperature&forecast_days=9 Respond in JSON format without any explanation. Use cURL.
   ```
 - ```
-  What are the sunrise and sunset times at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days? Use https://api.sunrise-sunset.org/json?lat=-36.97484844433063&lng=174.62043566419308&date={date}&formatted=0 for each date. Respond in JSON format without any explanation, converting UTC times to the local timezone of the geolocation. Include sunrise, sunset, and civilTwilightEnd for each date.
+  What are the sunrise and sunset times at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days? Use https://api.sunrise-sunset.org/json?lat=-36.97484844433063&lng=174.62043566419308&date={date}&formatted=0 for each date. Respond in JSON format without any explanation, converting UTC times to the local timezone of the geolocation. Include sunrise, sunset, and civilTwilightEnd for each date. Use cURL.
   ```
 
-Close all browser pages after data fetching.
+## Data Granularity
+
+All data sources currently provide hourly or sub-daily granularity. Each field may vary across time windows:
+- Wind speed, wind gust, wind direction (hourly)
+- Temperature, feels-like temperature (hourly)
+- UV index (hourly)
+- Precipitation amount, precipitation chance (hourly)
+- Humidity (hourly)
+- Water quality (hourly)
+- Swell height (hourly)
+- Sea surface temperature (hourly)
+- Tide position (interpolated from turning times)
+- Daylight (calculated from sunrise/sunset)
 
 ## Scoring Criteria
 
@@ -51,14 +61,14 @@ Wind direction:
 - Snorkelling: Calm ideal (affects surface chop and visibility).
 - Cycling: Headwind/crosswind degrades, tailwind helps.
 
-### Precipitation (mm/3hr)
+### Precipitation (mm/hr)
 
 | Condition | SUP | Kayaking | Snorkelling | Cycling |
 |---|---|---|---|---|
 | Ideal | 0 | 0 | 0 | 0 |
-| Acceptable | <1 | <1 | <1 | <1 |
-| Marginal | 1-4 | 1-5 | 1-4 | 1-3 |
-| Unsuitable | >4 | >5 | >4 | >3 |
+| Acceptable | <0.5 | <0.5 | <0.5 | <0.5 |
+| Marginal | 0.5-2 | 0.5-2.5 | 0.5-2 | 0.5-1.5 |
+| Unsuitable | >2 | >2.5 | >2 | >1.5 |
 
 Rain beyond a drizzle degrades all activities significantly. Wet conditions reduce safety (slippery surfaces, poor visibility) and comfort across the board. Cycling is slightly more sensitive due to road spray and braking.
 
@@ -119,8 +129,8 @@ Calculate the percentage of usable-light hours within each time window:
 | Condition | All activities |
 |---|---|
 | Ideal | ≤5 |
-| Acceptable | 6-7 |
-| Marginal | 8-10 |
+| Acceptable | >5 ≤8 |
+| Marginal | >8 ≤10 |
 | Unsuitable | >10 |
 
 UV affects all outdoor activities. Water activities have additional exposure from surface reflection.
@@ -151,7 +161,7 @@ Poor visibility reduces the snorkelling experience and can mask hazards like roc
 
 ## JSON Output
 
-**Write the JSON output to `forecast.json` in the project root directory.**
+**Write the JSON output to `forecast.json` in the project root directory. Exit immediately after writing the JSON file. Do not take any further actions.**
 
 Using the scoring criteria above, produce a JSON entry for each combination of activity (`sup`, `kayaking`, `snorkelling`, `cycling`) and time window (`all-day`, `morning`, `afternoon`, `evening`) on 2026-02-13 and for the next 9 days.
 
@@ -161,13 +171,23 @@ Time windows:
 - Evening: 6pm-10pm
 - All-day: 6am-10pm
 
-When a time window spans multiple hours, use the worst-case condition (e.g. highest wind speed, highest precipitation, worst water quality, strongest tidal flow, lowest daylight percentage) to determine the score.
+When a time window spans multiple hours, aggregate each factor as follows (these rules apply when hourly data is available; for fields with only daily data, use the single daily value identically across all time windows):
+- Wind speed/gust: use the worst-case (highest) value.
+- Wind direction: use the predominant direction (most frequent across hours). If tied, use the direction at the hour with the highest wind speed.
+- Precipitation: use the worst-case (highest amount, highest chance).
+- Tide: use the best condition within the window — users can adjust their trip to the optimal tidal window. The overall score should also use this best tidal condition.
+- Water quality: use the worst-case.
+- Temperature/feels-like: use the best-case (closest to ideal range) — users can time their activity to the most comfortable part of the window.
+- Daylight: use the percentage of the window that falls within usable-light hours.
+- UV index: use the worst-case (highest).
+- Humidity: use the worst-case (furthest from ideal range).
+- Underwater visibility: use the worst-case (lowest estimate).
 
 The `summary` field must explain how conditions affect the specific activity — never use generic labels like "Unsuitable conditions". Mention the dominant factor(s) and why they matter for that activity. Good: "43km/h SW wind is too strong for stable stand-up paddling." Good: "Light 8km/h tailwind, great riding conditions." Bad: "Unsuitable conditions."
 
 The `analysis` field is a multi-paragraph AI analysis for the detail page. Use `\n\n` to separate paragraphs.
 
-The `hourly` array contains hourly scores for the hours within that time range. Each entry has `time` (HH:MM), `score`, and `condition`.
+The `hourly` array contains hourly scores for the hours within that time range. Each entry has `time` (HH:MM), `score`, and `condition`. When a factor only has daily data, hourly scores for that factor will be identical. Variation in hourly scores should come only from factors with real hourly data (e.g. tide position, water quality, daylight).
 
 Output in the following JSON format:
 ```

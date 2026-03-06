@@ -32,7 +32,7 @@ const buildPrompt = (location, filename) => pipe(
 const runClaude = (filename, prompt) => {
   info('Running Claude prompt')
   const stdout = execSync(`claude --dangerously-skip-permissions --model "sonnet" \
---strict-mcp-config --mcp-config ".mcp-playwright.json" --output-format "text" --print`, { input: prompt })
+--strict-mcp-config --mcp-config ".mcp-playwright.json" --print`, { input: prompt })
   info(stdout.toString())
   return JSON.parse(readFileSync(resolve(currentDir, `../${filename}`), 'utf-8'))
 }
@@ -126,6 +126,6 @@ updateForecasts(process.argv[2])
     process.exit(0)
   })
   .catch(err => {
-    error('Update failed:', err)
+    error('Update failed:', err.stdout?.toString() || err)
     process.exit(1)
   })
