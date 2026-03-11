@@ -1,7 +1,9 @@
+import { cookies } from 'next/headers'
 import ActivitySelector from '@/app/(app)/components/activity-selector'
 import LocationList from '@/app/(app)/components/location-list'
 import TimeWindowPicker from '@/app/(app)/components/time-window-picker'
 import { ForecastStoreProvider } from '@/app/(app)/stores/forecast-store'
+import { pickPreferences } from '@/app/utils/preferences-storage'
 import { deslugify } from '@/app/utils/string'
 import { getForecastsByCity } from '@/db/queries/forecasts'
 
@@ -22,9 +24,16 @@ export async function generateMetadata({ params }) {
 export default async function CityHomePage({ params }) {
   const { city: citySlug } = await params
   const forecast = await getForecastsByCity(citySlug)
+  const cookieStore = await cookies()
+  const initialState = {
+    ...pickPreferences(cookieStore.getAll()),
+    isLoaded: true,
+    citySlug,
+    forecast,
+  }
 
   return (
-    <ForecastStoreProvider initialState={{ citySlug, forecast, isLoaded: true }}>
+    <ForecastStoreProvider initialState={initialState}>
       <ActivitySelector />
       <TimeWindowPicker />
       <LocationList />

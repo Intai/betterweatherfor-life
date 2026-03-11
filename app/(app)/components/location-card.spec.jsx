@@ -11,6 +11,7 @@ jest.mock('react-i18next', () => ({
 
 jest.mock('lucide-react', () => ({
   X: props => <svg data-testid="x-icon" {...props} />,
+  Droplet: props => <svg data-testid="droplet-icon" {...props} />,
 }))
 
 import LocationCard from './location-card'
@@ -25,7 +26,7 @@ describe('LocationCard', () => {
     wind: { speed: '8km/h', direction: 'NE', condition: 'ideal' },
     tide: { state: 'Rising', percentage: 70, condition: 'ideal' },
     water: { quality: 'Green' },
-    temp: { air: '22°C' },
+    temp: { air: '22\u00B0C' },
     summary: 'Light onshore breeze, excellent for paddling this morning.',
   }
 
@@ -49,7 +50,7 @@ describe('LocationCard', () => {
     expect(screen.getByText('8km/h NE')).toBeInTheDocument()
     expect(screen.getByText('Rising 70%')).toBeInTheDocument()
     expect(screen.getByText('Green')).toBeInTheDocument()
-    expect(screen.getByText('22°C')).toBeInTheDocument()
+    expect(screen.getByText('22\u00B0C')).toBeInTheDocument()
   })
 
   it('should render AI summary text', () => {
@@ -62,11 +63,16 @@ describe('LocationCard', () => {
     expect(screen.queryByText('temp')).not.toBeInTheDocument()
   })
 
-  it('should call removeForecast with forecastKey when remove button is clicked', () => {
+  it('should call removeForecast with forecastKey and prevent event propagation when remove button is clicked', () => {
     render(<LocationCard {...defaultProps} />)
 
     const removeButton = screen.getByTestId('remove-location-button')
-    fireEvent.click(removeButton)
+    const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true })
+    Object.defineProperty(clickEvent, 'preventDefault', { value: jest.fn() })
+    Object.defineProperty(clickEvent, 'stopPropagation', { value: jest.fn() })
+    fireEvent(removeButton, clickEvent)
+    expect(clickEvent.preventDefault).toHaveBeenCalled()
+    expect(clickEvent.stopPropagation).toHaveBeenCalled()
     expect(mockRemoveForecast).toHaveBeenCalledWith('sup;2026-02-11;all-day;-36.8547,174.8317')
   })
 })

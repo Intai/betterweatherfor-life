@@ -34,6 +34,8 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
   - `npm run lint -- "path/to/file.js*"` to lint a specific file.
 - `npm test -- --silent` to run all unit tests.
   - `npm test -- --runTestsByPath "path/to/file.spec.js*" --testNamePattern="matching string" --silent` to run specific unit tests in a spec file.
+- `npm run test:e2e` to run all Playwright tests.
+  - `npm run test:e2e -- --grep "matching string" file.spec.js` to run specific Playwright tests in a spec file.
 
 ## Convention
 

@@ -74,26 +74,26 @@ Feature: Top Appbar
   # =============================================================================
 
   Scenario Outline: TAB-04: Top appbar transitions between mobile and desktop layout on viewport resize from <route>
-    Given the browser viewport is <from_width>
+    Given the browser viewport is <fromWidth>
     When I navigate to the "<route>" page
-    Then the top appbar <should_from_app_logo> display the app logo
-    And the top appbar should display the app name "<from_title>"
-    And the hamburger menu button <should_from_hamburger> be visible
-    And the back button <should_from_back_button> be visible
-    When I resize the viewport to desktop width <to_width>
-    Then the top appbar <should_to_app_logo> display the app logo
-    And the top appbar should display the app name "<to_title>"
-    And the hamburger menu button <should_to_hamburger> be visible
-    And the back button <should_from_back_button> be visible
+    Then the top appbar <shouldFromAppLogo> display the app logo
+    And the top appbar should display the app name "<fromTitle>"
+    And the hamburger menu button <shouldFromHamburger> be visible
+    And the back button <shouldFromBackButton> be visible
+    When I resize the viewport to desktop width <toWidth>
+    Then the top appbar <shouldToAppLogo> display the app logo
+    And the top appbar should display the app name "<toTitle>"
+    And the hamburger menu button <shouldToHamburger> be visible
+    And the back button <shouldToBackButton> be visible
 
     Examples:
-      | route     | from_width | to_width | from_title         | to_title           | should_from_app_logo | should_to_app_logo | should_from_hamburger | should_to_hamburger | should_from_back_button | should_from_back_button |
-      | /home     | 375px      | 1280px   | Better Weather for | Home               | should               | should not         | should                | should not          | should not              | should not              |
-      | /home     | 1024px     | 1280px   | Better Weather for | Home               | should               | should not         | should                | should not          | should not              | should not              |
-      | /home     | 1280px     | 375px    | Home               | Better Weather for | should not           | should             | should not            | should              | should not              | should not              |
-      | /forecast | 375px      | 1280px   | 7-Day Forecast     | 7-Day Forecast     | should not           | should not         | should not            | should not          | should                  | should not              |
-      | /forecast | 1024px     | 1280px   | 7-Day Forecast     | 7-Day Forecast     | should not           | should not         | should not            | should not          | should                  | should not              |
-      | /forecast | 1280px     | 375px    | 7-Day Forecast     | 7-Day Forecast     | should not           | should not         | should not            | should not          | should not              | should                  |
+      | route     | fromWidth | toWidth | fromTitle          | toTitle            | shouldFromAppLogo | shouldToAppLogo | shouldFromHamburger | shouldToHamburger | shouldFromBackButton | shouldToBackButton |
+      | /home     | 375px     | 1280px  | Better Weather for | Home               | should            | should not      | should              | should not        | should not           | should not         |
+      | /home     | 1024px    | 1280px  | Better Weather for | Home               | should            | should not      | should              | should not        | should not           | should not         |
+      | /home     | 1280px    | 375px   | Home               | Better Weather for | should not        | should          | should not          | should            | should not           | should not         |
+      | /forecast | 375px     | 1280px  | 7-Day Forecast     | 7-Day Forecast     | should not        | should not      | should not          | should not        | should               | should not         |
+      | /forecast | 1024px    | 1280px  | 7-Day Forecast     | 7-Day Forecast     | should not        | should not      | should not          | should not        | should               | should not         |
+      | /forecast | 1280px    | 375px   | 7-Day Forecast     | 7-Day Forecast     | should not        | should not      | should not          | should not        | should not           | should             |
 
   # =============================================================================
   # Scenario Group: Keyboard Accessibility

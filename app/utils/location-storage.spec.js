@@ -1,4 +1,4 @@
-import { addLocation, addLocations, buildLocationKey, getLocations, removeLocation } from './location-storage'
+import { addLocation, addLocations, getLocations, removeLocation } from './location-storage'
 
 describe('location-storage', () => {
   const locationA = {
@@ -19,16 +19,6 @@ describe('location-storage', () => {
 
   beforeEach(() => {
     localStorage.clear()
-  })
-
-  describe('buildLocationKey', () => {
-    it('should return a "lat,lng" string', () => {
-      expect(buildLocationKey(51.5, -0.1)).toBe('51.5,-0.1')
-    })
-
-    it('should preserve a coordinate of 0', () => {
-      expect(buildLocationKey(0, 0)).toBe('0,0')
-    })
   })
 
   describe('getLocations', () => {

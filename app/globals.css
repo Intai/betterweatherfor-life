@@ -160,6 +160,7 @@
   --color-temp-warm: var(--temp-warm);
   --color-temp-hot: var(--temp-hot);
   --color-temp-extreme: var(--temp-extreme);
+  --color-sidebar: var(--sidebar-background);
   --color-sidebar-background: var(--sidebar-background);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);

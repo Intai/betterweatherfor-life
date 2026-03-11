@@ -106,22 +106,22 @@ test.describe('Feature: App Folder Structure', () => {
     {
       city: 'auckland',
       title: 'Auckland - Best Outdoor Spots | Better Weather For Life',
-      og_title: 'Auckland - Best Outdoor Spots',
+      ogTitle: 'Auckland - Best Outdoor Spots',
       description: 'Find the best spots for SUP, kayaking, snorkeling, and cycling in Auckland based on current weather and sea conditions.',
     },
     {
       city: 'wellington',
       title: 'Wellington - Best Outdoor Spots | Better Weather For Life',
-      og_title: 'Wellington - Best Outdoor Spots',
+      ogTitle: 'Wellington - Best Outdoor Spots',
       description: 'Find the best spots for SUP, kayaking, snorkeling, and cycling in Wellington based on current weather and sea conditions.',
     },
     {
       city: 'christchurch',
       title: 'Christchurch - Best Outdoor Spots | Better Weather For Life',
-      og_title: 'Christchurch - Best Outdoor Spots',
+      ogTitle: 'Christchurch - Best Outdoor Spots',
       description: 'Find the best spots for SUP, kayaking, snorkeling, and cycling in Christchurch based on current weather and sea conditions.',
     },
-  ].forEach(({ city, title, og_title, description }) => {
+  ].forEach(({ city, title, ogTitle, description }) => {
     test(`AFS-04: City home page is accessible and server-side rendered (${city})`, async ({ page }) => {
       // When I navigate to "/<city>/home"
       const response = await page.goto(`${BASE_URL}/${city}/home`);
@@ -138,10 +138,10 @@ test.describe('Feature: App Folder Structure', () => {
         description,
       );
 
-      // And the page should contain an "og:title" meta tag with "<og_title>"
+      // And the page should contain an "og:title" meta tag with "<ogTitle>"
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
         'content',
-        og_title,
+        ogTitle,
       );
 
       // And the page should contain an "og:description" meta tag with "<description>"
@@ -161,22 +161,22 @@ test.describe('Feature: App Folder Structure', () => {
     {
       city: 'auckland',
       title: 'Auckland 7-Day Forecast | Better Weather For Life',
-      og_title: 'Auckland 7-Day Forecast',
+      ogTitle: 'Auckland 7-Day Forecast',
       description: '7-day weather, tide, and sea conditions forecast for outdoor activities in Auckland.',
     },
     {
       city: 'wellington',
       title: 'Wellington 7-Day Forecast | Better Weather For Life',
-      og_title: 'Wellington 7-Day Forecast',
+      ogTitle: 'Wellington 7-Day Forecast',
       description: '7-day weather, tide, and sea conditions forecast for outdoor activities in Wellington.',
     },
     {
       city: 'new-plymouth',
       title: 'New Plymouth 7-Day Forecast | Better Weather For Life',
-      og_title: 'New Plymouth 7-Day Forecast',
+      ogTitle: 'New Plymouth 7-Day Forecast',
       description: '7-day weather, tide, and sea conditions forecast for outdoor activities in New Plymouth.',
     },
-  ].forEach(({ city, title, og_title, description }) => {
+  ].forEach(({ city, title, ogTitle, description }) => {
     test(`AFS-05: City forecast page is accessible and server-side rendered (${city})`, async ({ page }) => {
       // When I navigate to "/<city>/forecast"
       const response = await page.goto(`${BASE_URL}/${city}/forecast`);
@@ -193,10 +193,10 @@ test.describe('Feature: App Folder Structure', () => {
         description,
       );
 
-      // And the page should contain an "og:title" meta tag with "<og_title>"
+      // And the page should contain an "og:title" meta tag with "<ogTitle>"
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
         'content',
-        og_title,
+        ogTitle,
       );
 
       // And the page title and description should be present in the raw server response
@@ -208,23 +208,23 @@ test.describe('Feature: App Folder Structure', () => {
 
   [
     {
-      city: 'auckland',
-      geolocation: '-36.84,174.76',
-      title: 'Auckland -36.84%2C174.76 | Better Weather For Life',
-      og_title: 'Auckland -36.84%2C174.76',
-      description: 'Current weather, tide, and sea conditions for outdoor activities in Auckland.',
+      name: 'mission-bay',
+      geolocation: '-36.8547,174.8317',
+      title: 'Mission Bay - Weather & Conditions | Better Weather For Life',
+      ogTitle: 'Mission Bay - Weather & Conditions',
+      description: 'View detailed weather, tide, and sea conditions for Mission Bay. Find the best time for SUP, kayaking, snorkeling, and cycling.',
     },
     {
-      city: 'sydney',
-      geolocation: '-33.89,151.27',
-      title: 'Sydney -33.89%2C151.27 | Better Weather For Life',
-      og_title: 'Sydney -33.89%2C151.27',
-      description: 'Current weather, tide, and sea conditions for outdoor activities in Sydney.',
+      name: 'takapuna-beach',
+      geolocation: '-36.7878,174.7768',
+      title: 'Takapuna Beach - Weather & Conditions | Better Weather For Life',
+      ogTitle: 'Takapuna Beach - Weather & Conditions',
+      description: 'View detailed weather, tide, and sea conditions for Takapuna Beach. Find the best time for SUP, kayaking, snorkeling, and cycling.',
     },
-  ].forEach(({ city, geolocation, title, og_title, description }) => {
-    test(`AFS-06: City location detail page is accessible and server-side rendered (${city})`, async ({ page }) => {
-      // When I navigate to "/<city>/location/<geolocation>"
-      const response = await page.goto(`${BASE_URL}/${city}/location/${geolocation}`);
+  ].forEach(({ name, geolocation, title, ogTitle, description }) => {
+    test(`AFS-06: Location detail page is accessible and server-side rendered (${name})`, async ({ page }) => {
+      // When I navigate to "/location/<name>/<geolocation>"
+      const response = await page.goto(`${BASE_URL}/location/${name}/${geolocation}`);
 
       // Then the page should return status code 200
       expect(response.status()).toBe(200);
@@ -238,10 +238,10 @@ test.describe('Feature: App Folder Structure', () => {
         description,
       );
 
-      // And the page should contain an "og:title" meta tag with "<og_title>"
+      // And the page should contain an "og:title" meta tag with "<ogTitle>"
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
         'content',
-        og_title,
+        ogTitle,
       );
 
       // And the page should contain an "og:description" meta tag with "<description>"
@@ -251,8 +251,8 @@ test.describe('Feature: App Folder Structure', () => {
       );
 
       // And the page title and description should be present in the raw server response
-      const html = execSync(`curl -s ${BASE_URL}/${city}/location/${geolocation}`, { encoding: 'utf-8' });
-      expect(html).toContain(`<title>${title}</title>`);
+      const html = execSync(`curl -s ${BASE_URL}/location/${name}/${geolocation}`, { encoding: 'utf-8' });
+      expect(html).toContain(`<title>${title.replace(/&/g, '&amp;')}</title>`);
       expect(html).toContain(description);
     });
   });
@@ -260,7 +260,6 @@ test.describe('Feature: App Folder Structure', () => {
   [
     { route: '/home' },
     { route: '/forecast' },
-    { route: '/location/-33.89,151.27' },
   ].forEach(({ route }) => {
     test(`AFS-07: App pages are accessible and client-side rendered (${route})`, async ({ page }) => {
       // When I navigate to "<route>"

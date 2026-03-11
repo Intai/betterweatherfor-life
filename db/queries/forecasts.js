@@ -1,18 +1,20 @@
 import { and, eq, or } from 'drizzle-orm'
-import { buildForecastKey } from '../../app/utils/forecast.js'
+import { buildForecastKey, buildLocationKey } from '../../app/utils/forecast.js'
 import { indexByToValue } from '../../app/utils/list.js'
 import db from '../index.js'
 import { forecasts } from '../schema/forecasts.js'
 import { locations } from '../schema/locations.js'
 
 const getForecastKey = ({ locations, forecasts }) => {
-  const coordinates = `${locations.latitude},${locations.longitude}`
+  const coordinates = buildLocationKey(locations.latitude, locations.longitude)
   return buildForecastKey(forecasts.activity, forecasts.date, forecasts.timeRange, coordinates)
 }
 
 const getForecastValue = ({ locations, forecasts }) => ({
   name: locations.name,
   area: locations.area,
+  latitude: locations.latitude,
+  longitude: locations.longitude,
   timeZone: locations.timeZone,
   score: forecasts.score,
   condition: forecasts.condition,

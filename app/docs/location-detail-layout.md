@@ -6,7 +6,7 @@ Detailed view of a single location showing full condition breakdown, AI explanat
 
 ```
 +---------------------------------------+
-| [<] Mission Bay                       |
+| [<] Mission Bay                  [⤴] |
 +---------------------------------------+
 |                                       |
 |          +------------------+         |
@@ -124,10 +124,6 @@ Detailed view of a single location showing full condition breakdown, AI explanat
 | |  85    87    85    78    65   58  | |
 | |  [=]   [=]   [=]   [=]   [-]  [-] | |
 | +-----------------------------------+ |
-|                                       |
-+---------------------------------------+
-|                                       |
-|           [ Share Location ]          |
 |                                       |
 +---------------------------------------+
 ```
@@ -254,13 +250,10 @@ See [Home Screen Layout](home-layout.md#tide-icon) for icon specification.
 - Visual indicator for current time
 
 ### Share Button
-- Inline with content at bottom
+- Icon button in the sticky header, right-aligned
 - Opens native share sheet
 - Shares link to location with current settings
-- Could include pre-formatted message
-- Disabled state for unsuitable conditions (severe weather alerts)
-  - Button grayed out with "Not Recommended Today" text
-  - Helper text explains sharing is disabled for safety
+- Always visible on location detail pages regardless of condition
 
 ## Interactions
 
@@ -278,7 +271,7 @@ See [Home Screen Layout](home-layout.md#tide-icon) for icon specification.
   - **Selected hour**: Highlighted border - indicates currently displayed hour
 
 ### Share Flow
-1. Tap Share button
+1. Tap share icon in header
 2. Native share sheet opens
 3. Options: Copy link, Messages, Email, etc.
 4. Shared link opens Location Detail directly

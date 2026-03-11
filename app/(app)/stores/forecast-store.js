@@ -5,17 +5,17 @@ import { assocPath, dissocPath, mergeDeepRight, pipe } from 'ramda'
 import { createStore, useStore } from 'zustand'
 import { ALL_DAY, TODAY } from '@/app/(app)/constants'
 import { fetchJson, postJson } from '@/app/utils/api'
-import { extractCityLocations, extractLocationKey } from '@/app/utils/forecast'
+import { buildLocationKey, extractCityLocations, extractLocationKey } from '@/app/utils/forecast'
 import {
   addLocations,
-  buildLocationKey,
   removeLocation as deleteLocation,
   getLocations,
   addLocation as saveLocation,
 } from '@/app/utils/location-storage'
+import { getPreferences, setPreference } from '@/app/utils/preferences-storage'
 import { SUP } from '../constants'
 
-const defaultState = {
+const baseState = {
   isLoaded: false,
   citySlug: null,
   locations: null,
@@ -28,12 +28,26 @@ const defaultState = {
 
 export function createForecastStore(initialState) {
   return createStore((set, get) => ({
-    ...defaultState,
+    ...baseState,
     ...initialState,
-    setActivity: activity => set({ selectedActivity: activity }),
-    setDay: day => set({ selectedDay: day }),
-    setDate: date => set({ selectedDate: date }),
-    setTimeRange: timeRange => set({ selectedTimeRange: timeRange }),
+    ...getPreferences(),
+
+    setActivity: activity => {
+      set({ selectedActivity: activity })
+      setPreference('selectedActivity', activity)
+    },
+    setDay: day => {
+      set({ selectedDay: day })
+      setPreference('selectedDay', day)
+    },
+    setDate: date => {
+      set({ selectedDate: date })
+      setPreference('selectedDate', date)
+    },
+    setTimeRange: timeRange => {
+      set({ selectedTimeRange: timeRange })
+      setPreference('selectedTimeRange', timeRange)
+    },
 
     /**
      * Loads locations from local storage and fetches their forecasts from the API.

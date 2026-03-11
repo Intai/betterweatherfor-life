@@ -1,5 +1,28 @@
-import { assoc, map, pick, pipe, reduce, split, toPairs } from 'ramda'
+import { assoc, identity, map, maxBy, pick, pipe, propOr, reduce, split, toPairs, when } from 'ramda'
 import { joinBySemicolon } from '@/app/utils/string'
+
+/**
+ * Find the hourly slot with the highest score.
+ * Returns null for falsy or empty input. On ties, returns the first occurrence.
+ * @param {object[]|null|undefined} hourly - Array of hourly forecast objects with a `score` property.
+ * @returns {object|null} The hour object with the highest score, or null.
+ */
+export const findBestHour = when(identity, reduce(maxBy(propOr(-1, 'score')), null))
+
+/**
+ * Build a storage key from coordinates.
+ * @param {number} latitude
+ * @param {number} longitude
+ * @returns {string} A "lat,lng" coordinate string.
+ */
+export const buildLocationKey = (latitude, longitude) => `${latitude},${longitude}`
+
+/**
+ * Split a location key into its numeric coordinates.
+ * @param {string} locationKey - A "lat,lng" coordinate string.
+ * @returns {number[]} A tuple of [latitude, longitude].
+ */
+export const splitLocationKey = pipe(split(','), map(Number))
 
 /**
  * Build a semicolon-delimited key that uniquely identifies a forecast query.
@@ -19,8 +42,6 @@ export const buildForecastKey = (activity, date, timeRange, coordinates) => join
  * @returns {string} The location coordinates segment.
  */
 export const extractLocationKey = forecastKey => forecastKey.split(';').pop()
-
-export const splitLocationKey = pipe(split(','), map(Number))
 
 const pickLocationFields = pick(['name', 'area', 'timeZone'])
 

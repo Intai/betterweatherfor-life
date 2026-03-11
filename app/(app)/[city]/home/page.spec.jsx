@@ -1,14 +1,17 @@
 import { render, screen } from '@testing-library/react'
 import CityHomePage, { generateMetadata } from './page'
 
-const mockGetForecastsByCity = jest.fn()
+const mockCookies = jest.fn()
+jest.mock('next/headers', () => ({
+  cookies: () => mockCookies(),
+}))
 
+const mockGetForecastsByCity = jest.fn()
 jest.mock('@/db/queries/forecasts', () => ({
   getForecastsByCity: (...args) => mockGetForecastsByCity(...args),
 }))
 
 let capturedInitialState
-
 jest.mock('@/app/(app)/stores/forecast-store', () => ({
   ForecastStoreProvider: ({ children, initialState }) => {
     capturedInitialState = initialState
@@ -54,6 +57,7 @@ const mockForecast = {
 describe('CityHomePage', () => {
   beforeEach(() => {
     capturedInitialState = undefined
+    mockCookies.mockResolvedValue({ getAll: () => [] })
     mockGetForecastsByCity.mockResolvedValue(mockForecast)
   })
 
@@ -93,6 +97,20 @@ describe('CityHomePage', () => {
 
     expect(mockGetForecastsByCity).toHaveBeenCalledWith('wellington')
     expect(capturedInitialState).toEqual({ citySlug: 'wellington', forecast: {}, isLoaded: true  })
+  })
+
+  it('should include preference cookies in initialState', async () => {
+    mockCookies.mockResolvedValue({ getAll: () => [{ name: 'selectedActivity', value: 'kayaking' }] })
+    const params = Promise.resolve({ city: 'auckland' })
+    const Page = await CityHomePage({ params })
+    render(Page)
+
+    expect(capturedInitialState).toEqual({
+      selectedActivity: 'kayaking',
+      citySlug: 'auckland',
+      forecast: mockForecast,
+      isLoaded: true,
+    })
   })
 })
 

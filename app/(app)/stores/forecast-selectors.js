@@ -1,11 +1,35 @@
 import { useMemo } from 'react'
-import { always, ascend, descend, filter, identity, ifElse, last, pipe, prop, sort, toPairs } from 'ramda'
+import { always, ascend, descend, filter, find, identity, ifElse, last, pipe, prop, sort, toPairs } from 'ramda'
 import { formatForecastDate } from '@/app/utils/date'
 import { buildForecastKey } from '@/app/utils/forecast'
 import { emptyArray } from '@/app/utils/list'
 import { useForecastStore } from './forecast-store'
 
 const sortByScore = sort(descend(pipe(last, prop('score'))))
+
+export const buildForecastEntry = (selectedActivity, selectedDay, selectedDate, selectedTimeRange, geolocation) => pipe(
+  toPairs,
+  find(([key, entry]) => {
+    const date = formatForecastDate(selectedDay, selectedDate, entry.timeZone)
+    const forecastKey = buildForecastKey(selectedActivity, date, selectedTimeRange, geolocation)
+    return key === forecastKey
+  }),
+)
+
+/**
+ * Returns the forecast entry matching the given geolocation and the selected
+ * activity, day, date, and time range from the store.
+ *
+ * @param {string} geolocation - Coordinates string in "lat,lng" format.
+ * @returns {[string, object]|undefined} Forecast key-entry pair, or undefined if not found.
+ */
+export function useForecastEntry(geolocation) {
+  const { forecast, selectedActivity, selectedDay, selectedDate, selectedTimeRange } = useForecastStore()
+  return useMemo(
+    () => buildForecastEntry(selectedActivity, selectedDay, selectedDate, selectedTimeRange, geolocation)(forecast),
+    [forecast, selectedActivity, selectedDay, selectedDate, selectedTimeRange, geolocation],
+  )
+}
 
 export const buildForecastEntries = (selectedActivity, selectedDay, selectedDate, selectedTimeRange) => pipe(
   toPairs,

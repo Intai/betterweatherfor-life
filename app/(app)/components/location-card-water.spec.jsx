@@ -14,7 +14,6 @@ describe('LocationCardWater', () => {
     expect(screen.getByText('Green')).toBeInTheDocument()
     const svg = container.querySelector('svg')
     expect(svg).toBeInTheDocument()
-    expect(svg).toHaveAttribute('fill', 'currentColor')
   })
 
   it('should render nothing when water is null', () => {

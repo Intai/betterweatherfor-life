@@ -1,9 +1,12 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import { prop } from 'ramda'
 import { useForecastEntries, useScheduledLocationEntries } from '@/app/(app)/stores/forecast-selectors'
 import { useForecastStore } from '@/app/(app)/stores/forecast-store'
+import { buildLocationKey } from '@/app/utils/forecast'
+import { slugify } from '@/app/utils/string'
 import { selectIsLoaded } from '@/app/utils/zustand'
 import { Skeleton } from '@/shadcn/components/ui/skeleton'
 import LocationCard from './location-card'
@@ -48,19 +51,22 @@ export default function LocationList() {
         <section className="px-4 pb-6 md:px-6">
           <div className="space-y-4 md:grid md:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] md:gap-4 md:space-y-0">
             {entries.map(([key, entry]) => (
-              <LocationCard
-                key={key}
-                forecastKey={key}
-                name={entry.name}
-                area={entry.area}
-                score={entry.score}
-                condition={entry.condition}
-                wind={entry.wind}
-                tide={entry.tide}
-                water={entry.water}
-                temp={entry.temp}
-                summary={entry.summary}
-              />
+              <Link key={key} href={`/location/${slugify(entry.name)}/${buildLocationKey(entry.latitude, entry.longitude)}`}>
+                <LocationCard
+                  forecastKey={key}
+                  name={entry.name}
+                  area={entry.area}
+                  latitude={entry.latitude}
+                  longitude={entry.longitude}
+                  score={entry.score}
+                  condition={entry.condition}
+                  wind={entry.wind}
+                  tide={entry.tide}
+                  water={entry.water}
+                  temp={entry.temp}
+                  summary={entry.summary}
+                />
+              </Link>
             ))}
             {scheduledLocations.map(([key, location]) => (
               <ScheduledLocationCard

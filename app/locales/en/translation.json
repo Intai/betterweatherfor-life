@@ -23,12 +23,14 @@
     },
     "conditions": {
       "score": "Score",
-      "acceptable": "Acceptable",
       "ideal": "Ideal",
+      "acceptable": "Acceptable",
       "marginal": "Marginal",
+      "unsuitable": "Unsuitable",
+      "daylight": "Daylight",
+      "precipitation": "Precipitation",
       "temp": "Temp",
       "tide": "Tide",
-      "unsuitable": "Unsuitable",
       "water": "Water",
       "wind": "Wind"
     },
@@ -59,6 +61,49 @@
       "morning": "Morning",
       "afternoon": "Afternoon",
       "evening": "Evening"
+    }
+  },
+  "locationDetail": {
+    "conditions": "Conditions",
+    "aiAnalysis": "AI Analysis",
+    "forecast": "Forecast",
+    "share": "Share Location",
+    "bestAt": "Best conditions at {{time}}",
+    "wind": {
+      "speed": "Speed",
+      "direction": "Direction",
+      "gust": "Gust"
+    },
+    "tide": {
+      "state": "State",
+      "swell": "Swell",
+      "nextHigh": "Next high",
+      "nextLow": "Next low"
+    },
+    "water": {
+      "quality": "Quality"
+    },
+    "temp": {
+      "air": "Air",
+      "feelsLike": "Feels like",
+      "water": "Water"
+    },
+    "precipitation": {
+      "amount": "Amount",
+      "chance": "Chance"
+    },
+    "uv": {
+      "index": "UV Index"
+    },
+    "humidity": {
+      "percentage": "Humidity"
+    },
+    "visibility": {
+      "estimate": "Visibility"
+    },
+    "daylight": {
+      "sunset": "Sunset",
+      "civilTwilightEnd": "Civil twilight"
     }
   }
 }

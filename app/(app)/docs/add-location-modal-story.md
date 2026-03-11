@@ -36,7 +36,7 @@ As an outdoor enthusiast, I want to search for and add new locations to my list 
 **Sequential tasks 8-9:**
 
 8. Use frontend-developer subagent to create generic localStorage utility @app/utils/local-storage.js. Export `getItem(key, fallback)` that reads and parses JSON returning `fallback` if missing or corrupt, and `setItem(key, value)` that JSON.stringifies and writes.
-9. Use frontend-developer subagent to create location storage utility @app/utils/location-storage.js. Built on `local-storage.js`. Export `buildLocationKey(latitude, longitude)` returning `` `${latitude},${longitude}` ``, `getLocations()` (returns object, fallback `{}`), `addLocation({ name, area, latitude, longitude, timeZone })` (uses `assoc(key, value, locations)`), and `removeLocation(key)` (uses `dissoc(key, locations)`).
+9. Use frontend-developer subagent to create location storage utility @app/utils/location-storage.js. Built on `local-storage.js`. Import `buildLocationKey` `${latitude},${longitude}` from @app/utils/forecast. Export `getLocations()` (returns object, fallback `{}`), `addLocation({ name, area, latitude, longitude, timeZone })` (uses `assoc(key, value, locations)`), and `removeLocation(key)` (uses `dissoc(key, locations)`).
 
 **Sequential task 10 after task 1 completes:**
 
@@ -54,7 +54,7 @@ As an outdoor enthusiast, I want to search for and add new locations to my list 
 
 **Sequential tasks 15-16 after task 9 completes:**
 
-15. Use frontend-developer subagent to update forecast store @app/(app)/stores/forecast-store.js. Import `buildLocationKey` from `location-storage` and `assoc` from Ramda. `addLocation`: after API response, use the API response directly as `loc`, save to localStorage, update state with `assoc(key, loc, state.locations || {})`. `removeLocation(key)`: call `deleteLocation(key)`, update state with `dissoc(key, state.locations || {})`. `initLocations`: `getLocations()` returns object; use `Object.keys(locations)` for the coordinate param (keys are already `"lat,lng"`), join with `';'`.
+15. Use frontend-developer subagent to update forecast store @app/(app)/stores/forecast-store.js. Import `buildLocationKey` from @app/utils/forecast and `assoc` from Ramda. `addLocation`: after API response, use the API response directly as `loc`, save to localStorage, update state with `assoc(key, loc, state.locations || {})`. `removeLocation(key)`: call `deleteLocation(key)`, update state with `dissoc(key, state.locations || {})`. `initLocations`: `getLocations()` returns object; use `Object.keys(locations)` for the coordinate param (keys are already `"lat,lng"`), join with `';'`.
 16. Use frontend-developer subagent to update forecast selectors @app/(app)/stores/forecast-selectors.js. Add `getScheduledLocationEntries` / `useScheduledLocationEntries` that reads `locations` and `forecast` from store and returns `[key, location]` pairs (locations without matching forecast entries), sorted by name ascending.
 
 **Parallel after tasks 3, 7, 10, 15 complete:**

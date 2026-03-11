@@ -2,22 +2,27 @@
 
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { ChevronLeft } from 'lucide-react'
-import { identity, memoizeWith } from 'ramda'
+import { usePathname, useRouter } from 'next/navigation'
+import { ChevronLeft, Share2 } from 'lucide-react'
+import { deslugify } from '@/app/utils/string'
 import { SidebarTrigger } from '@/shadcn/components/ui/sidebar'
 import AppLogo from './app-logo'
 
-const navItems = {
-  '/home': { titleKey: 'sidebar.nav.home' },
-  '/forecast': { titleKey: 'sidebar.nav.forecast' },
-  '/settings': { titleKey: 'sidebar.nav.settings' },
-  '/about': { titleKey: 'sidebar.nav.about' },
+function getTitle(pathname, t) {
+  const segments = pathname.split('/').filter(Boolean)
+  const first = segments.at(0)
+  const last = segments.at(-1)
+  if (last === 'home') return t('sidebar.nav.home')
+  if (last === 'forecast') return t('sidebar.nav.forecast')
+  if (first === 'settings') return t('sidebar.nav.settings')
+  if (first === 'about') return t('sidebar.nav.about')
+  if (first === 'location') return deslugify(segments[1])
+  return ''
 }
 
 const renderMobileHome = ({ t }) => (
   <header
-    className="sticky top-0 z-50 bg-linear-to-r from-primary to-primary-light text-primary-foreground px-4 py-3 flex items-center justify-between shadow-lg"
+    className="sticky top-0 z-50 xl:hidden bg-linear-to-r from-primary to-primary-light text-primary-foreground px-4 py-3 flex items-center justify-between shadow-lg"
     data-testid="top-appbar-mobile-home"
   >
     <div className="flex items-center gap-2">
@@ -33,47 +38,89 @@ const renderMobileHome = ({ t }) => (
   </header>
 )
 
-const getNavItem = memoizeWith(identity, pathname => navItems['/' + pathname.split('/').pop()])
+async function handleShare() {
+  const shareData = {
+    title: document.title,
+    url: window.location.href,
+  }
 
-const renderMobileSub = ({ t, pathname }) => (
-  <header
-    className="sticky top-0 z-50 bg-linear-to-r from-primary to-primary-light text-primary-foreground px-4 py-3 flex items-center gap-3 shadow-lg"
-    data-testid="top-appbar-mobile-sub"
+  if (navigator.share) {
+    await navigator.share(shareData)
+  } else {
+    await navigator.clipboard.writeText(shareData.url)
+  }
+}
+
+const renderShareButton = ({ t }) => (
+  <button
+    onClick={handleShare}
+    aria-label={t('locationDetail.share')}
+    className="ml-auto text-primary-foreground"
+    data-testid="top-appbar-share"
   >
-    <Link href="/home" aria-label={t('topAppbar.back')} data-testid="top-appbar-back">
-      <ChevronLeft className="w-5 h-5" />
-    </Link>
-    <span className="font-semibold text-lg tracking-tight">
-      {getNavItem(pathname) ? t(getNavItem(pathname).titleKey) : ''}
-    </span>
-  </header>
+    <Share2 className="w-5 h-5" />
+  </button>
 )
 
-const renderDesktop = ({ t, pathname }) => (
-  <header
-    className="sticky top-0 z-40 bg-linear-to-r from-primary to-primary-light text-primary-foreground px-6 py-3 shadow-lg flex"
-    data-testid="top-appbar-desktop"
-  >
-    <h1 className="font-semibold text-lg tracking-tight">
-      {getNavItem(pathname) ? t(getNavItem(pathname).titleKey) : ''}
-    </h1>
-  </header>
-)
+const renderMobileSub = ({ t, pathname, router }) => {
+  const title = getTitle(pathname, t)
+  const isLocationRoute = pathname.includes('/location/')
+  return (
+    <header
+      className="sticky top-0 z-50 xl:hidden bg-linear-to-r from-primary to-primary-light text-primary-foreground px-4 py-3 flex items-center gap-3 shadow-lg"
+      data-testid="top-appbar-mobile-sub"
+    >
+      {isLocationRoute ? (
+        <button onClick={() => router.back()} aria-label={t('topAppbar.back')} data-testid="top-appbar-back">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+      ) : (
+        <Link href="/home" aria-label={t('topAppbar.back')} data-testid="top-appbar-back">
+          <ChevronLeft className="w-5 h-5" />
+        </Link>
+      )}
+      <span className="font-semibold text-lg tracking-tight">
+        {title}
+      </span>
+
+      {isLocationRoute && renderShareButton({ t })}
+    </header>
+  )
+}
+
+const renderDesktop = ({ t, pathname, router }) => {
+  const title = getTitle(pathname, t)
+  const isLocationRoute = pathname.includes('/location/')
+  return (
+    <header
+      className="sticky top-0 z-40 hidden xl:flex bg-linear-to-r from-primary to-primary-light text-primary-foreground px-6 py-3 shadow-lg items-center gap-3"
+      data-testid="top-appbar-desktop"
+    >
+      {isLocationRoute && (
+        <button onClick={() => router.back()} aria-label={t('topAppbar.back')} data-testid="top-appbar-desktop-back">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+      )}
+      <h1 className="font-semibold text-lg tracking-tight">
+        {title}
+      </h1>
+
+      {isLocationRoute && renderShareButton({ t })}
+    </header>
+  )
+}
 
 export default function TopAppbar() {
   const pathname = usePathname()
+  const router = useRouter()
   const { t } = useTranslation()
 
   return (
     <>
-      <div className="xl:hidden">
-        {pathname.endsWith('/home')
-          ? renderMobileHome({ t })
-          : renderMobileSub({ t, pathname })}
-      </div>
-      <div className="hidden xl:block">
-        {renderDesktop({ t, pathname })}
-      </div>
+      {pathname.endsWith('/home')
+        ? renderMobileHome({ t })
+        : renderMobileSub({ t, pathname, router })}
+      {renderDesktop({ t, pathname, router })}
     </>
   )
 }

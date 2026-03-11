@@ -1,25 +1,11 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
-
-function getConditionColor(condition) {
-  switch (condition) {
-  case 'ideal':
-    return 'bg-condition-ideal'
-  case 'acceptable':
-    return 'bg-condition-acceptable'
-  case 'marginal':
-    return 'bg-condition-marginal'
-  case 'unsuitable':
-    return 'bg-condition-unsuitable'
-  default:
-    return 'bg-condition-default'
-  }
-}
+import { getConditionBackgroundColor } from '@/app/(app)/utils/condition-colors'
 
 export default function LocationCardScore({ score, condition }) {
   const { t } = useTranslation()
-  const colorClass = getConditionColor(condition)
+  const colorClass = getConditionBackgroundColor(condition)
 
   return (
     <div>

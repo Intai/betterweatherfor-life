@@ -13,6 +13,12 @@ jest.mock('@/app/(app)/stores/forecast-selectors', () => ({
   useScheduledLocationEntries: () => mockUseScheduledLocationEntries(),
 }))
 
+jest.mock('next/link', () => {
+  return function MockLink({ href, children, ...props }) {
+    return <a href={href} {...props}>{children}</a>
+  }
+})
+
 jest.mock('./location-list-header', () => {
   return function MockLocationListHeader() {
     return <div data-testid="location-list-header" />
@@ -53,6 +59,8 @@ describe('LocationList', () => {
   const makeForecast = (overrides = {}) => ({
     name: 'Mission Bay',
     area: 'Beach, Auckland Central',
+    latitude: '-36.8547',
+    longitude: '174.8317',
     score: 85,
     condition: 'ideal',
     wind: { speed: '8km/h', direction: 'NE' },
@@ -69,7 +77,7 @@ describe('LocationList', () => {
 
   const forecastEntries = [
     [key1, makeForecast({ score: 85 })],
-    [key2, makeForecast({ name: 'Takapuna Beach', score: 72 })],
+    [key2, makeForecast({ name: 'Takapuna Beach', latitude: '-36.8400', longitude: '174.7670', score: 72 })],
   ]
 
   let mockSyncLocations
@@ -119,7 +127,7 @@ describe('LocationList', () => {
     expect(screen.queryAllByTestId('location-card')).toHaveLength(0)
   })
 
-  it('should render LocationCards for each entry', () => {
+  it('should render LocationCards wrapped in Links for each entry', () => {
     render(<LocationList />)
 
     const cards = screen.getAllByTestId('location-card')
@@ -132,6 +140,8 @@ describe('LocationList', () => {
       forecastKey: key1,
       name: 'Mission Bay',
       area: 'Beach, Auckland Central',
+      latitude: '-36.8547',
+      longitude: '174.8317',
       score: 85,
       condition: 'ideal',
       wind: { speed: '8km/h', direction: 'NE' },
@@ -140,6 +150,11 @@ describe('LocationList', () => {
       temp: '22\u00B0C',
       summary: 'Great conditions.',
     })
+
+    const firstLink = cards[0].closest('a')
+    const secondLink = cards[1].closest('a')
+    expect(firstLink).toHaveAttribute('href', '/location/mission-bay/-36.8547,174.8317')
+    expect(secondLink).toHaveAttribute('href', '/location/takapuna-beach/-36.8400,174.7670')
   })
 
   it('should render ScheduledLocationCards for each scheduled location', () => {

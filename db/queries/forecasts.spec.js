@@ -93,6 +93,8 @@ describe('getForecastsByCity', () => {
       'sup;2026-02-14;all-day;-36.8547,174.8317': {
         name: 'Mission Bay',
         area: 'Beach, Auckland Central',
+        latitude: '-36.8547',
+        longitude: '174.8317',
         timeZone: 'Pacific/Auckland',
         score: 85,
         condition: 'ideal',
@@ -112,6 +114,8 @@ describe('getForecastsByCity', () => {
       'kayaking;2026-02-15;morning;-36.7878,174.7768': {
         name: 'Takapuna Beach',
         area: 'Beach, North Shore',
+        latitude: '-36.7878',
+        longitude: '174.7768',
         timeZone: 'Pacific/Auckland',
         score: 62,
         condition: 'acceptable',
@@ -204,6 +208,8 @@ describe('getForecastsByLocations', () => {
       'sup;2026-02-14;all-day;-36.8547,174.8317': {
         name: 'Mission Bay',
         area: 'Beach, Auckland Central',
+        latitude: '-36.8547',
+        longitude: '174.8317',
         timeZone: 'Pacific/Auckland',
         score: 85,
         condition: 'ideal',

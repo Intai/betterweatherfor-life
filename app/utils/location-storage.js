@@ -1,15 +1,8 @@
 import { assoc, dissoc, mergeRight } from 'ramda'
+import { buildLocationKey } from './forecast'
 import { getItem, setItem } from './local-storage'
 
 const KEY = 'locations'
-
-/**
- * Build a storage key from coordinates.
- * @param {number} latitude
- * @param {number} longitude
- * @returns {string} A "lat,lng" coordinate string.
- */
-export const buildLocationKey = (latitude, longitude) => `${latitude},${longitude}`
 
 /**
  * Retrieve all saved locations from localStorage.

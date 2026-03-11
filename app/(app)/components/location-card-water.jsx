@@ -1,28 +1,8 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
-
-function getWaterColor(quality) {
-  switch (quality) {
-  case 'Green':
-    return 'var(--condition-ideal)'
-  case 'Orange':
-    return 'var(--condition-marginal)'
-  case 'Red':
-  case 'Black':
-    return 'var(--condition-unsuitable)'
-  default:
-    return 'var(--condition-default)'
-  }
-}
-
-function WaterIcon() {
-  return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z" />
-    </svg>
-  )
-}
+import { WaterIcon } from '@/app/(app)/components/condition-icons'
+import { getWaterColor } from '@/app/(app)/utils/condition-colors'
 
 export default function LocationCardWater({ water }) {
   const { t } = useTranslation()

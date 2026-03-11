@@ -34,6 +34,12 @@ export default function LocationCard({
   const { t } = useTranslation()
   const removeForecast = useForecastStore(prop('removeForecast'))
 
+  function handleRemove(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    removeForecast(forecastKey)
+  }
+
   return (
     <Card
       className="gap-3 overflow-hidden rounded-2xl py-4 shadow-md"
@@ -48,7 +54,7 @@ export default function LocationCard({
             size="icon-sm"
             className="text-muted-foreground/70"
             aria-label={t('home.locations.removeLocation')}
-            onClick={() => removeForecast(forecastKey)}
+            onClick={handleRemove}
             data-testid="remove-location-button"
           >
             <X className="w-4 h-4" />

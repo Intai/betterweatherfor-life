@@ -46,12 +46,12 @@ Feature: App Folder Structure
     Then the page should return status code 200
     And the page title should be "<title>"
     And the page should contain a "description" meta tag with "<description>"
-    And the page should contain an "og:title" meta tag with "<og_title>"
+    And the page should contain an "og:title" meta tag with "<ogTitle>"
     And the page should contain an "og:description" meta tag with "<description>"
     And the page title and description should be present in the raw server response
 
     Examples:
-      | city         | title                                                        | og_title                          | description                                                                                                                 |
+      | city         | title                                                        | ogTitle                           | description                                                                                                                 |
       | auckland     | Auckland - Best Outdoor Spots \| Better Weather For Life     | Auckland - Best Outdoor Spots     | Find the best spots for SUP, kayaking, snorkeling, and cycling in Auckland based on current weather and sea conditions.     |
       | wellington   | Wellington - Best Outdoor Spots \| Better Weather For Life   | Wellington - Best Outdoor Spots   | Find the best spots for SUP, kayaking, snorkeling, and cycling in Wellington based on current weather and sea conditions.   |
       | christchurch | Christchurch - Best Outdoor Spots \| Better Weather For Life | Christchurch - Best Outdoor Spots | Find the best spots for SUP, kayaking, snorkeling, and cycling in Christchurch based on current weather and sea conditions. |
@@ -61,28 +61,28 @@ Feature: App Folder Structure
     Then the page should return status code 200
     And the page title should be "<title>"
     And the page should contain a "description" meta tag with "<description>"
-    And the page should contain an "og:title" meta tag with "<og_title>"
+    And the page should contain an "og:title" meta tag with "<ogTitle>"
     And the page title and description should be present in the raw server response
 
     Examples:
-      | city         | title                                                  | og_title                    | description                                                                              |
+      | city         | title                                                  | ogTitle                     | description                                                                              |
       | auckland     | Auckland 7-Day Forecast \| Better Weather For Life     | Auckland 7-Day Forecast     | 7-day weather, tide, and sea conditions forecast for outdoor activities in Auckland.     |
       | wellington   | Wellington 7-Day Forecast \| Better Weather For Life   | Wellington 7-Day Forecast   | 7-day weather, tide, and sea conditions forecast for outdoor activities in Wellington.   |
       | new-plymouth | New Plymouth 7-Day Forecast \| Better Weather For Life | New Plymouth 7-Day Forecast | 7-day weather, tide, and sea conditions forecast for outdoor activities in New Plymouth. |
 
-  Scenario Outline: AFS-06: City location detail page is accessible and server-side rendered
-    When I navigate to "/<city>/location/<geolocation>"
+  Scenario Outline: AFS-06: Location detail page is accessible and server-side rendered
+    When I navigate to "/location/<name>/<geolocation>"
     Then the page should return status code 200
     And the page title should be "<title>"
     And the page should contain a "description" meta tag with "<description>"
-    And the page should contain an "og:title" meta tag with "<og_title>"
+    And the page should contain an "og:title" meta tag with "<ogTitle>"
     And the page should contain an "og:description" meta tag with "<description>"
     And the page title and description should be present in the raw server response
 
     Examples:
-      | city     | geolocation   | title                                               | og_title                 | description                                                                   |
-      | auckland | -36.84,174.76 | Auckland -36.84%2C174.76 \| Better Weather For Life | Auckland -36.84%2C174.76 | Current weather, tide, and sea conditions for outdoor activities in Auckland. |
-      | sydney   | -33.89,151.27 | Sydney -33.89%2C151.27 \| Better Weather For Life   | Sydney -33.89%2C151.27   | Current weather, tide, and sea conditions for outdoor activities in Sydney.   |
+      | name           | geolocation       | title                                                            | ogTitle                               | description                                                                                                                        |
+      | mission-bay    | -36.8547,174.8317 | Mission Bay - Weather & Conditions \| Better Weather For Life    | Mission Bay - Weather & Conditions    | View detailed weather, tide, and sea conditions for Mission Bay. Find the best time for SUP, kayaking, snorkeling, and cycling.    |
+      | takapuna-beach | -36.7878,174.7768 | Takapuna Beach - Weather & Conditions \| Better Weather For Life | Takapuna Beach - Weather & Conditions | View detailed weather, tide, and sea conditions for Takapuna Beach. Find the best time for SUP, kayaking, snorkeling, and cycling. |
 
   # =============================================================================
   # Scenario Group: App Routes - Client-Side Rendered Pages
@@ -97,7 +97,6 @@ Feature: App Folder Structure
       | route                   |
       | /home                   |
       | /forecast               |
-      | /location/-33.89,151.27 |
 
   # =============================================================================
   # Scenario Group: robots.txt Configuration

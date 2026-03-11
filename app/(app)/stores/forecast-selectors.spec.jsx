@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { TODAY } from '@/app/(app)/constants'
 import { buildForecastKey } from '@/app/utils/forecast'
 import { ForecastStoreProvider } from './forecast-store'
-import { buildForecastEntries, buildScheduledLocationEntries, useForecastEntries, useScheduledLocationEntries } from './forecast-selectors'
+import { buildForecastEntries, buildForecastEntry, buildScheduledLocationEntries, useForecastEntries, useForecastEntry, useScheduledLocationEntries } from './forecast-selectors'
 
 jest.mock('@/app/utils/date', () => ({
   formatForecastDate: jest.fn(() => '2026-02-11'),
@@ -53,12 +53,67 @@ describe('buildForecastEntries', () => {
   })
 })
 
-function EntriesConsumer() {
-  const entries = useForecastEntries()
-  return <div data-testid="entries">{JSON.stringify(entries)}</div>
-}
+describe('buildForecastEntry', () => {
+  const forecast = {
+    [buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 72 }),
+    [buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8400,174.7670')]: makeForecast({ score: 85 }),
+    [buildForecastKey('kayaking', '2026-02-11', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 90 }),
+  }
+
+  it('should return the matching forecast entry for the given geolocation', () => {
+    const entry = buildForecastEntry('sup', TODAY, null, 'all-day', '-36.8547,174.8317')(forecast)
+    expect(entry[0]).toBe(buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8547,174.8317'))
+    expect(entry[1].score).toBe(72)
+  })
+
+  it('should return undefined when no entry matches the geolocation', () => {
+    const entry = buildForecastEntry('sup', TODAY, null, 'all-day', '-99.0000,99.0000')(forecast)
+    expect(entry).toBeUndefined()
+  })
+})
+
+describe('useForecastEntry', () => {
+  function EntryConsumer({ geolocation }) {
+    const entry = useForecastEntry(geolocation)
+    return <div data-testid="entry">{JSON.stringify(entry ?? null)}</div>
+  }
+
+  it('should return the matching forecast entry from the store', () => {
+    const forecast = {
+      [buildForecastKey('kayaking', '2026-02-11', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 90 }),
+      [buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 72 }),
+    }
+
+    render(
+      <ForecastStoreProvider initialState={{ forecast }}>
+        <EntryConsumer geolocation="-36.8547,174.8317" />
+      </ForecastStoreProvider>
+    )
+
+    const entry = JSON.parse(screen.getByTestId('entry').textContent)
+    expect(entry).toHaveLength(2)
+    expect(entry[0]).toBe(buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8547,174.8317'))
+    expect(entry[1].score).toBe(72)
+  })
+
+  it('should return null when no entry matches', () => {
+    render(
+      <ForecastStoreProvider initialState={{ forecast: {} }}>
+        <EntryConsumer geolocation="-99.0000,99.0000" />
+      </ForecastStoreProvider>
+    )
+
+    const entry = JSON.parse(screen.getByTestId('entry').textContent)
+    expect(entry).toBeNull()
+  })
+})
 
 describe('useForecastEntries', () => {
+  function EntriesConsumer() {
+    const entries = useForecastEntries()
+    return <div data-testid="entries">{JSON.stringify(entries)}</div>
+  }
+
   it('should return filtered and sorted entries from the store', () => {
     const forecast = {
       [buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 72 }),

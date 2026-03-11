@@ -2,14 +2,14 @@ import { render, screen } from '@testing-library/react'
 import { PICK_DATE, TODAY, TOMORROW } from '@/app/(app)/constants'
 import { createForecastStore, ForecastStoreProvider, useForecastStore } from './forecast-store'
 import { fetchJson, postJson } from '@/app/utils/api'
-import { extractCityLocations } from '@/app/utils/forecast'
+import { buildLocationKey, extractCityLocations } from '@/app/utils/forecast'
 import {
   addLocations,
-  buildLocationKey,
   removeLocation as deleteLocation,
   getLocations,
   addLocation as saveLocation,
 } from '@/app/utils/location-storage'
+import { getPreferences, setPreference } from '@/app/utils/preferences-storage'
 
 jest.mock('@/app/utils/api', () => ({
   fetchJson: jest.fn(),
@@ -18,15 +18,20 @@ jest.mock('@/app/utils/api', () => ({
 
 jest.mock('@/app/utils/forecast', () => ({
   ...jest.requireActual('@/app/utils/forecast'),
+  buildLocationKey: jest.fn(),
   extractCityLocations: jest.fn(),
 }))
 
 jest.mock('@/app/utils/location-storage', () => ({
-  buildLocationKey: jest.fn(),
   addLocation: jest.fn(),
   addLocations: jest.fn(),
   getLocations: jest.fn(),
   removeLocation: jest.fn(),
+}))
+
+jest.mock('@/app/utils/preferences-storage', () => ({
+  getPreferences: jest.fn(() => ({})),
+  setPreference: jest.fn(),
 }))
 
 describe('createForecastStore', () => {
@@ -293,6 +298,52 @@ describe('createForecastStore', () => {
   })
 })
 
+describe('preferences persistence', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('should apply preferences from localStorage to default state', () => {
+    getPreferences.mockReturnValue({ selectedActivity: 'cycling', selectedDay: TOMORROW })
+    const store = createForecastStore()
+    const state = store.getState()
+    expect(state.selectedActivity).toBe('cycling')
+    expect(state.selectedDay).toBe(TOMORROW)
+    expect(state.selectedTimeRange).toBe('all-day')
+  })
+
+  it('should let preferences override initialState', () => {
+    getPreferences.mockReturnValue({ selectedActivity: 'cycling' })
+    const store = createForecastStore({ selectedActivity: 'kayaking' })
+    expect(store.getState().selectedActivity).toBe('cycling')
+  })
+
+  it('should call setPreference when setActivity is called', () => {
+    const store = createForecastStore()
+    store.getState().setActivity('snorkelling')
+    expect(setPreference).toHaveBeenCalledWith('selectedActivity', 'snorkelling')
+  })
+
+  it('should call setPreference when setDay is called', () => {
+    const store = createForecastStore()
+    store.getState().setDay(PICK_DATE)
+    expect(setPreference).toHaveBeenCalledWith('selectedDay', PICK_DATE)
+  })
+
+  it('should call setPreference when setDate is called', () => {
+    const date = new Date('2026-03-15')
+    const store = createForecastStore()
+    store.getState().setDate(date)
+    expect(setPreference).toHaveBeenCalledWith('selectedDate', date)
+  })
+
+  it('should call setPreference when setTimeRange is called', () => {
+    const store = createForecastStore()
+    store.getState().setTimeRange('evening')
+    expect(setPreference).toHaveBeenCalledWith('selectedTimeRange', 'evening')
+  })
+})
+
 describe('useForecastStore', () => {
   function TestConsumer({ selector }) {
     const value = useForecastStore(selector)
@@ -301,6 +352,7 @@ describe('useForecastStore', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    getPreferences.mockReturnValue({})
   })
 
   it('should provide store state to child components', () => {

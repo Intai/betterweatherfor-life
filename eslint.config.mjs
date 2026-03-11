@@ -107,6 +107,7 @@ const eslintConfig = defineConfig([
           caseInsensitive: true,
         },
       }],
+      'import/first': 'error',
       'import/newline-after-import': ['error', { count: 1 }],
       'import/no-duplicates': 'error',
     },
@@ -147,6 +148,7 @@ const eslintConfig = defineConfig([
     rules: {
       // Disable strict import ordering for test files to allow jest.mock() hoisting
       'import/order': 'off',
+      'import/first': 'off',
       'import/newline-after-import': 'off',
     },
   },
