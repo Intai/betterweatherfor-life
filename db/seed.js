@@ -145,7 +145,7 @@ const aucklandLocations = [{
   },
 }, {
   name: 'Piha Beach',
-  area: 'Beach, West Auckland',
+  area: 'Auckland 0772, New Zealand',
   citySlug: 'auckland',
   latitude: '-36.9553',
   longitude: '174.4681',

@@ -66,7 +66,7 @@ Feature: Home Locations
     Given the browser viewport is 375px
     When I navigate to the "/auckland/home" page
     Then 3 location cards should be displayed
-    When I tap the "Cycling" activity pill
+    When I tap the "Kyaking" activity pill
     Then the location list should show the empty state
     And the add location (+) button should still be visible
     And a map pin icon should be displayed centered in the empty state card
@@ -163,5 +163,5 @@ Feature: Home Locations
     And 2 location cards should remain
     When I use Shift+Tab to navigate back to the add location (+) button
     Then the add location button should receive focus
-    When I press Tab
+    When I press Tab twice
     Then the the remove (x) button on the "Takapuna Beach" card should receive focus

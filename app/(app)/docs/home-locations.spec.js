@@ -119,8 +119,8 @@ test.describe('Feature: Home Locations', () => {
     // Then 3 location cards should be displayed
     await expect(page.getByTestId('location-card')).toHaveCount(3);
 
-    // When I tap the "Cycling" activity pill
-    await page.getByTestId('activity-cycling').click();
+    // When I tap the "Kayaking" activity pill
+    await page.getByTestId('activity-kayaking').click();
 
     // Then the location list should show the empty state
     await expect(page.getByTestId('location-list-empty')).toBeVisible();
@@ -245,7 +245,7 @@ test.describe('Feature: Home Locations', () => {
     await expect(grid.locator('svg clipPath rect')).toHaveAttribute('y', '10.3');
 
     // And the "Mission Bay" card Water condition should display a water droplet icon
-    await expect(grid.locator('svg path[d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"]')).toBeVisible();
+    await expect(grid.locator('svg path[d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"]')).toBeVisible();
 
     // And the Water value should show "Green"
     await expect(grid.getByText('Green')).toBeVisible();
@@ -320,7 +320,7 @@ test.describe('Feature: Home Locations', () => {
 
       // And the cards should be in a grid layout
       const display = await page.evaluate(() => {
-        const container = document.querySelector('[data-testid="location-card"]').parentElement;
+        const container = document.querySelector('[data-testid="location-card"]').parentElement.parentElement;
         return window.getComputedStyle(container).display;
       });
       expect(display).toBe('grid');
@@ -338,6 +338,7 @@ test.describe('Feature: Home Locations', () => {
     await page.getByTestId('add-location-button').click();
 
     // And I use Tab to navigate to the remove (x) button on the "Mission Bay" card
+    await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');
 
     // Then the remove button should receive focus
@@ -358,7 +359,8 @@ test.describe('Feature: Home Locations', () => {
     // Then the add location button should receive focus
     await expect(page.getByTestId('add-location-button')).toBeFocused();
 
-    // When I press Tab
+    // When I press Tab twice
+    await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');
 
     // Then the remove (x) button on the "Takapuna Beach" card should receive focus
