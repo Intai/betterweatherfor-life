@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import LocationDetail from '@/app/(app)/components/location-detail'
 import { ForecastStoreProvider } from '@/app/(app)/stores/forecast-store'
 import { splitLocationKey } from '@/app/utils/forecast'
-import { pickPreferences } from '@/app/utils/preferences-storage'
+import { parsePreferences } from '@/app/utils/preferences-storage'
 import { deslugify } from '@/app/utils/string'
 import { getForecastsByLocations } from '@/db/queries/forecasts'
 
@@ -27,7 +27,7 @@ export default async function LocationDetailPage({ params }) {
   const forecast = await getForecastsByLocations([latLng])
   const cookieStore = await cookies()
   const initialState = {
-    ...pickPreferences(cookieStore.getAll()),
+    ...parsePreferences(cookieStore.getAll()),
     isLoaded: true,
     forecast,
   }

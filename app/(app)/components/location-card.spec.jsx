@@ -53,9 +53,35 @@ describe('LocationCard', () => {
     expect(screen.getByText('22\u00B0C')).toBeInTheDocument()
   })
 
-  it('should render AI summary text', () => {
+  it('should render AI summary text with default styling for ideal condition', () => {
     render(<LocationCard {...defaultProps} />)
-    expect(screen.getByText('Light onshore breeze, excellent for paddling this morning.')).toBeInTheDocument()
+    const summary = screen.getByTestId('ai-summary')
+    expect(summary).toHaveClass('bg-secondary')
+    expect(summary).toHaveTextContent('Light onshore breeze, excellent for paddling this morning.')
+    const text = summary.querySelector('p')
+    expect(text).toHaveClass('text-muted-foreground')
+  })
+
+  it('should apply warning styling to AI summary for marginal condition', () => {
+    render(<LocationCard {...defaultProps} condition="marginal" />)
+    const summary = screen.getByTestId('ai-summary')
+    expect(summary).not.toHaveClass('bg-secondary')
+    expect(summary).toHaveStyle({
+      backgroundColor: 'color-mix(in srgb, var(--condition-marginal) 10%, transparent)',
+    })
+    const text = summary.querySelector('p')
+    expect(text).toHaveStyle({ color: 'var(--condition-marginal)' })
+  })
+
+  it('should apply warning styling to AI summary for unsuitable condition', () => {
+    render(<LocationCard {...defaultProps} condition="unsuitable" />)
+    const summary = screen.getByTestId('ai-summary')
+    expect(summary).not.toHaveClass('bg-secondary')
+    expect(summary).toHaveStyle({
+      backgroundColor: 'color-mix(in srgb, var(--condition-unsuitable) 10%, transparent)',
+    })
+    const text = summary.querySelector('p')
+    expect(text).toHaveStyle({ color: 'var(--condition-unsuitable)' })
   })
 
   it('should not render temperature when temp is undefined', () => {

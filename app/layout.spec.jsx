@@ -11,15 +11,32 @@ jest.mock('@/app/components/i18n-provider', () => {
   }
 })
 
+jest.mock('@/app/components/locale-provider', () => {
+  return function MockLocaleProvider({ locale, children }) {
+    return <div data-locale={locale}>{children}</div>
+  }
+})
+
+jest.mock('@/app/utils/request', () => ({
+  getAcceptLanguage: jest.fn(() => Promise.resolve({ locale: 'en-NZ', lang: 'en' })),
+}))
+
+const { getAcceptLanguage } = require('@/app/utils/request')
+
 describe('RootLayout', () => {
-  it('should render html with lang attribute', () => {
-    const result = RootLayout({ children: <div>Test</div> })
+  beforeEach(() => {
+    getAcceptLanguage.mockReset()
+    getAcceptLanguage.mockResolvedValue({ locale: 'en-NZ', lang: 'en' })
+  })
+
+  it('should render html with lang from getAcceptLanguage', async () => {
+    const result = await RootLayout({ children: <div>Test</div> })
     expect(result.type).toBe('html')
     expect(result.props.lang).toBe('en')
   })
 
-  it('should render body with font classes', () => {
-    const result = RootLayout({ children: <div>Test</div> })
+  it('should render body with font classes', async () => {
+    const result = await RootLayout({ children: <div>Test</div> })
     const body = result.props.children
     expect(body.type).toBe('body')
     expect(body.props.className).toContain('--font-geist-sans')
@@ -27,11 +44,20 @@ describe('RootLayout', () => {
     expect(body.props.className).toContain('antialiased')
   })
 
-  it('should render children inside body wrapped in I18nProvider', () => {
-    const children = <div>Test Content</div>
-    const result = RootLayout({ children })
+  it('should pass parsed locale to LocaleProvider', async () => {
+    const result = await RootLayout({ children: <div>Test</div> })
     const body = result.props.children
-    const i18nProvider = body.props.children
+    const localeProvider = body.props.children
+    expect(localeProvider.type.name).toBe('MockLocaleProvider')
+    expect(localeProvider.props.locale).toBe('en-NZ')
+  })
+
+  it('should render children inside I18nProvider', async () => {
+    const children = <div>Test Content</div>
+    const result = await RootLayout({ children })
+    const body = result.props.children
+    const localeProvider = body.props.children
+    const i18nProvider = localeProvider.props.children
     expect(i18nProvider.type.name).toBe('MockI18nProvider')
     expect(i18nProvider.props.children).toEqual(children)
   })

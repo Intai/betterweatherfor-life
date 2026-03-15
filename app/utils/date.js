@@ -1,5 +1,5 @@
-import { addDays, format, startOfDay } from 'date-fns'
-import { toZonedTime } from 'date-fns-tz'
+import { tz, TZDate } from '@date-fns/tz'
+import { addDays, format, isToday, startOfDay } from 'date-fns'
 import { PICK_DATE, TODAY, TOMORROW } from '../(app)/constants.js'
 
 /**
@@ -9,7 +9,20 @@ import { PICK_DATE, TODAY, TOMORROW } from '../(app)/constants.js'
  * @returns {Date}
  */
 export function dateNow(timeZone) {
-  return timeZone ? toZonedTime(new Date(), timeZone) : new Date()
+  return timeZone ? TZDate.tz(timeZone) : new Date()
+}
+
+/**
+ * Check whether a date is today, optionally in a specific timezone.
+ *
+ * @param {Date} date - The date to check.
+ * @param {string} [timeZone] - IANA timezone (e.g. 'Pacific/Auckland').
+ * @returns {boolean}
+ */
+export function dateIsToday(date, timeZone) {
+  return timeZone
+    ? isToday(date, { in: tz(timeZone) })
+    : isToday(date)
 }
 
 /**
@@ -22,6 +35,30 @@ export function dateNow(timeZone) {
  */
 export function formatShortDate(date, locale) {
   return date.toLocaleDateString(locale, { day: 'numeric', month: 'short' })
+}
+
+/**
+ * Format a date as a short weekday name.
+ * e.g. "Sat", "Mon"
+ *
+ * @param {Date} date - The date to format.
+ * @param {string} [locale] - BCP 47 locale string. Defaults to the browser locale.
+ * @returns {string} Locale-formatted short weekday name.
+ */
+export function formatShortWeekday(date, locale) {
+  return date.toLocaleDateString(locale, { weekday: 'short' })
+}
+
+/**
+ * Format a date as a short weekday+day+month string in locale-aware order.
+ * e.g. 'en-NZ' → "Sat 11 Feb", 'en-US' → "Sat, Feb 11"
+ *
+ * @param {Date} date - The date to format.
+ * @param {string} [locale] - BCP 47 locale string. Defaults to the browser locale.
+ * @returns {string} Locale-formatted short date with weekday.
+ */
+export function formatShortDateWithWeekday(date, locale) {
+  return date.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
 /**

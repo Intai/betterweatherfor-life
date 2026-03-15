@@ -2,6 +2,10 @@ import { act } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { AFTERNOON, ALL_DAY, EVENING, MORNING, PICK_DATE, TODAY } from '@/app/(app)/constants'
 
+jest.mock('@/app/components/locale-provider', () => ({
+  useLocale: () => 'en-NZ',
+}))
+
 const mockUseForecastStore = jest.fn()
 jest.mock('@/app/(app)/stores/forecast-store', () => ({
   useForecastStore: (...args) => mockUseForecastStore(...args),

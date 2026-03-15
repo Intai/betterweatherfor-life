@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import { ChevronLeft, Share2 } from 'lucide-react'
 import { deslugify } from '@/app/utils/string'
 import { SidebarTrigger } from '@/shadcn/components/ui/sidebar'
@@ -62,7 +62,7 @@ const renderShareButton = ({ t }) => (
   </button>
 )
 
-const renderMobileSub = ({ t, pathname, router }) => {
+const renderMobileSub = ({ t, pathname, router, city }) => {
   const title = getTitle(pathname, t)
   const isLocationRoute = pathname.includes('/location/')
   return (
@@ -75,7 +75,7 @@ const renderMobileSub = ({ t, pathname, router }) => {
           <ChevronLeft className="w-5 h-5" />
         </button>
       ) : (
-        <Link href="/home" aria-label={t('topAppbar.back')} data-testid="top-appbar-back">
+        <Link href={city ? `/${city}/home` : '/home'} aria-label={t('topAppbar.back')} data-testid="top-appbar-back">
           <ChevronLeft className="w-5 h-5" />
         </Link>
       )}
@@ -113,13 +113,14 @@ const renderDesktop = ({ t, pathname, router }) => {
 export default function TopAppbar() {
   const pathname = usePathname()
   const router = useRouter()
+  const { city } = useParams()
   const { t } = useTranslation()
 
   return (
     <>
       {pathname.endsWith('/home')
         ? renderMobileHome({ t })
-        : renderMobileSub({ t, pathname, router })}
+        : renderMobileSub({ t, pathname, router, city })}
       {renderDesktop({ t, pathname, router })}
     </>
   )

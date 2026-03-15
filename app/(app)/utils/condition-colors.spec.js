@@ -4,6 +4,7 @@ import {
   getConditionTextColor,
   getTempColor,
   getWaterColor,
+  isWarningCondition,
 } from './condition-colors'
 
 describe('getConditionBackgroundColor', () => {
@@ -91,6 +92,28 @@ describe('getWaterColor', () => {
 
   it('should return condition-default CSS variable for unknown quality', () => {
     expect(getWaterColor('unknown')).toBe('var(--condition-default)')
+  })
+})
+
+describe('isWarningCondition', () => {
+  it('should return true for marginal condition', () => {
+    expect(isWarningCondition('marginal')).toBe(true)
+  })
+
+  it('should return true for unsuitable condition', () => {
+    expect(isWarningCondition('unsuitable')).toBe(true)
+  })
+
+  it('should return false for ideal condition', () => {
+    expect(isWarningCondition('ideal')).toBe(false)
+  })
+
+  it('should return false for acceptable condition', () => {
+    expect(isWarningCondition('acceptable')).toBe(false)
+  })
+
+  it('should return false for unknown condition', () => {
+    expect(isWarningCondition('unknown')).toBe(false)
   })
 })
 

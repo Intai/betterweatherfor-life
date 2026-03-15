@@ -1,4 +1,4 @@
-import { dateNow, formatForecastDate, formatISODate, formatShortDate } from './date'
+import { dateIsToday, dateNow, formatForecastDate, formatISODate, formatShortDate, formatShortDateWithWeekday, formatShortWeekday } from './date'
 
 describe('dateNow', () => {
   beforeEach(() => {
@@ -26,6 +26,34 @@ describe('dateNow', () => {
   })
 })
 
+describe('dateIsToday', () => {
+  beforeEach(() => {
+    jest.useFakeTimers()
+    jest.setSystemTime(new Date('2026-02-10T12:30:00Z'))
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  it('should return true when date matches today in the given timezone', () => {
+    // UTC 12:30 → Pacific/Auckland (UTC+13) → Feb 11
+    const date = new Date('2026-02-11T00:00:00')
+    expect(dateIsToday(date, 'Pacific/Auckland')).toBe(true)
+  })
+
+  it('should return false when date does not match today in the given timezone', () => {
+    // UTC 12:30 → Pacific/Auckland (UTC+13) → Feb 11, so Feb 10 is yesterday
+    const date = new Date('2026-02-10T00:00:00')
+    expect(dateIsToday(date, 'Pacific/Auckland')).toBe(false)
+  })
+
+  it('should fall back to system timezone when no timezone is provided', () => {
+    const date = new Date('2026-02-10T12:30:00Z')
+    expect(dateIsToday(date)).toBe(true)
+  })
+})
+
 describe('formatShortDate', () => {
   const date = new Date('2026-02-10T00:00:00')
 
@@ -39,6 +67,40 @@ describe('formatShortDate', () => {
 
   it('should return a string when no locale is provided', () => {
     expect(typeof formatShortDate(date)).toBe('string')
+  })
+})
+
+describe('formatShortWeekday', () => {
+  const date = new Date('2026-02-10T00:00:00')
+
+  it('should produce short weekday for en-NZ locale', () => {
+    expect(formatShortWeekday(date, 'en-NZ')).toBe('Tue')
+  })
+
+  it('should produce short weekday for ja-JP locale', () => {
+    expect(formatShortWeekday(date, 'ja-JP')).toBe('火')
+  })
+
+  it('should return a string when no locale is provided', () => {
+    const weekday = formatShortWeekday(date)
+    expect(typeof weekday).toBe('string')
+    expect(weekday).toBeTruthy()
+  })
+})
+
+describe('formatShortDateWithWeekday', () => {
+  const date = new Date('2026-02-11T00:00:00')
+
+  it('should produce weekday day-first format for en-NZ locale', () => {
+    expect(formatShortDateWithWeekday(date, 'en-NZ')).toBe('Wed, 11 Feb')
+  })
+
+  it('should produce weekday month-first format for en-US locale', () => {
+    expect(formatShortDateWithWeekday(date, 'en-US')).toBe('Wed, Feb 11')
+  })
+
+  it('should return a string when no locale is provided', () => {
+    expect(typeof formatShortDateWithWeekday(date)).toBe('string')
   })
 })
 

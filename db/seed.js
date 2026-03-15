@@ -1,8 +1,66 @@
+import { addDays } from 'date-fns'
 import { sql } from 'drizzle-orm'
+import { clamp } from 'ramda'
 import { dateNow, formatISODate } from '../app/utils/date.js'
 import { error, info } from '../app/utils/logger.js'
 import { forecasts, locations } from './schema/index.js'
 import db from './index.js'
+
+/**
+ * Map a numeric score to its condition label.
+ * @param {number} score
+ * @returns {string}
+ */
+function scoreToCondition(score) {
+  if (score >= 80) return 'ideal'
+  if (score >= 60) return 'acceptable'
+  if (score >= 40) return 'marginal'
+  return 'unsuitable'
+}
+
+/**
+ * Clamp a value between 0 and 100.
+ * @param {number} n
+ * @returns {number}
+ */
+const clampScore = clamp(0, 100)
+
+/**
+ * Per-day score offsets applied to the Day 1 template.
+ * Day 0 (today) uses the template as-is. Day 3 is the best day (+10),
+ * Day 5 is the worst / unsuitable day (-45).
+ */
+const DAY_OFFSETS = [0, -8, -15, 10, -5, -45, -20]
+
+/**
+ * Per-day hourly rotation: shifts the peak hour position so
+ * findBestWindow returns different windows each day.
+ */
+const HOURLY_SHIFTS = [0, 2, -1, 3, 1, -2, -3]
+
+/**
+ * Generate a 7-day forecast array from a single-day template.
+ * @param {object} template - The Day 1 forecast object.
+ * @param {Date} today - The base date (today in the location timezone).
+ * @returns {object[]} Seven forecast objects with varied scores and hourly data.
+ */
+function generate7DayForecasts(template, today) {
+  return DAY_OFFSETS.map((offset, dayIndex) => {
+    const date = formatISODate(addDays(today, dayIndex))
+    const rawScore = clampScore(template.score + offset)
+    const condition = scoreToCondition(rawScore)
+
+    const shift = HOURLY_SHIFTS[dayIndex]
+    const hourly = template.hourly.map((slot, i) => {
+      // Shift the curve so the peak moves to a different hour each day
+      const srcIndex = ((i - shift) % template.hourly.length + template.hourly.length) % template.hourly.length
+      const hourScore = clampScore(template.hourly[srcIndex].score + offset)
+      return { time: slot.time, score: hourScore, condition: scoreToCondition(hourScore) }
+    })
+
+    return { ...template, date, score: rawScore, condition, hourly }
+  })
+}
 
 const aucklandLocations = [{
   name: 'Mission Bay',
@@ -218,38 +276,42 @@ export async function seed() {
     locationResults.push(locationResult)
     info(`Upserted: ${locationResult.name}`)
 
-    const forecastValues = {
-      locationId: locationResult.id,
-      date: formatISODate(dateNow(location.timeZone)),
-      ...forecast,
-    }
-    const [forecastResult] = await db
-      .insert(forecasts)
-      .values(forecastValues)
-      .onConflictDoUpdate({
-        target: [forecasts.locationId, forecasts.activity, forecasts.date, forecasts.timeRange],
-        set: {
-          score: forecastValues.score,
-          condition: forecastValues.condition,
-          wind: forecastValues.wind,
-          tide: forecastValues.tide,
-          water: forecastValues.water,
-          temp: forecastValues.temp,
-          precipitation: forecastValues.precipitation,
-          daylight: forecastValues.daylight,
-          uv: forecastValues.uv,
-          humidity: forecastValues.humidity,
-          visibility: forecastValues.visibility,
-          summary: forecastValues.summary,
-          analysis: forecastValues.analysis,
-          hourly: forecastValues.hourly,
-          updatedAt: sql`now()`,
-        },
-      })
-      .returning()
+    const today = dateNow(location.timeZone)
+    const dailyForecasts = generate7DayForecasts(forecast, today)
 
-    forecastResults.push(forecastResult)
-    info(`Upserted forecast for: ${locationResult.name}`)
+    for (const dayForecast of dailyForecasts) {
+      const forecastValues = {
+        locationId: locationResult.id,
+        ...dayForecast,
+      }
+      const [forecastResult] = await db
+        .insert(forecasts)
+        .values(forecastValues)
+        .onConflictDoUpdate({
+          target: [forecasts.locationId, forecasts.activity, forecasts.date, forecasts.timeRange],
+          set: {
+            score: forecastValues.score,
+            condition: forecastValues.condition,
+            wind: forecastValues.wind,
+            tide: forecastValues.tide,
+            water: forecastValues.water,
+            temp: forecastValues.temp,
+            precipitation: forecastValues.precipitation,
+            daylight: forecastValues.daylight,
+            uv: forecastValues.uv,
+            humidity: forecastValues.humidity,
+            visibility: forecastValues.visibility,
+            summary: forecastValues.summary,
+            analysis: forecastValues.analysis,
+            hourly: forecastValues.hourly,
+            updatedAt: sql`now()`,
+          },
+        })
+        .returning()
+
+      forecastResults.push(forecastResult)
+    }
+    info(`Upserted 7-day forecast for: ${locationResult.name}`)
   }
 
   return { locations: locationResults, forecasts: forecastResults }

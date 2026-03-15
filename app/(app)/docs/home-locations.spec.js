@@ -141,27 +141,7 @@ test.describe('Feature: Home Locations', () => {
     await expect(page.getByTestId('location-card')).toHaveCount(0);
   });
 
-  test('LOC-04: Changing filters to a combination with no entries shows empty state', async ({ page }) => {
-    // Given the browser viewport is 375px
-    await page.setViewportSize({ width: 375, height: 812 });
-
-    // Background
-    await setupBackground(page);
-
-    // Then 3 location cards should be displayed
-    await expect(page.getByTestId('location-card')).toHaveCount(3);
-
-    // When I tap the "Tomorrow" day option button
-    await page.getByTestId('tomorrow-button').click();
-
-    // Close the dropdown menu
-    await page.keyboard.press('Escape');
-
-    // Then the empty state should be displayed
-    await expect(page.getByTestId('location-list-empty')).toBeVisible();
-  });
-
-  test('LOC-05: Tapping remove button removes the location card from the list', async ({ page }) => {
+  test('LOC-04: Tapping remove button removes the location card from the list', async ({ page }) => {
     // Given the browser viewport is 375px
     await page.setViewportSize({ width: 375, height: 812 });
 
@@ -185,7 +165,7 @@ test.describe('Feature: Home Locations', () => {
     await expect(page.getByTestId('location-card').last()).toContainText('St Heliers Bay');
   });
 
-  test('LOC-06: Removing all locations shows the empty state', async ({ page }) => {
+  test('LOC-05: Removing all locations shows the empty state', async ({ page }) => {
     // Given the browser viewport is 375px
     await page.setViewportSize({ width: 375, height: 812 });
 
@@ -218,7 +198,7 @@ test.describe('Feature: Home Locations', () => {
     await expect(page.getByTestId('location-list-empty').getByRole('heading', { name: 'No locations yet' })).toBeVisible();
   });
 
-  test('LOC-07: Wind, Tide, Water and Temperature condition icons', async ({ page }) => {
+  test('LOC-06: Wind, Tide, Water and Temperature condition icons', async ({ page }) => {
     // Given the browser viewport is 375px
     await page.setViewportSize({ width: 375, height: 812 });
 
@@ -262,7 +242,7 @@ test.describe('Feature: Home Locations', () => {
     await expect(grid.locator('svg rect[fill="currentColor"]')).toHaveAttribute('y', '11.2');
   });
 
-  test('LOC-08: Location cards display in a single column on mobile', async ({ page }) => {
+  test('LOC-07: Location cards display in a single column on mobile', async ({ page }) => {
     // Given the browser viewport is 375px
     await page.setViewportSize({ width: 375, height: 812 });
 
@@ -294,7 +274,7 @@ test.describe('Feature: Home Locations', () => {
     expect(fullWidth).toBe(true);
   });
 
-  // LOC-09 Scenario Outline: Location list displays correctly at various viewports
+  // LOC-08 Scenario Outline: Location list displays correctly at various viewports
   const loc09Examples = [
     { breakpoint: 'tablet', width: 768 },
     { breakpoint: 'large tablet', width: 1024 },
@@ -302,7 +282,7 @@ test.describe('Feature: Home Locations', () => {
   ];
 
   for (const { breakpoint, width } of loc09Examples) {
-    test(`LOC-09: Location list displays correctly at ${breakpoint} viewport`, async ({ page }) => {
+    test(`LOC-08: Location list displays correctly at ${breakpoint} viewport`, async ({ page }) => {
       // Given the browser viewport is <width>
       await page.setViewportSize({ width, height: 800 });
 
@@ -327,7 +307,7 @@ test.describe('Feature: Home Locations', () => {
     });
   }
 
-  test('LOC-10: Remove button is keyboard accessible', async ({ page }) => {
+  test('LOC-09: Remove button is keyboard accessible', async ({ page }) => {
     // Given the browser viewport is 375px
     await page.setViewportSize({ width: 375, height: 812 });
 

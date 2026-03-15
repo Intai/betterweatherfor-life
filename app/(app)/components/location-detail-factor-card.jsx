@@ -5,7 +5,7 @@ import {
   MARGINAL,
   UNSUITABLE,
 } from '@/app/(app)/constants'
-import { getConditionColor } from '@/app/(app)/utils/condition-colors'
+import { getConditionColor, isWarningCondition } from '@/app/(app)/utils/condition-colors'
 import {
   Card,
   CardContent,
@@ -33,11 +33,6 @@ function getBadgeClass(condition) {
   default:
     return ''
   }
-}
-
-function isWarningCondition(condition) {
-  return condition === MARGINAL
-    || condition === UNSUITABLE
 }
 
 export default function LocationDetailFactorCard({

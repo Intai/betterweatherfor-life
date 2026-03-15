@@ -1,4 +1,13 @@
-import { buildForecastKey, buildLocationKey, extractCityLocations, extractLocationKey, findBestHour, splitLocationKey } from './forecast'
+import {
+  buildForecastKey,
+  buildLocationKey,
+  extractCityLocations,
+  extractDateSegment,
+  extractLocationKey,
+  findBestHour,
+  findBestWindow,
+  splitLocationKey,
+} from './forecast'
 
 describe('buildLocationKey', () => {
   it('should return a "lat,lng" string', () => {
@@ -43,6 +52,13 @@ describe('extractLocationKey', () => {
   })
 })
 
+describe('extractDateSegment', () => {
+  it('should extract the date segment from a forecast key', () => {
+    expect(extractDateSegment('sup;2026-02-11;all-day;-36.8547,174.8317'))
+      .toBe('2026-02-11')
+  })
+})
+
 describe('findBestHour', () => {
   it('should return null for null input', () => {
     expect(findBestHour(null)).toBeNull()
@@ -71,6 +87,70 @@ describe('findBestHour', () => {
       { time: '8am', score: 80 },
     ]
     expect(findBestHour(hourly)).toEqual({ time: '8am', score: 80 })
+  })
+})
+
+describe('findBestWindow', () => {
+  it('should return null for falsy or empty input', () => {
+    expect(findBestWindow(null)).toBeNull()
+    expect(findBestWindow(undefined)).toBeUndefined()
+    expect(findBestWindow([])).toBeNull()
+  })
+
+  it('should extend outward from the peak while scores stay within 20 points', () => {
+    const hourly = [
+      { time: '06:00', score: 72 },
+      { time: '07:00', score: 78 },
+      { time: '08:00', score: 85 },
+      { time: '09:00', score: 90 },
+      { time: '10:00', score: 88 },
+      { time: '11:00', score: 84 },
+      { time: '12:00', score: 76 },
+      { time: '13:00', score: 70 },
+      { time: '14:00', score: 65 },
+    ]
+    expect(findBestWindow(hourly)).toEqual({ start: '06:00', end: '13:00' })
+  })
+
+  it('should return a single-hour window when only the peak qualifies', () => {
+    const hourly = [
+      { time: '08:00', score: 30 },
+      { time: '09:00', score: 90 },
+      { time: '10:00', score: 60 },
+    ]
+    expect(findBestWindow(hourly)).toEqual({ start: '09:00', end: '09:00' })
+  })
+
+  it('should include all hours when all scores are within threshold', () => {
+    const hourly = [
+      { time: '07:00', score: 80 },
+      { time: '08:00', score: 85 },
+      { time: '09:00', score: 82 },
+    ]
+    expect(findBestWindow(hourly)).toEqual({ start: '07:00', end: '09:00' })
+  })
+
+  it('should handle a single-element array', () => {
+    const hourly = [{ time: '10:00', score: 50 }]
+    expect(findBestWindow(hourly)).toEqual({ start: '10:00', end: '10:00' })
+  })
+
+  it('should include neighbours exactly at the threshold boundary', () => {
+    const hourly = [
+      { time: '08:00', score: 70 },
+      { time: '09:00', score: 90 },
+      { time: '10:00', score: 70 },
+    ]
+    expect(findBestWindow(hourly)).toEqual({ start: '08:00', end: '10:00' })
+  })
+
+  it('should exclude neighbours just below the threshold', () => {
+    const hourly = [
+      { time: '08:00', score: 69 },
+      { time: '09:00', score: 90 },
+      { time: '10:00', score: 69 },
+    ]
+    expect(findBestWindow(hourly)).toEqual({ start: '09:00', end: '09:00' })
   })
 })
 

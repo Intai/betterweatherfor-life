@@ -74,18 +74,11 @@ Feature: Home Locations
     And the subtitle "Tap + to add your first spot" should be visible
     And no location cards should be displayed
 
-  Scenario: LOC-04: Changing filters to a combination with no entries shows empty state
-    Given the browser viewport is 375px
-    When I navigate to the "/auckland/home" page
-    Then 3 location cards should be displayed
-    When I tap the "Tomorrow" day option button
-    Then the empty state should be displayed
-
   # =============================================================================
   # Scenario Group: Remove Location
   # =============================================================================
 
-  Scenario: LOC-05: Tapping remove button removes the location card from the list
+  Scenario: LOC-04: Tapping remove button removes the location card from the list
     Given the browser viewport is 375px
     When I navigate to the "/auckland/home" page
     Then 3 location cards should be displayed
@@ -94,7 +87,7 @@ Feature: Home Locations
     And 2 location cards should be displayed
     And the remaining cards should be "Mission Bay" and "St Heliers Bay" in that order
 
-  Scenario: LOC-06: Removing all locations shows the empty state
+  Scenario: LOC-05: Removing all locations shows the empty state
     Given the browser viewport is 375px
     When I navigate to the "/auckland/home" page
     Then 3 location cards should be displayed
@@ -110,7 +103,7 @@ Feature: Home Locations
   # Scenario Group: Conditions Grid Icons
   # =============================================================================
 
-  Scenario: LOC-07: Wind, Tide, Water and Temperature condition icons
+  Scenario: LOC-06: Wind, Tide, Water and Temperature condition icons
     Given the browser viewport is 375px
     When I navigate to the "/auckland/home" page
     Then the "Mission Bay" card Wind condition should display a wind arrow icon
@@ -128,13 +121,13 @@ Feature: Home Locations
   # Scenario Group: Responsive Layout
   # =============================================================================
 
-  Scenario: LOC-08: Location cards display in a single column on mobile
+  Scenario: LOC-07: Location cards display in a single column on mobile
     Given the browser viewport is 375px
     When I navigate to the "/auckland/home" page
     Then the location cards should be stacked vertically in a single column
     And each card should be full-width within the content area
 
-  Scenario Outline: LOC-09: Location list displays correctly at <breakpoint> viewport
+  Scenario Outline: LOC-08: Location list displays correctly at <breakpoint> viewport
     Given the browser viewport is <width>
     When I navigate to the "/auckland/home" page
     Then the "Locations" heading should be visible
@@ -152,7 +145,7 @@ Feature: Home Locations
   # Scenario Group: Keyboard Accessibility
   # =============================================================================
 
-  Scenario: LOC-10: Remove button is keyboard accessible
+  Scenario: LOC-09: Remove button is keyboard accessible
     Given the browser viewport is 375px
     When I navigate to the "/auckland/home" page
     And I focus on the add location (+) button

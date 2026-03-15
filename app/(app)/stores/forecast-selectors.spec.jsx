@@ -2,7 +2,16 @@ import { render, screen } from '@testing-library/react'
 import { TODAY } from '@/app/(app)/constants'
 import { buildForecastKey } from '@/app/utils/forecast'
 import { ForecastStoreProvider } from './forecast-store'
-import { buildForecastEntries, buildForecastEntry, buildScheduledLocationEntries, useForecastEntries, useForecastEntry, useScheduledLocationEntries } from './forecast-selectors'
+import {
+  buildForecastEntries,
+  buildForecastEntry,
+  buildScheduledLocationEntries,
+  buildSevenDayForecastEntries,
+  useForecastEntries,
+  useForecastEntry,
+  useScheduledLocationEntries,
+  useSevenDayForecastEntries,
+} from './forecast-selectors'
 
 jest.mock('@/app/utils/date', () => ({
   formatForecastDate: jest.fn(() => '2026-02-11'),
@@ -221,6 +230,87 @@ describe('useScheduledLocationEntries', () => {
     )
 
     const entries = JSON.parse(screen.getByTestId('scheduled-entries').textContent)
+    expect(entries).toEqual([])
+  })
+})
+
+describe('buildSevenDayForecastEntries', () => {
+  const forecast = {
+    [buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 72 }),
+    [buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8400,174.7670')]: makeForecast({ score: 85 }),
+    [buildForecastKey('sup', '2026-02-12', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 90 }),
+    [buildForecastKey('sup', '2026-02-12', 'all-day', '-36.8400,174.7670')]: makeForecast({ score: 60 }),
+    [buildForecastKey('sup', '2026-02-13', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 78 }),
+    [buildForecastKey('kayaking', '2026-02-11', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 95 }),
+    [buildForecastKey('sup', '2026-02-11', 'morning', '-36.8547,174.8317')]: makeForecast({ score: 99 }),
+  }
+
+  it('should filter by activity and all-day time range, pick best per date, and mark best day', () => {
+    const entries = buildSevenDayForecastEntries('sup')(forecast)
+
+    // Should have one entry per date (3 dates)
+    expect(entries).toHaveLength(3)
+    // Should be sorted by date ascending
+    const scores = entries.map(([, entry]) => entry.score)
+    expect(scores).toEqual([85, 90, 78])
+    // Should exclude kayaking entries
+    const keys = entries.map(([key]) => key)
+    expect(keys).not.toContain(buildForecastKey('kayaking', '2026-02-11', 'all-day', '-36.8547,174.8317'))
+    // Should exclude morning time range entries
+    expect(keys).not.toContain(buildForecastKey('sup', '2026-02-11', 'morning', '-36.8547,174.8317'))
+    // Should pick best location per date (score 85 over 72 for 2026-02-11)
+    expect(keys).toContain(buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8400,174.7670'))
+    expect(keys).not.toContain(buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8547,174.8317'))
+    // Should mark only the highest-scoring entry with isBestDay
+    expect(entries[0][1].isBestDay).toBeUndefined()
+    expect(entries[1][1].isBestDay).toBe(true)
+    expect(entries[2][1].isBestDay).toBeUndefined()
+  })
+
+  it('should return empty array when no entries match', () => {
+    const entries = buildSevenDayForecastEntries('snorkelling')(forecast)
+    expect(entries).toEqual([])
+  })
+
+  it('should return empty array for empty forecast', () => {
+    const entries = buildSevenDayForecastEntries('sup')({})
+    expect(entries).toEqual([])
+  })
+})
+
+describe('useSevenDayForecastEntries', () => {
+  function SevenDayConsumer() {
+    const entries = useSevenDayForecastEntries()
+    return <div data-testid="seven-day">{JSON.stringify(entries)}</div>
+  }
+
+  it('should return 7-day forecast entries from the store with best day marked', () => {
+    const forecast = {
+      [buildForecastKey('sup', '2026-02-11', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 72 }),
+      [buildForecastKey('sup', '2026-02-12', 'all-day', '-36.8547,174.8317')]: makeForecast({ score: 90 }),
+    }
+    render(
+      <ForecastStoreProvider initialState={{ forecast }}>
+        <SevenDayConsumer />
+      </ForecastStoreProvider>
+    )
+
+    const entries = JSON.parse(screen.getByTestId('seven-day').textContent)
+    expect(entries).toHaveLength(2)
+    expect(entries[0][1].score).toBe(72)
+    expect(entries[0][1].isBestDay).toBeUndefined()
+    expect(entries[1][1].score).toBe(90)
+    expect(entries[1][1].isBestDay).toBe(true)
+  })
+
+  it('should return empty array when no entries match', () => {
+    render(
+      <ForecastStoreProvider initialState={{ selectedActivity: 'snorkelling' }}>
+        <SevenDayConsumer />
+      </ForecastStoreProvider>
+    )
+
+    const entries = JSON.parse(screen.getByTestId('seven-day').textContent)
     expect(entries).toEqual([])
   })
 })

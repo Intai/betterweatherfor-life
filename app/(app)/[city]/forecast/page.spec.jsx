@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import CityHomePage, { generateMetadata } from './page'
+import CityForecastPage, { generateMetadata } from './page'
 
 const mockCookies = jest.fn()
 jest.mock('next/headers', () => ({
@@ -25,19 +25,13 @@ jest.mock('@/app/(app)/components/activity-selector', () => {
   }
 })
 
-jest.mock('@/app/(app)/components/time-window-picker', () => {
-  return function MockTimeWindowPicker() {
-    return <div data-testid="time-window-picker" />
+jest.mock('@/app/(app)/components/forecast-day-list', () => {
+  return function MockForecastDayList() {
+    return <div data-testid="forecast-day-list" />
   }
 })
 
-jest.mock('@/app/(app)/components/location-list', () => {
-  return function MockLocationList() {
-    return <div data-testid="location-list" />
-  }
-})
-
-describe('CityHomePage', () => {
+describe('CityForecastPage', () => {
   const mockForecast = {
     'sup;2026-02-14;all-day;-36.8547,174.8317': {
       name: 'Mission Bay',
@@ -61,28 +55,21 @@ describe('CityHomePage', () => {
     mockGetForecastsByCity.mockResolvedValue(mockForecast)
   })
 
-  it('should render ActivitySelector, TimeWindowPicker, and LocationList inside ForecastStoreProvider in correct order', async () => {
+  it('should render ActivitySelector and ForecastDayList inside ForecastStoreProvider', async () => {
     const params = Promise.resolve({ city: 'auckland' })
-    const Page = await CityHomePage({ params })
+    const Page = await CityForecastPage({ params })
     render(Page)
 
     const provider = screen.getByTestId('forecast-store-provider')
     const activitySelector = screen.getByTestId('activity-selector')
-    const timeWindowPicker = screen.getByTestId('time-window-picker')
-    const locationList = screen.getByTestId('location-list')
-
+    const forecastDayList = screen.getByTestId('forecast-day-list')
     expect(provider).toContainElement(activitySelector)
-    expect(provider).toContainElement(timeWindowPicker)
-    expect(provider).toContainElement(locationList)
-
-    const children = [...provider.children]
-    expect(children.indexOf(activitySelector)).toBeLessThan(children.indexOf(timeWindowPicker))
-    expect(children.indexOf(timeWindowPicker)).toBeLessThan(children.indexOf(locationList))
+    expect(provider).toContainElement(forecastDayList)
   })
 
   it('should fetch forecasts by city slug and pass them as initialState', async () => {
     const params = Promise.resolve({ city: 'auckland' })
-    const Page = await CityHomePage({ params })
+    const Page = await CityForecastPage({ params })
     render(Page)
 
     expect(mockGetForecastsByCity).toHaveBeenCalledWith('auckland')
@@ -92,17 +79,17 @@ describe('CityHomePage', () => {
   it('should pass an empty forecast map when the database returns no results', async () => {
     mockGetForecastsByCity.mockResolvedValue({})
     const params = Promise.resolve({ city: 'wellington' })
-    const Page = await CityHomePage({ params })
+    const Page = await CityForecastPage({ params })
     render(Page)
 
     expect(mockGetForecastsByCity).toHaveBeenCalledWith('wellington')
-    expect(capturedInitialState).toEqual({ citySlug: 'wellington', forecast: {}, isLoaded: true  })
+    expect(capturedInitialState).toEqual({ citySlug: 'wellington', forecast: {}, isLoaded: true })
   })
 
   it('should include preference cookies in initialState', async () => {
     mockCookies.mockResolvedValue({ getAll: () => [{ name: 'selectedActivity', value: 'kayaking' }] })
     const params = Promise.resolve({ city: 'auckland' })
-    const Page = await CityHomePage({ params })
+    const Page = await CityForecastPage({ params })
     render(Page)
 
     expect(capturedInitialState).toEqual({
@@ -118,19 +105,19 @@ describe('generateMetadata', () => {
   it('should return correct title with deslugified city name', async () => {
     const params = Promise.resolve({ city: 'new-plymouth' })
     const result = await generateMetadata({ params })
-    expect(result.title).toBe('New Plymouth - Best Outdoor Spots')
+    expect(result.title).toBe('New Plymouth 7-Day Forecast')
   })
 
   it('should return correct description', async () => {
     const params = Promise.resolve({ city: 'auckland' })
     const result = await generateMetadata({ params })
-    expect(result.description).toBe('Find the best spots for SUP, kayaking, snorkeling, and cycling in Auckland based on current weather and sea conditions.')
+    expect(result.description).toBe('7-day weather, tide, and sea conditions forecast for outdoor activities in Auckland.')
   })
 
   it('should return openGraph metadata', async () => {
     const params = Promise.resolve({ city: 'wellington' })
     const result = await generateMetadata({ params })
-    expect(result.openGraph.title).toBe('Wellington - Best Outdoor Spots')
-    expect(result.openGraph.description).toBe('Find the best spots for SUP, kayaking, snorkeling, and cycling in Wellington based on current weather and sea conditions.')
+    expect(result.openGraph.title).toBe('Wellington 7-Day Forecast')
+    expect(result.openGraph.description).toBe('7-day weather, tide, and sea conditions forecast for outdoor activities in Wellington.')
   })
 })

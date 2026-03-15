@@ -1,27 +1,26 @@
 import { cookies } from 'next/headers'
 import ActivitySelector from '@/app/(app)/components/activity-selector'
-import LocationList from '@/app/(app)/components/location-list'
-import TimeWindowPicker from '@/app/(app)/components/time-window-picker'
+import ForecastDayList from '@/app/(app)/components/forecast-day-list'
 import { ForecastStoreProvider } from '@/app/(app)/stores/forecast-store'
 import { parsePreferences } from '@/app/utils/preferences-storage'
 import { deslugify } from '@/app/utils/string'
 import { getForecastsByCity } from '@/db/queries/forecasts'
 
 export async function generateMetadata({ params }) {
-  const { city: citySlug } = await params
-  const cityName = deslugify(citySlug)
+  const { city } = await params
+  const cityName = deslugify(city)
 
   return {
-    title: `${cityName} - Best Outdoor Spots`,
-    description: `Find the best spots for SUP, kayaking, snorkeling, and cycling in ${cityName} based on current weather and sea conditions.`,
+    title: `${cityName} 7-Day Forecast`,
+    description: `7-day weather, tide, and sea conditions forecast for outdoor activities in ${cityName}.`,
     openGraph: {
-      title: `${cityName} - Best Outdoor Spots`,
-      description: `Find the best spots for SUP, kayaking, snorkeling, and cycling in ${cityName} based on current weather and sea conditions.`,
+      title: `${cityName} 7-Day Forecast`,
+      description: `7-day weather, tide, and sea conditions forecast for outdoor activities in ${cityName}.`,
     },
   }
 }
 
-export default async function CityHomePage({ params }) {
+export default async function CityForecastPage({ params }) {
   const { city: citySlug } = await params
   const forecast = await getForecastsByCity(citySlug)
   const cookieStore = await cookies()
@@ -35,8 +34,7 @@ export default async function CityHomePage({ params }) {
   return (
     <ForecastStoreProvider initialState={initialState}>
       <ActivitySelector />
-      <TimeWindowPicker />
-      <LocationList />
+      <ForecastDayList />
     </ForecastStoreProvider>
   )
 }

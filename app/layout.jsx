@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono } from 'next/font/google'
 import I18nProvider from '@/app/components/i18n-provider'
+import LocaleProvider from '@/app/components/locale-provider'
+import { getAcceptLanguage } from '@/app/utils/request'
 import './globals.css'
 
 const geistSans = Geist({
@@ -43,11 +45,15 @@ export const metadata = {
   },
 }
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const { lang, locale } = await getAcceptLanguage()
+
   return (
-    <html lang="en">
+    <html lang={lang}>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <I18nProvider>{children}</I18nProvider>
+        <LocaleProvider locale={locale}>
+          <I18nProvider>{children}</I18nProvider>
+        </LocaleProvider>
       </body>
     </html>
   )

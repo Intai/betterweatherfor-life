@@ -7,6 +7,7 @@ import { ChevronDown } from 'lucide-react'
 import { prop } from 'ramda'
 import { PICK_DATE, TIME_RANGES } from '@/app/(app)/constants'
 import { useForecastStore } from '@/app/(app)/stores/forecast-store'
+import { useLocale } from '@/app/components/locale-provider'
 import { formatShortDate } from '@/app/utils/date'
 import { kebabToCamel } from '@/app/utils/string'
 import { Button } from '@/shadcn/components/ui/button'
@@ -16,6 +17,7 @@ import { RadioGroup, RadioGroupItem } from '@/shadcn/components/ui/radio-group'
 
 export default function TimeWindowPickerCalendar() {
   const { t } = useTranslation()
+  const locale = useLocale()
   const selectedDay = useForecastStore(prop('selectedDay'))
   const selectedDate = useForecastStore(prop('selectedDate'))
   const selectedTimeRange = useForecastStore(prop('selectedTimeRange'))
@@ -34,7 +36,7 @@ export default function TimeWindowPickerCalendar() {
 
   const getPickDateLabel = () => {
     if (selectedDay === PICK_DATE && selectedDate) {
-      const dateLabel = formatShortDate(selectedDate)
+      const dateLabel = formatShortDate(selectedDate, locale)
       return `${dateLabel}: ${getTimeRangeLabel(selectedTimeRange)}`
     }
     return t('home.timeWindow.pickDate')

@@ -66,6 +66,16 @@ export function getConditionColor(condition) {
 }
 
 /**
+ * Returns whether the condition is a warning level (marginal or unsuitable).
+ * @param {string} condition - One of 'ideal', 'acceptable', 'marginal', 'unsuitable'.
+ * @returns {boolean} True if the condition is marginal or unsuitable.
+ */
+export function isWarningCondition(condition) {
+  return condition === MARGINAL
+    || condition === UNSUITABLE
+}
+
+/**
  * Returns a CSS custom property value for water quality colors.
  * @param {string} quality - One of 'Green', 'Orange', 'Red', 'Black'.
  * @returns {string} A CSS custom property reference.

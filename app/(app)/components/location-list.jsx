@@ -44,7 +44,7 @@ export default function LocationList() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div data-testid="location-list">
+    <div data-testid="location-list" className="max-w-5xl mx-auto">
       {isLoaded ? <LocationListHeader /> : renderSkeleton(scheduledLocations.length)}
       {isLoaded && isEmpty && <LocationListEmpty />}
       {isLoaded && !isEmpty && (

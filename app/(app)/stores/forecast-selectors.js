@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
-import { always, ascend, descend, filter, find, identity, ifElse, last, pipe, prop, sort, toPairs } from 'ramda'
+import { always, ascend, assocPath, collectBy, descend, filter, find, head, identity, ifElse, last, length, map, maxBy, nth, nthArg, pipe, prop, propOr, reduce, sort, test, toPairs, when } from 'ramda'
 import { formatForecastDate } from '@/app/utils/date'
-import { buildForecastKey } from '@/app/utils/forecast'
+import { buildForecastKey, extractDateSegment } from '@/app/utils/forecast'
 import { emptyArray } from '@/app/utils/list'
+import { filterObj } from '@/app/utils/object'
 import { useForecastStore } from './forecast-store'
 
 const sortByScore = sort(descend(pipe(last, prop('score'))))
@@ -82,5 +83,49 @@ export function useScheduledLocationEntries() {
   return useMemo(
     () => buildScheduledLocationEntries(selectedActivity, selectedDay, selectedDate, selectedTimeRange, Object.keys(forecast))(locations),
     [locations, forecast, selectedActivity, selectedDay, selectedDate, selectedTimeRange],
+  )
+}
+
+const sortByDate = sort(ascend(pipe(head, extractDateSegment)))
+
+/**
+ * Builds a 7-day forecast summary by filtering forecast entries for the given activity
+ * with all-day time range, grouping by date, picking the highest-scoring entry per date,
+ * and marking the overall best day with `isBestDay: true`.
+ *
+ * @param {string} activity - Activity type (e.g. "sup", "kayaking").
+ * @param {object} forecast - Forecast map keyed by "activity;date;timeRange;coordinates".
+ * @returns {Array<[string, object]>} Forecast key-entry pairs sorted by date ascending.
+ */
+export const buildSevenDayForecastEntries = activity => pipe(
+  // Filter keys matching activity;*;all-day;*
+  filterObj(pipe(
+    nthArg(1),
+    test(new RegExp(`^${activity};[^;]*;all-day;`)),
+  )),
+  toPairs,
+  // Group by date
+  collectBy(pipe(nth(0), extractDateSegment)),
+  // Keep only the highest-scoring entry per date
+  map(reduce(maxBy(pipe(nth(1), propOr(-1, 'score'))), [])),
+  // Sort by score descending
+  sortByScore,
+  // Mark the best day (first entry after sorting)
+  when(length, assocPath([0, 1, 'isBestDay'], true)),
+  // Sort by date ascending
+  sortByDate,
+)
+
+/**
+ * Returns 7-day forecast entries for the selected activity, with the best
+ * location per date and the overall best day marked with `isBestDay: true`.
+ *
+ * @returns {Array<[string, object]>} Forecast key-entry pairs.
+ */
+export function useSevenDayForecastEntries() {
+  const { forecast, selectedActivity } = useForecastStore()
+  return useMemo(
+    () => buildSevenDayForecastEntries(selectedActivity)(forecast),
+    [forecast, selectedActivity],
   )
 }

@@ -1,4 +1,4 @@
-import { getPreferences, pickPreferences, setPreference } from './preferences-storage'
+import { getPreferences, parsePreferences, setPreference } from './preferences-storage'
 
 describe('preferences-storage', () => {
   beforeEach(() => {
@@ -80,13 +80,13 @@ describe('preferences-storage', () => {
     })
   })
 
-  describe('pickPreferences', () => {
+  describe('parsePreferences', () => {
     it('should return empty object for empty list', () => {
-      expect(pickPreferences([])).toEqual({})
+      expect(parsePreferences([])).toEqual({})
     })
 
     it('should pick known preference keys', () => {
-      expect(pickPreferences([
+      expect(parsePreferences([
         { name: 'selectedActivity', value: 'kayaking' },
         { name: 'selectedDay', value: 'tomorrow' },
       ])).toEqual({
@@ -96,13 +96,13 @@ describe('preferences-storage', () => {
     })
 
     it('should drop unknown keys', () => {
-      expect(pickPreferences([
+      expect(parsePreferences([
         { name: 'unknownKey', value: 'something' },
       ])).toEqual({})
     })
 
     it('should pick only known keys from mixed list', () => {
-      expect(pickPreferences([
+      expect(parsePreferences([
         { name: 'selectedActivity', value: 'cycling' },
         { name: 'unknownKey', value: 'something' },
       ])).toEqual({
@@ -111,17 +111,26 @@ describe('preferences-storage', () => {
     })
 
     it('should handle all four preference keys', () => {
-      expect(pickPreferences([
+      const result = parsePreferences([
         { name: 'selectedActivity', value: 'sup' },
         { name: 'selectedDay', value: 'today' },
         { name: 'selectedDate', value: '2026-03-15' },
         { name: 'selectedTimeRange', value: 'morning' },
-      ])).toEqual({
+      ])
+      expect(result).toEqual({
         selectedActivity: 'sup',
         selectedDay: 'today',
-        selectedDate: '2026-03-15',
+        selectedDate: new Date('2026-03-15'),
         selectedTimeRange: 'morning',
       })
+    })
+
+    it('should pass through selectedDate that is already a Date', () => {
+      const date = new Date('2026-03-15')
+      const result = parsePreferences([
+        { name: 'selectedDate', value: date },
+      ])
+      expect(result.selectedDate).toBe(date)
     })
   })
 
@@ -138,13 +147,13 @@ describe('preferences-storage', () => {
       expect(document.cookie).not.toMatch(/selectedActivity=cycling/)
     })
 
-    it('should convert Date to ISO string for selectedDate', () => {
-      const date = new Date('2026-03-15T00:00:00.000Z')
+    it('should convert Date to formatted string for selectedDate', () => {
+      const date = new Date(2026, 2, 15)
       setPreference('selectedDate', date)
-      expect(document.cookie).toContain('selectedDate=')
+      expect(document.cookie).toContain('selectedDate=2026-03-15T00%3A00%3A00.000')
       const prefs = getPreferences()
       expect(prefs.selectedDate).toBeInstanceOf(Date)
-      expect(prefs.selectedDate.toISOString()).toBe('2026-03-15T00:00:00.000Z')
+      expect(prefs.selectedDate).toEqual(date)
     })
 
     it('should ignore unknown preference keys', () => {

@@ -1,8 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 
 const mockUsePathname = jest.fn()
+const mockUseParams = jest.fn()
 const mockRouterBack = jest.fn()
 jest.mock('next/navigation', () => ({
+  useParams: () => mockUseParams(),
   usePathname: () => mockUsePathname(),
   useRouter: () => ({ back: mockRouterBack }),
 }))
@@ -49,6 +51,7 @@ import TopAppbar from './app-top-appbar'
 
 describe('TopAppbar', () => {
   beforeEach(() => {
+    mockUseParams.mockReturnValue({})
     mockUsePathname.mockReturnValue('/home')
     mockRouterBack.mockClear()
   })
@@ -90,11 +93,14 @@ describe('TopAppbar', () => {
   })
 
   it('should render page title "7-Day Forecast" for /auckland/forecast', () => {
+    mockUseParams.mockReturnValue({ city: 'auckland' })
     mockUsePathname.mockReturnValue('/auckland/forecast')
     render(<TopAppbar />)
     expect(screen.queryByTestId('top-appbar-mobile-home')).not.toBeInTheDocument()
     const header = screen.getByTestId('top-appbar-mobile-sub')
     expect(header).toHaveTextContent('7-Day Forecast')
+    const backLink = header.querySelector('[data-testid="top-appbar-back"]')
+    expect(backLink).toHaveAttribute('href', '/auckland/home')
     const desktop = screen.getByTestId('top-appbar-desktop')
     expect(desktop.querySelector('h1')).toHaveTextContent('7-Day Forecast')
     expect(screen.queryByTestId('top-appbar-share')).not.toBeInTheDocument()

@@ -63,6 +63,20 @@
       "evening": "Evening"
     }
   },
+  "forecast": {
+    "title": "7-Day Forecast",
+    "bestDay": "Best Day",
+    "bestSpot": "Best Spot",
+    "bestWindow": "Best Window",
+    "bestWindowRange": "{{start}} - {{end}}",
+    "noWindow": "No recommended window",
+    "empty": {
+      "title": "No 7-day forecast available",
+      "subtitle": "Add locations on the home screen to see their 7-day forecast here",
+      "goHome": "Go to Home"
+    },
+    "today": "Today"
+  },
   "locationDetail": {
     "conditions": "Conditions",
     "aiAnalysis": "AI Analysis",

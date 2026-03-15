@@ -1,4 +1,5 @@
-import { pick, pipe, prop } from 'ramda'
+import { format } from 'date-fns'
+import { constructN, evolve, is, pick, pipe, prop, when } from 'ramda'
 import {
   ACTIVITIES, DAYS, PICK_DATE, PREFERENCE_KEYS, SELECTED_DATE,
   TIME_RANGES, TODAY,
@@ -20,9 +21,12 @@ const setCookie = (name, value) => {
   }
 }
 
-export const pickPreferences = pipe(
+export const parsePreferences = pipe(
   indexByToValue(prop('name'), prop('value')),
   pick(PREFERENCE_KEYS),
+  evolve({
+    [SELECTED_DATE]: when(is(String), constructN(1, Date)),
+  }),
 )
 
 /**
@@ -70,7 +74,7 @@ export const getPreferences = () => {
 export const setPreference = (key, value) => {
   if (PREFERENCE_KEYS.includes(key)) {
     const strValue = key === SELECTED_DATE && value instanceof Date
-      ? value.toISOString()
+      ? format(value, 'yyyy-MM-dd\'T\'HH:mm:ss.SSS')
       : value
     setCookie(key, strValue)
   }
