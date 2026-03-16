@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: betterweather
+
+resources:
+  - ../base
+  - db-sealed-secret.yaml
+  - web-sealed-secret.yaml
+  - nginx-deployment.yaml
+  - nginx-service.yaml
+
+patches:
+  - path: db-deployment-patch.yaml
+  - path: web-deployment-patch.yaml
+
+configMapGenerator:
+  - name: nginx-config
+    files:
+      - nginx.conf
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+images:
+  - name: betterweather-web
+    newName: ghcr.io/intai/betterweather-web
+    newTag: latest

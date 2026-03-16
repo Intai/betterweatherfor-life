@@ -36,7 +36,6 @@ services:
       - .:/app
       - web_node_modules:/app/node_modules
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
       - DATABASE_URL=postgres://betterweather:betterweather@db:5432/betterweather
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-}
 
@@ -49,4 +48,4 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./k8s/production/nginx.conf:/etc/nginx/nginx.conf:ro
