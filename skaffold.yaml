@@ -1,0 +1,43 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: betterweather
+
+build:
+  local:
+    push: false
+  artifacts:
+    - image: betterweather-web
+      hooks:
+        before:
+          - command: ["sh", "-c", "cp .env k8s/local/.env"]
+      docker:
+        dockerfile: Dockerfile
+        target: development
+        buildArgs:
+          NODE_ENV: development
+          NODE_CONFIG_ENV: development
+      sync:
+        manual:
+          - src: 'app/**/*'
+            dest: /app
+          - src: 'config/**/*'
+            dest: /app
+          - src: 'public/**/*'
+            dest: /app
+          - src: 'shadcn/**/*'
+            dest: /app
+          - src: 'next.config.mjs'
+            dest: /app
+          - src: 'tailwind.config.js'
+            dest: /app
+          - src: 'postcss.config.mjs'
+            dest: /app
+
+manifests:
+  kustomize:
+    paths:
+      - k8s/local
+
+deploy:
+  kubectl: {}

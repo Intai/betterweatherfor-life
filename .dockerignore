@@ -1,0 +1,39 @@
+# version control
+.git
+.gitignore
+.husky
+
+# dependencies (reinstalled via npm ci)
+node_modules
+
+# build artifacts
+.next
+coverage
+playwright-report
+test-results
+
+# environment files
+.env
+.env.local
+.env.example
+
+# documentation
+README.md
+
+# editor configs
+.vscode
+
+# devops (not needed inside image)
+k8s
+skaffold.yaml
+docker-compose.yml
+Makefile
+
+# testing configs
+jest.config.js
+jest.setup.js
+playwright.config.js
+
+# misc
+.DS_Store
+.nvmrc

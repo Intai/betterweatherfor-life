@@ -20,9 +20,9 @@ prod-stop: ## Stop production environment
 	docker compose --profile prod down
 
 k8s-local: ## Deploy to local Kubernetes (localhost:30000)
-	docker image inspect betterweather-web:latest >/dev/null 2>&1 || docker build -t betterweather-web:latest --target production --build-arg NODE_ENV=production --build-arg NODE_CONFIG_ENV=development --build-arg BUILD=1770282002 .
+	docker image inspect betterweather-web:latest >/dev/null 2>&1 || docker build -t betterweather-web:latest --target production --build-arg NODE_ENV=production --build-arg NODE_CONFIG_ENV=development .
+	cp .env k8s/local/.env
 	kubectl apply -k k8s/local
-	kubectl create secret generic web-secret --from-env-file=.env -n betterweather --dry-run=client -o yaml | kubectl apply -f -
 
 k8s-local-stop: ## Stop local Kubernetes deployment
 	kubectl delete -k k8s/local

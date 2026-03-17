@@ -11,3 +11,11 @@ patches:
   - path: web-service-patch.yaml
   - path: web-configmap-patch.yaml
   - path: web-deployment-patch.yaml
+
+secretGenerator:
+  - name: web-secret
+    envs:
+      - .env
+
+generatorOptions:
+  disableNameSuffixHash: true

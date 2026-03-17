@@ -7,10 +7,10 @@ Use the Task tool with `subagent_type="general-purpose"` to execute the followin
   What is the water quality at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 2 days according to https://safeswim.org.nz/api/locations/{slug}, where the `WATER_QUALITY` array is every hour from now? Respond in JSON format without any explanation, where `waterQuality` must be strictly Green, Orange, Red or Black. Use cURL. Find the closest location slug by https://safeswim.org.nz/api/locations.
   ```
 - ```
-  When are the tide turning times according to https://tides.niwa.co.nz/?latitude=-36.97484844433063&longitude=174.62043566419308&startDate=2026-02-13&numberOfDays=10 Respond in JSON format without any explanation. Use playwright-headless MCP. Close the Playwright browser when finishes.
+  When are the tide turning times according to https://tides.niwa.co.nz/?latitude=-36.97484844433063&longitude=174.62043566419308&startDate=2026-02-13&numberOfDays=10 Respond in JSON format without any explanation. Use playwright-headless MCP. Remember to close the Playwright browser when finishes.
   ```
 - ```
-  What is the swell at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://windy.app/poi/-36.97484844433063/174.62043566419308 Respond in JSON format without any explanation. Use playwright-headless MCP. Close the Playwright browser when finishes. Selectors:
+  What is the swell at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://windy.app/poi/-36.97484844433063/174.62043566419308 Respond in JSON format without any explanation. Use playwright-headless MCP. Remember to close the Playwright browser when finishes. Selectors:
     | Hours | #cellsTable tr.windywidgethours |
     | Swell height (m) | #cellsTable tr.windywidgetwavesheight |
   ```
