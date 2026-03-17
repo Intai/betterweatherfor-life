@@ -1,0 +1,28 @@
+FROM mcr.microsoft.com/playwright:v1.52.0-noble
+
+WORKDIR /app
+RUN chown pwuser:pwuser /app
+USER pwuser
+
+# Install claude CLI
+RUN curl -fsSL https://claude.ai/install.sh | bash
+ENV PATH="/home/pwuser/.local/bin:$PATH"
+
+# Install app dependencies
+COPY package*.json ./
+RUN npm ci --include=dev --ignore-scripts
+
+# Copy app source
+COPY app ./app
+COPY db ./db
+COPY config ./config
+COPY .mcp-playwright.json ./
+
+# Set up entrypoint (needs root briefly)
+USER root
+COPY docker/forecast-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/forecast-entrypoint.sh
+USER pwuser
+
+ENTRYPOINT ["forecast-entrypoint.sh"]
+CMD ["node", "db/update-forecasts.js"]

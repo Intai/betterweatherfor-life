@@ -9,6 +9,8 @@ resources:
   - web-sealed-secret.yaml
   - nginx-deployment.yaml
   - nginx-service.yaml
+  - forecast-pvc.yaml
+  - forecast-cronjob.yaml
 
 patches:
   - path: db-deployment-patch.yaml
@@ -25,4 +27,7 @@ generatorOptions:
 images:
   - name: betterweather-web
     newName: ghcr.io/intai/betterweather-web
+    newTag: latest
+  - name: betterweather-forecast
+    newName: ghcr.io/intai/betterweather-forecast
     newTag: latest
