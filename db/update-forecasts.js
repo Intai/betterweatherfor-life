@@ -3,7 +3,8 @@ import { readFileSync } from 'fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { sql } from 'drizzle-orm'
-import { pick, pipe, replace } from 'ramda'
+import { pick, pipe, propSatisfies, replace } from 'ramda'
+import { ACTIVITIES } from '../app/(app)/constants.js'
 import { dateNow, formatISODate } from '../app/utils/date.js'
 import { error, info } from '../app/utils/logger.js'
 import { slugify } from '../app/utils/string.js'
@@ -11,30 +12,36 @@ import { forecasts } from './schema/forecasts.js'
 import { locations } from './schema/locations.js'
 import db from './index.js'
 
+const isNearMidnight = timeZone => {
+  const now = dateNow(timeZone)
+  const hours = now.getHours()
+  const minutes = now.getMinutes()
+  return (hours === 23 && minutes >= 30) || (hours === 0 && minutes < 30)
+}
+
 const currentDir = dirname(fileURLToPath(import.meta.url))
 const promptTemplatePath = resolve(currentDir, '../app/(app)/docs/ai-forecast-prompt.md')
 
-const queryLocations = async locationSlug => {
+const queryLocations = async filterSlug => {
   const all = await db.select().from(locations)
-  if (!locationSlug) return all
-  return all.filter(({ name }) => slugify(name) === locationSlug)
+  if (!filterSlug) return all
+  return all.filter(({ name }) => slugify(name) === filterSlug)
 }
 
 const readPromptTemplate = () => readFileSync(promptTemplatePath, 'utf-8')
 
-const buildPrompt = (location, filename) => pipe(
+const buildPrompt = location => pipe(
   replace(/-36\.97484844433063/g, location.latitude),
   replace(/174\.62043566419308/g, location.longitude),
   replace(/2026-02-13/g, formatISODate(dateNow(location.timeZone))),
-  replace('forecast.json', filename),
+  replace('forecast-{activity}.json', `${slugify(location.name)}-{activity}.json`),
 )
 
-const runClaude = (filename, prompt) => {
+const runClaude = prompt => {
   info('Running Claude prompt')
   const stdout = execSync(`claude --dangerously-skip-permissions --model "sonnet" \
 --strict-mcp-config --mcp-config ".mcp-playwright.json" --print`, { input: prompt })
   info(stdout.toString())
-  return JSON.parse(readFileSync(resolve(currentDir, `../${filename}`), 'utf-8'))
 }
 
 const pickForecast = pick([
@@ -90,14 +97,18 @@ async function upsertForecast(locationId, forecastValue) {
   return result
 }
 
-async function upsertForecasts(location, forecastData) {
-  const forecastValues = Object.values(forecastData)
-  const count = forecastValues.length
+async function upsertForecasts(location, activity, forecastData) {
+  const forecastEntries = Object.entries(forecastData)
+  let count = 0
 
-  for (const forecastValue of forecastValues) {
-    await upsertForecast(location.id, forecastValue)
+  for (const [key, forecastValue] of forecastEntries) {
+    if (forecastValue.score) {
+      const [activity, date, timeRange] = key.split(';')
+      await upsertForecast(location.id, { activity, date, timeRange, ...forecastValue })
+      count++
+    }
   }
-  info(`Upserted ${count} forecasts for ${location.name}`)
+  info(`Upserted ${count} forecasts for ${location.name} (${activity})`)
   return count
 }
 
@@ -106,16 +117,26 @@ async function upsertForecasts(location, forecastData) {
  *
  * @returns {Promise<number>} Total number of forecast entries upserted.
  */
-export async function updateForecasts(locationSlug) {
+export async function updateForecasts(filterSlug) {
   const template = readPromptTemplate()
   let count = 0
 
-  for (const location of await queryLocations(locationSlug)) {
+  const allLocations = await queryLocations(filterSlug)
+  const locationsToUpdate = filterSlug
+    ? allLocations
+    : allLocations.filter(propSatisfies(isNearMidnight, 'timeZone'))
+
+  for (const location of locationsToUpdate) {
     info(`Processing: ${location.name}`)
-    const filename = `${slugify(location.name)}.json`
-    const prompt = buildPrompt(location, filename)(template)
-    const forecastData = runClaude(filename, prompt)
-    count += await upsertForecasts(location, forecastData)
+    const locationSlug = slugify(location.name)
+    const prompt = buildPrompt(location)(template)
+    runClaude(prompt)
+
+    for (const activity of ACTIVITIES) {
+      const filepath = resolve(currentDir, `../${locationSlug}-${activity}.json`)
+      const forecastData = JSON.parse(readFileSync(filepath, 'utf-8'))
+      count += await upsertForecasts(location, activity, forecastData)
+    }
   }
   return count
 }

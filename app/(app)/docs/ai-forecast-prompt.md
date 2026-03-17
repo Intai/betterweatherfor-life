@@ -161,9 +161,11 @@ Poor visibility reduces the snorkelling experience and can mask hazards like roc
 
 ## JSON Output
 
-**Write the JSON output to `forecast.json` in the project root directory. Exit immediately after writing the JSON file. Do not take any further actions.**
+Use the Task tool with `subagent_type="general-purpose"` to execute 4 scoring in parallel — one for each activity (`sup`, `kayaking`, `snorkelling`, `cycling`). Pass the fetched data and the full "## Data Granularity", "## Scoring Criteria", and "## JSON Output" sections (from "Time windows:" onward, including the JSON example) to each task. Each task:
+- Uses the scoring criteria to produce a JSON object with entries for each time window (`all-day`, `morning`, `afternoon`, `evening`) on 2026-02-13 and for the next 9 days
+- Writes the JSON output to `forecast-{activity}.json` in the project root directory (e.g. `forecast-sup.json`)
 
-Using the scoring criteria above, produce a JSON entry for each combination of activity (`sup`, `kayaking`, `snorkelling`, `cycling`) and time window (`all-day`, `morning`, `afternoon`, `evening`) on 2026-02-13 and for the next 9 days.
+Exit immediately after all tasks complete. Do not take any further actions.
 
 Time windows:
 - Morning: 6am-12pm
@@ -188,6 +190,8 @@ The `summary` field must explain how conditions affect the specific activity —
 The `analysis` field is a multi-paragraph AI analysis for the detail page. Use `\n\n` to separate paragraphs.
 
 The `hourly` array contains hourly scores for the hours within that time range. Each entry has `time` (HH:MM), `score`, and `condition`. When a factor only has daily data, hourly scores for that factor will be identical. Variation in hourly scores should come only from factors with real hourly data (e.g. tide position, water quality, daylight).
+
+When weather data is not available for a time window (e.g. hours already passed), set factor fields (`score`, `condition`, `wind`, `precipitation`, `temp`, `uv`, `daylight`, `hourly`) to `null` instead of objects with "N/A" or "no-data" values.
 
 Output in the following JSON format:
 ```

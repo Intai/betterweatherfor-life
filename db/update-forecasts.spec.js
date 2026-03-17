@@ -27,8 +27,12 @@ jest.mock('fs', () => ({
 }))
 
 jest.mock('@/app/utils/date', () => ({
-  dateNow: jest.fn(() => new Date('2026-02-14')),
+  dateNow: jest.fn(() => new Date(2026, 1, 14, 0, 0)),
   formatISODate: jest.fn(() => '2026-02-14'),
+}))
+
+jest.mock('@/app/(app)/constants', () => ({
+  ACTIVITIES: ['sup'],
 }))
 
 const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {})
@@ -48,9 +52,6 @@ const makeLocation = (overrides = {}) => ({
 })
 
 const makeForecastValue = (overrides = {}) => ({
-  activity: 'sup',
-  date: '2026-02-14',
-  timeRange: 'all-day',
   score: 85,
   condition: 'ideal',
   wind: { speed: '8km/h', direction: 'NE', condition: 'ideal' },
@@ -74,7 +75,7 @@ describe('db/update-forecasts', () => {
     'latitude=-36.97484844433063&longitude=174.62043566419308&startDate=2026-02-13',
     'geolocation -36.97484844433063,174.62043566419308 on 2026-02-13',
     'lat=-36.97484844433063&lng=174.62043566419308&date=2026-02-13',
-    'forecast.json',
+    'forecast-{activity}.json',
   ].join('\n')
 
   beforeEach(() => {
@@ -100,7 +101,7 @@ describe('db/update-forecasts', () => {
         mockFrom.mockResolvedValue([location])
         mockReadFileSync
           .mockReturnValueOnce(promptTemplate)
-          .mockReturnValueOnce(JSON.stringify({ key1: value }))
+          .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': value }))
         mockReturning.mockResolvedValue([{ id: 1 }])
       })
 
@@ -111,8 +112,8 @@ describe('db/update-forecasts', () => {
       expect(prompt).toContain('174.8317')
       expect(prompt).toContain('2026-02-14')
       expect(prompt).not.toContain('-36.97484844433063')
-      expect(prompt).toContain('mission-bay.json')
-      expect(prompt).not.toContain('forecast.json')
+      expect(prompt).toContain('mission-bay-{activity}.json')
+      expect(prompt).not.toContain('forecast-{activity}.json')
       expect(mockValues).toHaveBeenCalledWith({
         locationId: 1,
         activity: 'sup',
@@ -157,8 +158,8 @@ describe('db/update-forecasts', () => {
         mockReadFileSync
           .mockReturnValueOnce(promptTemplate)
           .mockReturnValueOnce(JSON.stringify({
-            key1: makeForecastValue({ activity: 'sup' }),
-            key2: makeForecastValue({ activity: 'kayaking' }),
+            'sup;2026-02-14;all-day': makeForecastValue(),
+            'sup;2026-02-14;morning': makeForecastValue(),
           }))
         mockReturning.mockResolvedValue([{ id: 1 }])
       })
@@ -172,8 +173,8 @@ describe('db/update-forecasts', () => {
       expect(prompt.match(/-36\.97484844433063/g)).toBeNull()
       expect(prompt.match(/174\.62043566419308/g)).toBeNull()
       expect(prompt.match(/2026-02-13/g)).toBeNull()
-      expect(prompt.match(/mission-bay\.json/g)).toHaveLength(1)
-      expect(prompt.match(/forecast\.json/g)).toBeNull()
+      expect(prompt.match(/mission-bay-\{activity\}\.json/g)).toHaveLength(1)
+      expect(prompt.match(/forecast-\{activity\}\.json/g)).toBeNull()
     })
 
     it('should process multiple locations', async () => {
@@ -190,17 +191,17 @@ describe('db/update-forecasts', () => {
         mockReadFileSync
           .mockReturnValueOnce(promptTemplate)
           .mockReturnValueOnce(JSON.stringify({
-            key1: makeForecastValue(),
+            'sup;2026-02-14;all-day': makeForecastValue(),
           }))
           .mockReturnValueOnce(JSON.stringify({
-            key1: makeForecastValue(),
-            key2: makeForecastValue({ activity: 'kayaking' }),
+            'sup;2026-02-14;all-day': makeForecastValue(),
           }))
         mockReturning.mockResolvedValue([{ id: 1 }])
       })
 
-      expect(total).toBe(3)
+      expect(total).toBe(2)
       expect(mockExecSync).toHaveBeenCalledTimes(2)
+      expect(mockReadFileSync).toHaveBeenCalledTimes(3)
       const prompt1 = mockExecSync.mock.calls[0][1].input
       expect(prompt1.match(/-36\.8547/g)).toHaveLength(4)
       expect(prompt1.match(/174\.8317/g)).toHaveLength(4)
@@ -208,8 +209,8 @@ describe('db/update-forecasts', () => {
       expect(prompt1.match(/-36\.97484844433063/g)).toBeNull()
       expect(prompt1.match(/174\.62043566419308/g)).toBeNull()
       expect(prompt1.match(/2026-02-13/g)).toBeNull()
-      expect(prompt1.match(/mission-bay\.json/g)).toHaveLength(1)
-      expect(prompt1.match(/forecast\.json/g)).toBeNull()
+      expect(prompt1.match(/mission-bay-\{activity\}\.json/g)).toHaveLength(1)
+      expect(prompt1.match(/forecast-\{activity\}\.json/g)).toBeNull()
       const prompt2 = mockExecSync.mock.calls[1][1].input
       expect(prompt2.match(/-36\.7840/g)).toHaveLength(4)
       expect(prompt2.match(/174\.7740/g)).toHaveLength(4)
@@ -217,8 +218,8 @@ describe('db/update-forecasts', () => {
       expect(prompt2.match(/-36\.97484844433063/g)).toBeNull()
       expect(prompt2.match(/174\.62043566419308/g)).toBeNull()
       expect(prompt2.match(/2026-02-13/g)).toBeNull()
-      expect(prompt2.match(/takapuna-beach\.json/g)).toHaveLength(1)
-      expect(prompt2.match(/forecast\.json/g)).toBeNull()
+      expect(prompt2.match(/takapuna-beach-\{activity\}\.json/g)).toHaveLength(1)
+      expect(prompt2.match(/forecast-\{activity\}\.json/g)).toBeNull()
     })
 
     it('should return 0 when there are no locations', async () => {
@@ -245,7 +246,7 @@ describe('db/update-forecasts', () => {
         mockReadFileSync
           .mockReturnValueOnce(promptTemplate)
           .mockReturnValueOnce(JSON.stringify({
-            key1: makeForecastValue(),
+            'sup;2026-02-14;all-day': makeForecastValue(),
           }))
         mockReturning.mockResolvedValue([{ id: 1 }])
       }, 'takapuna-beach')
@@ -255,6 +256,38 @@ describe('db/update-forecasts', () => {
       const prompt = mockExecSync.mock.calls[0][1].input
       expect(prompt).toContain('-36.7840')
       expect(prompt).toContain('174.7740')
+    })
+
+    it('should skip locations not near midnight when no slug is provided', async () => {
+      const { dateNow } = require('@/app/utils/date')
+      dateNow.mockReturnValue(new Date(2026, 1, 14, 12, 0))
+
+      const total = await loadAndCall(() => {
+        mockFrom.mockResolvedValue([makeLocation()])
+        mockReadFileSync.mockReturnValueOnce(promptTemplate)
+      })
+
+      expect(total).toBe(0)
+      expect(mockExecSync).not.toHaveBeenCalled()
+      dateNow.mockReturnValue(new Date(2026, 1, 14, 0, 0))
+    })
+
+    it('should process locations near midnight at 23:30+ when no slug is provided', async () => {
+      const { dateNow } = require('@/app/utils/date')
+      dateNow.mockReturnValue(new Date(2026, 1, 14, 23, 30))
+
+      const location = makeLocation()
+      const total = await loadAndCall(() => {
+        mockFrom.mockResolvedValue([location])
+        mockReadFileSync
+          .mockReturnValueOnce(promptTemplate)
+          .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': makeForecastValue() }))
+        mockReturning.mockResolvedValue([{ id: 1 }])
+      })
+
+      expect(total).toBe(1)
+      expect(mockExecSync).toHaveBeenCalledTimes(1)
+      dateNow.mockReturnValue(new Date(2026, 1, 14, 0, 0))
     })
 
     it('should return 0 when slug matches no locations', async () => {
@@ -281,7 +314,7 @@ describe('db/update-forecasts', () => {
         mockFrom.mockResolvedValue([location])
         mockReadFileSync
           .mockReturnValueOnce(promptTemplate)
-          .mockReturnValueOnce(JSON.stringify({ key1: value }))
+          .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': value }))
         mockReturning.mockResolvedValue([{ id: 1 }])
       })
 
