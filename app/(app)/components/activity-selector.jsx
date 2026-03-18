@@ -2,13 +2,13 @@
 
 import { useTranslation } from 'react-i18next'
 import { prop } from 'ramda'
-import { ACTIVITIES } from '@/app/(app)/constants'
+import { ACTIVITIES, SELECTED_ACTIVITY } from '@/app/(app)/constants'
 import { useForecastStore } from '@/app/(app)/stores/forecast-store'
 import { Button } from '@/shadcn/components/ui/button'
 
 export default function ActivitySelector() {
   const { t } = useTranslation()
-  const selectedActivity = useForecastStore(prop('selectedActivity'))
+  const selectedActivity = useForecastStore(prop(SELECTED_ACTIVITY))
   const setActivity = useForecastStore(prop('setActivity'))
 
   return (

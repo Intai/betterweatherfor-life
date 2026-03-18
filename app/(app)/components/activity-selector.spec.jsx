@@ -5,10 +5,6 @@ jest.mock('@/app/(app)/stores/forecast-store', () => ({
   useForecastStore: selector => mockUseForecastStore(selector),
 }))
 
-jest.mock('@/app/(app)/constants', () => ({
-  ACTIVITIES: ['sup', 'kayaking', 'snorkelling', 'cycling'],
-}))
-
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: key => key.split('.').pop() }),
 }))

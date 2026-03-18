@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { addDays, startOfDay } from 'date-fns'
 import { ChevronDown } from 'lucide-react'
 import { prop } from 'ramda'
-import { PICK_DATE, TIME_RANGES } from '@/app/(app)/constants'
+import { PICK_DATE, SELECTED_DATE, SELECTED_DAY, SELECTED_TIME_RANGE, TIME_RANGES } from '@/app/(app)/constants'
 import { useForecastStore } from '@/app/(app)/stores/forecast-store'
 import { useLocale } from '@/app/components/locale-provider'
 import { formatShortDate } from '@/app/utils/date'
@@ -18,9 +18,9 @@ import { RadioGroup, RadioGroupItem } from '@/shadcn/components/ui/radio-group'
 export default function TimeWindowPickerCalendar() {
   const { t } = useTranslation()
   const locale = useLocale()
-  const selectedDay = useForecastStore(prop('selectedDay'))
-  const selectedDate = useForecastStore(prop('selectedDate'))
-  const selectedTimeRange = useForecastStore(prop('selectedTimeRange'))
+  const selectedDay = useForecastStore(prop(SELECTED_DAY))
+  const selectedDate = useForecastStore(prop(SELECTED_DATE))
+  const selectedTimeRange = useForecastStore(prop(SELECTED_TIME_RANGE))
   const setDay = useForecastStore(prop('setDay'))
   const setDate = useForecastStore(prop('setDate'))
   const setTimeRange = useForecastStore(prop('setTimeRange'))

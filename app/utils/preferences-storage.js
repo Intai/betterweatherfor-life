@@ -1,8 +1,8 @@
 import { format } from 'date-fns'
 import { constructN, evolve, is, pick, pipe, prop, when } from 'ramda'
 import {
-  ACTIVITIES, DAYS, PICK_DATE, PREFERENCE_KEYS, SELECTED_DATE,
-  TIME_RANGES, TODAY,
+  ACTIVITIES, DAYS, PICK_DATE, PREFERENCE_KEYS, SELECTED_ACTIVITY,
+  SELECTED_DATE, SELECTED_DAY, SELECTED_TIME_RANGE, TIME_RANGES, TODAY,
 } from '@/app/(app)/constants'
 import { indexByToValue } from '@/app/utils/list'
 
@@ -39,27 +39,27 @@ export const parsePreferences = pipe(
 export const getPreferences = () => {
   const result = {}
 
-  const activity = getCookie('selectedActivity')
+  const activity = getCookie(SELECTED_ACTIVITY)
   if (ACTIVITIES.includes(activity)) {
-    result.selectedActivity = activity
+    result[SELECTED_ACTIVITY] = activity
   }
-  const day = getCookie('selectedDay')
+  const day = getCookie(SELECTED_DAY)
   if (DAYS.includes(day)) {
-    result.selectedDay = day
+    result[SELECTED_DAY] = day
   }
-  const dateStr = getCookie('selectedDate')
+  const dateStr = getCookie(SELECTED_DATE)
   if (typeof dateStr === 'string') {
     const date = new Date(dateStr)
     if (!isNaN(date.getTime())) {
-      result.selectedDate = date
+      result[SELECTED_DATE] = date
     }
   }
-  const timeRange = getCookie('selectedTimeRange')
+  const timeRange = getCookie(SELECTED_TIME_RANGE)
   if (TIME_RANGES.includes(timeRange)) {
-    result.selectedTimeRange = timeRange
+    result[SELECTED_TIME_RANGE] = timeRange
   }
-  if (result.selectedDay === PICK_DATE && !result.selectedDate) {
-    result.selectedDay = TODAY
+  if (result[SELECTED_DAY] === PICK_DATE && !result[SELECTED_DATE]) {
+    result[SELECTED_DAY] = TODAY
   }
 
   return result

@@ -3,7 +3,6 @@
 import { createContext, createElement, useContext, useState } from 'react'
 import { assocPath, dissocPath, mergeDeepRight, pipe } from 'ramda'
 import { createStore, useStore } from 'zustand'
-import { ALL_DAY, TODAY } from '@/app/(app)/constants'
 import { fetchJson, postJson } from '@/app/utils/api'
 import { buildLocationKey, extractCityLocations, extractLocationKey } from '@/app/utils/forecast'
 import {
@@ -13,16 +12,19 @@ import {
   addLocation as saveLocation,
 } from '@/app/utils/location-storage'
 import { getPreferences, setPreference } from '@/app/utils/preferences-storage'
-import { SUP } from '../constants'
+import {
+  ALL_DAY, SELECTED_ACTIVITY, SELECTED_DATE, SELECTED_DAY,
+  SELECTED_TIME_RANGE, SUP, TODAY,
+} from '../constants'
 
 const baseState = {
   isLoaded: false,
   citySlug: null,
   locations: null,
-  selectedActivity: SUP,
-  selectedDay: TODAY,
-  selectedDate: null,
-  selectedTimeRange: ALL_DAY,
+  [SELECTED_ACTIVITY]: SUP,
+  [SELECTED_DAY]: TODAY,
+  [SELECTED_DATE]: null,
+  [SELECTED_TIME_RANGE]: ALL_DAY,
   forecast: {},
 }
 
@@ -33,20 +35,20 @@ export function createForecastStore(initialState) {
     ...getPreferences(),
 
     setActivity: activity => {
-      set({ selectedActivity: activity })
-      setPreference('selectedActivity', activity)
+      set({ [SELECTED_ACTIVITY]: activity })
+      setPreference(SELECTED_ACTIVITY, activity)
     },
     setDay: day => {
-      set({ selectedDay: day })
-      setPreference('selectedDay', day)
+      set({ [SELECTED_DAY]: day })
+      setPreference(SELECTED_DAY, day)
     },
     setDate: date => {
-      set({ selectedDate: date })
-      setPreference('selectedDate', date)
+      set({ [SELECTED_DATE]: date })
+      setPreference(SELECTED_DATE, date)
     },
     setTimeRange: timeRange => {
-      set({ selectedTimeRange: timeRange })
-      setPreference('selectedTimeRange', timeRange)
+      set({ [SELECTED_TIME_RANGE]: timeRange })
+      setPreference(SELECTED_TIME_RANGE, timeRange)
     },
 
     /**

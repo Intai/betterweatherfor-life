@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 import { prop } from 'ramda'
-import { TIME_RANGES } from '@/app/(app)/constants'
+import { SELECTED_DAY, SELECTED_TIME_RANGE, TIME_RANGES } from '@/app/(app)/constants'
 import { useForecastStore } from '@/app/(app)/stores/forecast-store'
 import { kebabToCamel } from '@/app/utils/string'
 import { Button } from '@/shadcn/components/ui/button'
@@ -18,8 +18,8 @@ import {
 
 export default function TimeWindowPickerMenu({ day }) {
   const { t } = useTranslation()
-  const selectedDay = useForecastStore(prop('selectedDay'))
-  const selectedTimeRange = useForecastStore(prop('selectedTimeRange'))
+  const selectedDay = useForecastStore(prop(SELECTED_DAY))
+  const selectedTimeRange = useForecastStore(prop(SELECTED_TIME_RANGE))
   const setDay = useForecastStore(prop('setDay'))
   const setTimeRange = useForecastStore(prop('setTimeRange'))
   const [open, setOpen] = useState(false)
