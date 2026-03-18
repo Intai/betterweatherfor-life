@@ -1,3 +1,6 @@
+-include .env
+export
+
 .PHONY: help dev dev-bg dev-stop prod prod-stop db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean tf-plan tf-apply
 .DEFAULT_GOAL := help
 
@@ -30,7 +33,7 @@ k8s-local-stop: ## Stop local Kubernetes deployment
 
 k8s-push: ## Build and push Docker images to ghcr.io, e.g. make k8s-push target=web
 ifneq ($(target),forecast)
-	docker build -t ghcr.io/intai/betterweather-web:latest --target production --build-arg NODE_ENV=production --build-arg NODE_CONFIG_ENV=production --build-arg BUILD=$$(date +%s) .
+	docker build -t ghcr.io/intai/betterweather-web:latest --target production --build-arg NODE_ENV=production --build-arg NODE_CONFIG_ENV=production --build-arg BUILD=$$(date +%s) --secret id=GOOGLE_MAPS_API_KEY,env=GOOGLE_MAPS_API_KEY .
 	docker push ghcr.io/intai/betterweather-web:latest
 endif
 ifneq ($(target),web)

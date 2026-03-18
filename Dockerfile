@@ -36,7 +36,8 @@ RUN npm ci --include=dev --ignore-scripts
 
 COPY . .
 
-RUN npm run build
+RUN --mount=type=secret,id=GOOGLE_MAPS_API_KEY \
+  GOOGLE_MAPS_API_KEY=$(cat /run/secrets/GOOGLE_MAPS_API_KEY) npm run build
 RUN npm prune --omit=dev
 
 # Production stage
