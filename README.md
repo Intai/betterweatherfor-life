@@ -26,6 +26,7 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
 - Follow `k8s/production/seal-secrets.sh` to generate a public/private key pair in the Kubernetes cluster and use it to seal secrets.
 - Run `make k8s-prod` to deploy the PostgreSQL database, Nginx, Next.js app, and a cron job for collecting weather forecasts.
 - Run `make k8s-db` to port-forward the Kubernetes database to `localhost:5432`, allowing you to run `make db-migrate` and `make db-studio`.
+- Run `make k8s-forecast-login` to log in to your Claude Code subscription, enabling AI-powered weather forecast collection and analysis.
 - Run `make k8s-prod-stop` to tear down the production Kubernetes deployments.
 
 ## Coding Standards
