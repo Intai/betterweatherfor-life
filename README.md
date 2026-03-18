@@ -11,7 +11,7 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
   - `make db-migrate` to initialise Postgres database.
   - `make db-seed` to seed the Postgres database with mock data.
   - `make db-studio` to open Drizzle Studio database explorer.
-- If you prefer Kubernetes, `skaffold dev --cache-artifacts --auto-build=false` to start http://localhost:30000
+- If you prefer Kubernetes, `make k8s-dev` to start http://localhost:30000
   - `make k8s-db` to port-forward K8s database to localhost:5432 for `make db-*`
 
 ## Testing

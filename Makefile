@@ -1,4 +1,4 @@
-.PHONY: help dev dev-bg dev-stop prod prod-stop db-migrate db-seed db-forecast db-studio reseed k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean tf-plan tf-apply
+.PHONY: help dev dev-bg dev-stop prod prod-stop db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean tf-plan tf-apply
 .DEFAULT_GOAL := help
 
 help: ## Show available commands
@@ -19,13 +19,14 @@ prod: ## Start production environment
 prod-stop: ## Stop production environment
 	docker compose --profile prod down
 
-k8s-local: ## Deploy to local Kubernetes (localhost:30000)
-	docker image inspect betterweather-web:latest >/dev/null 2>&1 || docker build -t betterweather-web:latest --target production --build-arg NODE_ENV=production --build-arg NODE_CONFIG_ENV=development .
-	cp .env k8s/local/.env
-	kubectl apply -k k8s/local
+k8s-dev: ## Start local Kubernetes dev environment with file sync
+	skaffold dev --cache-artifacts --auto-build=false
+
+k8s-local: ## Deploy to local Kubernetes
+	skaffold run --cache-artifacts
 
 k8s-local-stop: ## Stop local Kubernetes deployment
-	kubectl delete -k k8s/local
+	skaffold delete
 
 k8s-push: ## Build and push Docker images to ghcr.io, e.g. make k8s-push target=web
 ifneq ($(target),forecast)
