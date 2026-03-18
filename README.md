@@ -20,6 +20,14 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
 - `npm run test:coverage` to generate test coverage in the `coverage` folder.
 - `npm run test:e2e` to run all Playwright integration tests.
 
+## Deployment
+
+- An example `terraform/main.tf` is provided for provisioning a single-node DigitalOcean Kubernetes cluster and Cloudflare.
+- Follow `k8s/production/seal-secrets.sh` to generate a public/private key pair in the Kubernetes cluster and use it to seal secrets.
+- Run `make k8s-prod` to deploy the PostgreSQL database, Nginx, Next.js app, and a cron job for collecting weather forecasts.
+- Run `make k8s-db` to port-forward the Kubernetes database to `localhost:5432`, allowing you to run `make db-migrate` and `make db-studio`.
+- Run `make k8s-prod-stop` to tear down the production Kubernetes deployments.
+
 ## Coding Standards
 
 - Linting:
