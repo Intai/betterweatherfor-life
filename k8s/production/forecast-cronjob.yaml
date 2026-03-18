@@ -16,6 +16,8 @@ spec:
           labels:
             app: forecast
         spec:
+          securityContext:
+            fsGroup: 1001
           restartPolicy: Never
           initContainers:
             - name: wait-for-db
@@ -38,8 +40,8 @@ spec:
                   mountPath: /home/pwuser/.claude
               resources:
                 requests:
-                  cpu: 250m
-                  memory: 512Mi
+                  cpu: 50m
+                  memory: 128Mi
                 limits:
                   cpu: "1"
                   memory: 1Gi

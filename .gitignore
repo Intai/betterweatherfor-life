@@ -46,3 +46,9 @@ local.settings.json
 
 # kubernetes
 sealed-secrets-key-backup.yaml
+
+# terraform
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/terraform.tfvars

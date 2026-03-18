@@ -1,4 +1,4 @@
-.PHONY: help dev dev-bg dev-stop prod prod-stop db-migrate db-seed db-forecast db-studio reseed k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean
+.PHONY: help dev dev-bg dev-stop prod prod-stop db-migrate db-seed db-forecast db-studio reseed k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean tf-plan tf-apply
 .DEFAULT_GOAL := help
 
 help: ## Show available commands
@@ -52,7 +52,7 @@ k8s-db: ## Port-forward K8s database to localhost:5432
 
 k8s-forecast-login: ## Exec into a pod for Claude OAuth login
 	kubectl run forecast-login -n betterweather --image=ghcr.io/intai/betterweather-forecast:latest --restart=Never \
-		--overrides='{"spec":{"containers":[{"name":"forecast-login","image":"ghcr.io/intai/betterweather-forecast:latest","args":["sleep","infinity"],"volumeMounts":[{"name":"claude-data","mountPath":"/home/pwuser/.claude"}]}],"volumes":[{"name":"claude-data","persistentVolumeClaim":{"claimName":"forecast-claude-pvc"}}]}}'
+		--overrides='{"spec":{"securityContext":{"fsGroup":1001},"containers":[{"name":"forecast-login","image":"ghcr.io/intai/betterweather-forecast:latest","args":["sleep","infinity"],"volumeMounts":[{"name":"claude-data","mountPath":"/home/pwuser/.claude"}]}],"volumes":[{"name":"claude-data","persistentVolumeClaim":{"claimName":"forecast-claude-pvc"}}]}}'
 	kubectl wait --for=condition=ready pod/forecast-login -n betterweather --timeout=120s
 	kubectl exec -it forecast-login -n betterweather -- claude
 	kubectl exec forecast-login -n betterweather -- cp /home/pwuser/.claude.json /home/pwuser/.claude/.claude.json
@@ -75,5 +75,11 @@ db-forecast: ## Update forecasts, e.g. make db-forecast or make db-forecast loca
 
 db-studio: ## Open Drizzle Studio database UI
 	npx drizzle-kit studio
+
+tf-plan: ## Preview Terraform changes
+	cd terraform && terraform plan
+
+tf-apply: ## Apply Terraform changes
+	cd terraform && terraform apply
 
 reseed: db-seed ## Alias for db-seed
