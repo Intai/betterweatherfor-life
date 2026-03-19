@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cities Sidebar UI Design - Better Weather for Life</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', 'system-ui', 'sans-serif'],
+            mono: ['Geist Mono', 'monospace'],
+          },
+          colors: {
+            ocean: {
+              50: '#e6f4fa',
+              100: '#cce9f5',
+              200: '#99d3eb',
+              300: '#66bde1',
+              400: '#33a7d7',
+              500: '#0891cd',
+              600: '#0074a4',
+              700: '#00577b',
+              800: '#003a52',
+              900: '#001d29',
+            },
+            sky: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+            sunset: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            },
+            earth: {
+              50: '#faf6f1',
+              100: '#f5ede3',
+              200: '#e8d9c5',
+              300: '#d9c4a5',
+              400: '#c9ad82',
+              500: '#b89b6a',
+              600: '#a18653',
+              700: '#846d43',
+              800: '#6b5837',
+              900: '#54452c',
+            },
+            forest: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            },
+            conditions: {
+              ideal: '#22c55e',
+              acceptable: '#0ea5e9',
+              marginal: '#f97316',
+              unsuitable: '#ef4444',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .chevron-icon {
+      transition: transform 0.2s;
+    }
+    .chevron-icon.rotated {
+      transform: rotate(90deg);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans leading-relaxed px-6 pt-10 pb-20">
+
+<h1 class="text-[28px] font-bold mb-2">Cities Sidebar -- UI Design</h1>
+<p class="text-[15px] text-slate-500 mb-10">All 5 states rendered in light and dark mode. Based on the layout spec from cities-layout.md.</p>
+
+<!-- ================================================================
+     SVG Icon Definitions (hidden, referenced via <use>)
+     ================================================================ -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <!-- Home -->
+  <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+    <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+  </symbol>
+  <!-- Calendar -->
+  <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 2v4"/><path d="M16 2v4"/>
+    <rect width="18" height="18" x="3" y="4" rx="2"/>
+    <path d="M3 10h18"/>
+  </symbol>
+  <!-- Globe -->
+  <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+    <path d="M2 12h20"/>
+  </symbol>
+  <!-- Settings -->
+  <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </symbol>
+  <!-- Info -->
+  <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 16v-4"/><path d="M12 8h.01"/>
+  </symbol>
+  <!-- MapPin -->
+  <symbol id="icon-mappin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
+    <circle cx="12" cy="10" r="3"/>
+  </symbol>
+  <!-- ChevronRight -->
+  <symbol id="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m9 18 6-6-6-6"/>
+  </symbol>
+  <!-- X -->
+  <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+  </symbol>
+  <!-- Logo placeholder (sun + cloud) -->
+  <symbol id="icon-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/>
+    <path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/>
+    <path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/>
+  </symbol>
+</svg>
+
+<!-- ================================================================
+     STATE 1: Cities Collapsed (Default)
+     ================================================================ -->
+<div class="mb-12">
+  <div class="text-base font-semibold text-slate-700 mb-1">1. Cities Collapsed (Default)</div>
+  <div class="text-[13px] text-slate-400 mb-4">Flat nav list. Cities shows a right chevron indicating it can be expanded.</div>
+  <div class="flex gap-6 flex-wrap">
+    <!-- Light -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Light</div>
+      <div class="w-72 rounded-xl overflow-hidden flex flex-col bg-white text-ocean-900 text-sm">
+        <div class="bg-gradient-to-r from-ocean-600 to-sky-500 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather for Life</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <div class="flex-1 py-4">
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-settings"/></svg><span class="flex-1">Settings</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-info"/></svg><span class="flex-1">About</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-ocean-100 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-900">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+    <!-- Dark -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Dark</div>
+      <div class="w-72 rounded-xl overflow-hidden flex flex-col bg-ocean-900 text-ocean-50 text-sm">
+        <div class="bg-gradient-to-r from-ocean-500 to-sky-400 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather for Life</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <div class="flex-1 py-4">
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-settings"/></svg><span class="flex-1">Settings</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-info"/></svg><span class="flex-1">About</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-ocean-700 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-50">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     STATE 2: Cities Expanded, No City Selected
+     ================================================================ -->
+<div class="mb-12">
+  <div class="text-base font-semibold text-slate-700 mb-1">2. Cities Expanded, No City Selected</div>
+  <div class="text-[13px] text-slate-400 mb-4">Cities section open showing Auckland and Sydney with right chevrons. No city expanded yet.</div>
+  <div class="flex gap-6 flex-wrap">
+    <!-- Light -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Light</div>
+      <div class="w-72 rounded-xl overflow-hidden flex flex-col bg-white text-ocean-900 text-sm">
+        <div class="bg-gradient-to-r from-ocean-600 to-sky-500 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather for Life</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <div class="flex-1 py-4">
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Auckland</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Sydney</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-settings"/></svg><span class="flex-1">Settings</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-info"/></svg><span class="flex-1">About</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-ocean-100 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-900">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+    <!-- Dark -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Dark</div>
+      <div class="w-72 rounded-xl overflow-hidden flex flex-col bg-ocean-900 text-ocean-50 text-sm">
+        <div class="bg-gradient-to-r from-ocean-500 to-sky-400 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather for Life</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <div class="flex-1 py-4">
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Auckland</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Sydney</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-settings"/></svg><span class="flex-1">Settings</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-info"/></svg><span class="flex-1">About</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-ocean-700 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-50">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     STATE 3: Cities Expanded, Auckland Open
+     ================================================================ -->
+<div class="mb-12">
+  <div class="text-base font-semibold text-slate-700 mb-1">3. Cities Expanded, Auckland Open</div>
+  <div class="text-[13px] text-slate-400 mb-4">Auckland expanded showing Overview and 7-Day Forecast sub-nav items. Sydney remains collapsed.</div>
+  <div class="flex gap-6 flex-wrap">
+    <!-- Light -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Light</div>
+      <div class="w-72 rounded-xl overflow-hidden flex flex-col bg-white text-ocean-900 text-sm">
+        <div class="bg-gradient-to-r from-ocean-600 to-sky-500 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather for Life</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <div class="flex-1 py-4">
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Auckland</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center py-3 pl-[72px] pr-4 text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">Overview</div>
+            <div class="flex items-center py-3 pl-[72px] pr-4 text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">7-Day Forecast</div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Sydney</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-settings"/></svg><span class="flex-1">Settings</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-info"/></svg><span class="flex-1">About</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-ocean-100 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-900">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+    <!-- Dark -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Dark</div>
+      <div class="w-72 rounded-xl overflow-hidden flex flex-col bg-ocean-900 text-ocean-50 text-sm">
+        <div class="bg-gradient-to-r from-ocean-500 to-sky-400 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather for Life</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <div class="flex-1 py-4">
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Auckland</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center py-3 pl-[72px] pr-4 text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">Overview</div>
+            <div class="flex items-center py-3 pl-[72px] pr-4 text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">7-Day Forecast</div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Sydney</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-settings"/></svg><span class="flex-1">Settings</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-info"/></svg><span class="flex-1">About</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-ocean-700 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-50">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     STATE 4: Active State (/auckland/forecast)
+     ================================================================ -->
+<div class="mb-12">
+  <div class="text-base font-semibold text-slate-700 mb-1">4. Active State -- /auckland/forecast</div>
+  <div class="text-[13px] text-slate-400 mb-4">"7-Day Forecast" under Auckland has active highlight styling (accent background + accent foreground).</div>
+  <div class="flex gap-6 flex-wrap">
+    <!-- Light -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Light</div>
+      <div class="w-72 rounded-xl overflow-hidden flex flex-col bg-white text-ocean-900 text-sm">
+        <div class="bg-gradient-to-r from-ocean-600 to-sky-500 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather for Life</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <div class="flex-1 py-4">
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Auckland</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center py-3 pl-[72px] pr-4 text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">Overview</div>
+            <div class="flex items-center py-3 pl-[72px] pr-4 bg-ocean-50 text-ocean-600 font-medium rounded-xl cursor-pointer">7-Day Forecast</div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Sydney</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-settings"/></svg><span class="flex-1">Settings</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-info"/></svg><span class="flex-1">About</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-ocean-100 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-900">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+    <!-- Dark -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Dark</div>
+      <div class="w-72 rounded-xl overflow-hidden flex flex-col bg-ocean-900 text-ocean-50 text-sm">
+        <div class="bg-gradient-to-r from-ocean-500 to-sky-400 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather for Life</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <div class="flex-1 py-4">
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Auckland</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center py-3 pl-[72px] pr-4 text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">Overview</div>
+            <div class="flex items-center py-3 pl-[72px] pr-4 bg-ocean-800 text-ocean-50 font-medium rounded-xl cursor-pointer">7-Day Forecast</div>
+            <div class="flex items-center gap-3 pl-10 pr-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Sydney</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-settings"/></svg><span class="flex-1">Settings</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-info"/></svg><span class="flex-1">About</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-ocean-700 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-50">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     STATE 5: Mobile (320px)
+     ================================================================ -->
+<div class="mb-12">
+  <div class="text-base font-semibold text-slate-700 mb-1">5. Mobile (320px viewport)</div>
+  <div class="text-[13px] text-slate-400 mb-4">Narrower panel showing the active state at mobile width. Layout is identical; only the container width changes.</div>
+  <div class="flex gap-6 flex-wrap">
+    <!-- Light -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Light -- Mobile</div>
+      <div class="w-[260px] rounded-xl overflow-hidden flex flex-col bg-white text-ocean-900 text-sm">
+        <div class="bg-gradient-to-r from-ocean-600 to-sky-500 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-[15px] font-semibold tracking-tight text-white whitespace-nowrap">Better Weather</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <div class="flex-1 py-4">
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 pl-8 pr-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Auckland</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center py-3 pl-16 pr-4 text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">Overview</div>
+            <div class="flex items-center py-3 pl-16 pr-4 bg-ocean-50 text-ocean-600 font-medium rounded-xl cursor-pointer">7-Day Forecast</div>
+            <div class="flex items-center gap-3 pl-8 pr-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Sydney</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-settings"/></svg><span class="flex-1">Settings</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-info"/></svg><span class="flex-1">About</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-ocean-100 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-900">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+    <!-- Dark -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Dark -- Mobile</div>
+      <div class="w-[260px] rounded-xl overflow-hidden flex flex-col bg-ocean-900 text-ocean-50 text-sm">
+        <div class="bg-gradient-to-r from-ocean-500 to-sky-400 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-[15px] font-semibold tracking-tight text-white whitespace-nowrap">Better Weather</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <div class="flex-1 py-4">
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 pl-8 pr-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Auckland</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon rotated"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center py-3 pl-16 pr-4 text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">Overview</div>
+            <div class="flex items-center py-3 pl-16 pr-4 bg-ocean-800 text-ocean-50 font-medium rounded-xl cursor-pointer">7-Day Forecast</div>
+            <div class="flex items-center gap-3 pl-8 pr-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-mappin"/></svg><span class="flex-1">Sydney</span>
+              <svg class="w-4 h-4 opacity-40 chevron-icon"><use href="#icon-chevron"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-settings"/></svg><span class="flex-1">Settings</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-800">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-info"/></svg><span class="flex-1">About</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-ocean-700 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-50">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
