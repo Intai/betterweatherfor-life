@@ -80,7 +80,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: azure/setup-kubectl@v4
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          install kubectl /usr/local/bin/kubectl
       - name: Set up kubeconfig
         run: |
           mkdir -p $HOME/.kube
