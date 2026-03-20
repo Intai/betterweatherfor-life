@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm'
+import { and, eq, ne, sql } from 'drizzle-orm'
 import db from '../index.js'
 import { locations } from '../schema/locations.js'
 
@@ -30,8 +30,34 @@ export async function upsertLocation({ name, area, citySlug, latitude, longitude
         source,
         updatedAt: sql`now()`,
       },
+      where: ne(locations.source, 'curated'),
     })
     .returning()
 
-  return row
+  if (row) return row
+
+  // When a curated row already exists at the same lat/lng, the WHERE clause
+  // on onConflictDoUpdate prevents the update and RETURNING yields nothing.
+  // Fall back to selecting the existing curated row so callers always get a result.
+  const [existing] = await db
+    .select()
+    .from(locations)
+    .where(and(eq(locations.latitude, latitude), eq(locations.longitude, longitude)))
+
+  return existing
+}
+
+/**
+ * Get distinct city slugs from curated locations, sorted alphabetically.
+ *
+ * @returns {Promise<string[]>} Array of city_slug strings.
+ */
+export async function getCitySlugs() {
+  const rows = await db
+    .selectDistinct({ citySlug: locations.citySlug })
+    .from(locations)
+    .where(eq(locations.source, 'curated'))
+    .orderBy(locations.citySlug)
+
+  return rows.map(row => row.citySlug)
 }

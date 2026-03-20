@@ -32,16 +32,16 @@ jest.mock('@/app/utils/logger', () => ({
 const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {})
 
 describe('db/seed', () => {
-  const locationsCount = 5
+  const locationsCount = 6
   const daysPerLocation = 7
   const forecastsPerSeed = locationsCount * daysPerLocation
 
   function setupMockReturning() {
-    const locationNames = ['Mission Bay', 'Takapuna Beach', 'St Heliers Bay', 'Goat Island', 'Piha Beach']
-    const activities = ['sup', 'sup', 'sup', 'snorkelling', 'cycling']
+    const locationNames = ['Mission Bay', 'Takapuna Beach', 'St Heliers Bay', 'Goat Island', 'Piha Beach', 'Bondi Beach']
+    const activities = ['sup', 'sup', 'sup', 'snorkelling', 'cycling', 'kayaking']
 
     for (let i = 0; i < locationNames.length; i++) {
-    // Location insert
+      // Location insert
       mockReturning.mockResolvedValueOnce([{ id: i + 1, name: locationNames[i] }])
       // 7 forecast inserts per location
       for (let d = 0; d < daysPerLocation; d++) {
@@ -55,7 +55,7 @@ describe('db/seed', () => {
     jest.resetModules()
   })
 
-  it('should purge then upsert five Auckland locations with 7-day forecasts and exit cleanly on success', async () => {
+  it('should purge then upsert all locations with 7-day forecasts and exit cleanly on success', async () => {
     // Two rounds: module-level seed() + explicit seed()
     setupMockReturning()
     setupMockReturning()
@@ -75,6 +75,7 @@ describe('db/seed', () => {
       { id: 3, name: 'St Heliers Bay' },
       { id: 4, name: 'Goat Island' },
       { id: 5, name: 'Piha Beach' },
+      { id: 6, name: 'Bondi Beach' },
     ])
     expect(results.forecasts).toHaveLength(forecastsPerSeed)
 

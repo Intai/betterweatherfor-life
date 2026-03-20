@@ -445,48 +445,65 @@ test.describe('Feature: 7-Day Forecast Page', () => {
 
     // When I navigate to the "/auckland/forecast" page
     await page.goto('http://localhost:3000/auckland/forecast');
+    await page.waitForLoadState('networkidle');
 
     // And I select the "SUP" activity pill
     await page.getByTestId('activity-selector').getByTestId('activity-sup').click();
 
+    // Wait for 7 day cards to be displayed
+    await expect(page.getByTestId('forecast-day-list').getByTestId('forecast-cards').getByTestId('forecast-day-card')).toHaveCount(7);
+
     // And I tap the Day 2 card with acceptable condition
+    await page.getByTestId('forecast-day-list').getByTestId('forecast-cards').getByTestId('forecast-day-card').nth(1).scrollIntoViewIfNeeded();
     await page.getByTestId('forecast-day-list').getByTestId('forecast-cards').getByTestId('forecast-day-card').nth(1).click();
 
     // Then the browser should navigate to the "/auckland/home" page
     await page.waitForURL(/\/auckland\/home/);
     await expect(page).toHaveURL(/\/auckland\/home/);
 
-    // And the time picker should be set to the Day 2 date
-    await expect(page.getByTestId('time-window-picker').getByTestId('pick-date-button')).toContainText('16 Mar');
+    // And the time picker should be set to the Day 2 date from today
+    const today = new Date();
+    const day2 = new Date(today);
+    day2.setDate(today.getDate() + 1);
+    const day2Label = day2.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short' });
+    await expect(page.getByTestId('time-window-picker').getByTestId('pick-date-button')).toContainText(day2Label);
 
     // When I navigate back
     await page.goBack();
+    await page.waitForLoadState('networkidle');
 
     // And I tap the Day 6 card with marginal condition
+    await page.getByTestId('forecast-day-list').getByTestId('forecast-cards').getByTestId('forecast-day-card').nth(5).scrollIntoViewIfNeeded();
     await page.getByTestId('forecast-day-list').getByTestId('forecast-cards').getByTestId('forecast-day-card').nth(5).click();
 
     // Then the browser should navigate to the "/auckland/home" page
     await page.waitForURL(/\/auckland\/home/);
     await expect(page).toHaveURL(/\/auckland\/home/);
 
-    // And the time picker should be set to the Day 6 date
-    await expect(page.getByTestId('time-window-picker').getByTestId('pick-date-button')).toContainText('20 Mar');
+    // And the time picker should be set to the Day 6 date from today
+    const day6 = new Date(today);
+    day6.setDate(today.getDate() + 5);
+    const day6Label = day6.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short' });
+    await expect(page.getByTestId('time-window-picker').getByTestId('pick-date-button')).toContainText(day6Label);
 
     // When I navigate back
     await page.goBack();
+    await page.waitForLoadState('networkidle');
 
     // And I select the "Cycling" activity pill
     await page.getByTestId('activity-selector').getByTestId('activity-cycling').click();
+    await page.getByTestId('forecast-day-list').getByTestId('forecast-cards').getByTestId('forecast-day-card').first().waitFor({ state: 'visible' });
 
     // And I tap the Day 2 card with unsuitable condition
+    await page.getByTestId('forecast-day-list').getByTestId('forecast-cards').getByTestId('forecast-day-card').nth(1).scrollIntoViewIfNeeded();
     await page.getByTestId('forecast-day-list').getByTestId('forecast-cards').getByTestId('forecast-day-card').nth(1).click();
 
     // Then the browser should navigate to the "/auckland/home" page
     await page.waitForURL(/\/auckland\/home/);
     await expect(page).toHaveURL(/\/auckland\/home/);
 
-    // And the time picker should be set to the Day 2 date
-    await expect(page.getByTestId('time-window-picker').getByTestId('pick-date-button')).toContainText('16 Mar');
+    // And the time picker should be set to the Day 2 date from today
+    await expect(page.getByTestId('time-window-picker').getByTestId('pick-date-button')).toContainText(day2Label);
 
     await context.close();
   });
@@ -564,25 +581,25 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await page.goto('http://localhost:3000/auckland/home');
 
     // And I select the "SUP" activity pill
-    await page.getByTestId('activity-selector').getByTestId('activity-sup').click();
+    await page.getByTestId('activity-sup').click();
 
     // When I tap the add location (+) button
-    await page.getByTestId('location-list').getByTestId('add-location-button').click();
+    await page.getByTestId('add-location-button').click();
 
     // And I type "Amour Bay" into the search input
-    await page.getByTestId('add-location-modal').getByTestId('location-search-input').pressSequentially('Amour Bay');
+    await page.getByTestId('location-search-input').pressSequentially('Amour Bay');
 
     // And I wait for the search results to appear
-    await page.waitForSelector('[data-testid="search-results"] button');
+    await page.waitForSelector('[data-testid="search-results"]');
 
     // And I select the first result "Amour Bay"
-    await page.getByTestId('add-location-modal').getByTestId('search-results').getByTestId('suggestion-item').first().click();
+    await page.getByTestId('search-results').getByTestId('suggestion-item').first().click();
 
-    // And I tap the "7-Day Forecast" sidebar menu item
-    await page.getByTestId('app-sidebar').getByRole('link', { name: '7-Day Forecast' }).click();
+    // And I tap the "7-Day Forecast" sidebar menu item below "Home"
+    await page.getByTestId('app-sidebar').getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' }).click();
 
     // Then 7 day cards should be displayed
-    await expect(page.getByTestId('forecast-day-list').getByTestId('forecast-cards').getByTestId('forecast-day-card')).toHaveCount(7);
+    await expect(page.getByTestId('forecast-cards').getByTestId('forecast-day-card')).toHaveCount(7);
 
     await context.close();
   });
@@ -602,27 +619,30 @@ test.describe('Feature: 7-Day Forecast Page', () => {
 
     // When I navigate to the "/auckland/forecast" page
     await page.goto('http://localhost:3000/auckland/forecast');
+    await page.waitForLoadState('networkidle');
 
     // And I use Tab to navigate to the first day card
-    // Tab order: Back link (1), SUP (2), Kayaking (3), Snorkelling (4), Cycling (5),
-    // Day selector buttons 1-7 (6-12), first day card (13)
+    // Tab order: Back link (1), activity pills (2-5), day selector buttons (6-12), first day card (13)
     for (let i = 0; i < 13; i++) {
       await page.keyboard.press('Tab');
     }
 
     // Then the first day card should receive focus
-    const firstCardHasFocus = await page.getByTestId('forecast-day-list').getByTestId('forecast-cards').getByTestId('forecast-day-card').first().evaluate(
+    const hasFocus = await page.getByTestId('forecast-cards').getByTestId('forecast-day-card').first().evaluate(
       (el) => document.activeElement === el,
     );
-    expect(firstCardHasFocus).toBe(true);
+    expect(hasFocus).toBe(true);
 
     // When I press Enter on the focused day card
     await page.keyboard.press('Enter');
 
-    // Then the browser should navigate to the "/auckland/home" page with the Day 1 date selected
+    // Then the browser should navigate to the "/auckland/home" page with the Day 1 date from today selected
     await page.waitForURL(/\/auckland\/home/);
     await expect(page).toHaveURL(/\/auckland\/home/);
-    await expect(page.getByTestId('time-window-picker').getByTestId('pick-date-button')).toContainText('15 Mar');
+
+    const today = new Date();
+    const day1Label = today.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short' });
+    await expect(page.getByTestId('time-window-picker').getByTestId('pick-date-button')).toContainText(day1Label);
 
     await context.close();
   });

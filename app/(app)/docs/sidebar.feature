@@ -138,5 +138,5 @@ Feature: Sidebar Navigation
     Then the sidebar should close
     When I open the sidebar again
     And I use Tab to navigate through sidebar items
-    Then focus should move through each navigation link in order: Home, 7-Day Forecast, Settings, About
+    Then focus should move through each navigation link in order: Home, 7-Day Forecast, Cities, Settings, About
     And I should be able to activate a focused link by pressing Enter

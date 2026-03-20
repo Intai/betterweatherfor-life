@@ -246,6 +246,43 @@ const aucklandLocations = [{
   },
 }]
 
+const sydneyLocations = [{
+  name: 'Bondi Beach',
+  area: 'Beach, Eastern Suburbs',
+  citySlug: 'sydney',
+  latitude: '-33.8915',
+  longitude: '151.2767',
+  timeZone: 'Australia/Sydney',
+  source: 'curated',
+  forecast: {
+    activity: 'kayaking',
+    timeRange: 'all-day',
+    score: 65,
+    condition: 'acceptable',
+    wind: { direction: 'SE', speed: '14km/h', gust: '20km/h', condition: 'acceptable', summary: 'Moderate onshore breeze creating light chop inside the bay.' },
+    tide: { state: 'Rising', percentage: 60, nextHigh: '11:15', nextLow: '17:30', swell: '0.6m', condition: 'acceptable', summary: 'Rising tide with moderate swell.' },
+    water: { quality: 'Green', condition: 'ideal', summary: 'No contamination risk detected.' },
+    temp: { air: '24°C', feelsLike: '25°C', water: '22°C', condition: 'ideal', summary: 'Warm conditions, comfortable for kayaking.' },
+    uv: { index: 6, condition: 'acceptable', summary: 'High UV. Sunscreen and protective clothing advised.' },
+    humidity: null,
+    visibility: null,
+    summary: 'Moderate 14km/h SE breeze with light chop. Rising tide supports a good paddle window.',
+    analysis: 'Bondi Beach offers acceptable kayaking conditions today with a moderate southeast breeze creating light chop inside the bay.\n\nThe rising tide through the morning provides a favourable push and calmer water near the shore. Swell at 0.6m is manageable for experienced paddlers but may challenge beginners near the headlands.\n\nBest window is 8am-11am as the tide rises and wind remains below 15km/h. Conditions deteriorate through the afternoon as the sea breeze strengthens.',
+    daylight: { sunset: '18:15', condition: 'ideal', summary: 'Sunset at 6:15 PM. Good daylight for a morning or midday session.' },
+    hourly: [
+      { time: '06:00', score: 55, condition: 'marginal' },
+      { time: '07:00', score: 60, condition: 'acceptable' },
+      { time: '08:00', score: 68, condition: 'acceptable' },
+      { time: '09:00', score: 72, condition: 'acceptable' },
+      { time: '10:00', score: 70, condition: 'acceptable' },
+      { time: '11:00', score: 65, condition: 'acceptable' },
+      { time: '12:00', score: 58, condition: 'marginal' },
+      { time: '13:00', score: 52, condition: 'marginal' },
+      { time: '14:00', score: 48, condition: 'marginal' },
+    ],
+  },
+}]
+
 async function purge() {
   await db.delete(forecasts)
   await db.delete(locations)
@@ -257,7 +294,7 @@ export async function seed() {
   const locationResults = []
   const forecastResults = []
 
-  for (const { forecast, ...location } of aucklandLocations) {
+  for (const { forecast, ...location } of [...aucklandLocations, ...sydneyLocations]) {
     const [locationResult] = await db
       .insert(locations)
       .values(location)

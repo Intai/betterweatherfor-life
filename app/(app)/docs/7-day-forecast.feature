@@ -160,16 +160,16 @@ Feature: 7-Day Forecast Page
     And I select the "SUP" activity pill
     And I tap the Day 2 card with acceptable condition
     Then the browser should navigate to the "/auckland/home" page
-    And the time picker should be set to the Day 2 date
+    And the time picker should be set to the Day 2 date from today
     When I navigate back
     And I tap the Day 6 card with marginal condition
     Then the browser should navigate to the "/auckland/home" page
-    And the time picker should be set to the Day 6 date
+    And the time picker should be set to the Day 6 date from today
     When I navigate back
     And I select the "Cycling" activity pill
     And I tap the Day 2 card with unsuitable condition
     Then the browser should navigate to the "/auckland/home" page
-    And the time picker should be set to the Day 2 date
+    And the time picker should be set to the Day 2 date from today
 
   # =============================================================================
   # Scenario Group: Empty State
@@ -204,7 +204,7 @@ Feature: 7-Day Forecast Page
     And I type "Amour Bay" into the search input
     And I wait for the search results to appear
     And I select the first result "Amour Bay"
-    And I tap the "7-Day Forecast" sidebar menu item
+    And I tap the "7-Day Forecast" sidebar menu item below "Home"
     Then 7 day cards should be displayed
 
   # =============================================================================
@@ -218,7 +218,7 @@ Feature: 7-Day Forecast Page
     And I use Tab to navigate to the first day card
     Then the first day card should receive focus
     When I press Enter on the focused day card
-    Then the browser should navigate to the "/auckland/home" page with the Day 1 date selected
+    Then the browser should navigate to the "/auckland/home" page with the Day 1 date from today selected
 
   Scenario: FRC-13: Day selector strip buttons are keyboard accessible
     Given the browser viewport is 375px

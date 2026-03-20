@@ -375,21 +375,16 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.getByTestId('app-sidebar-trigger').click();
 
     // And I use Tab to navigate through sidebar items
-    // Then focus should move through each navigation link in order: Home, 7-Day Forecast, Settings, About
-    await page.keyboard.press('Tab');
-    await expect(page.getByRole('link', { name: 'Home' })).toBeFocused();
-
-    await page.keyboard.press('Tab');
-    await expect(page.getByRole('link', { name: '7-Day Forecast' })).toBeFocused();
-
-    await page.keyboard.press('Tab');
-    await expect(page.getByRole('link', { name: 'Settings' })).toBeFocused();
-
-    await page.keyboard.press('Tab');
-    await expect(page.getByRole('link', { name: 'About' })).toBeFocused();
+    // Then focus should move through each navigation link in order: Home, 7-Day Forecast, Cities, Settings, About
+    const expectedOrder = ['Home', '7-Day Forecast', 'Cities', 'Settings', 'About'];
+    for (const label of expectedOrder) {
+      await page.keyboard.press('Tab');
+      const focusedText = await page.evaluate(() => document.activeElement?.textContent?.trim());
+      expect(focusedText).toBe(label);
+    }
 
     // And I should be able to activate a focused link by pressing Enter
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL('http://localhost:3000/about');
+    await expect(page).toHaveURL(/\/about/);
   });
 });

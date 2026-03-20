@@ -3,8 +3,10 @@
     "appName": "Better Weather for",
     "closeMenu": "Close menu",
     "nav": {
+      "cities": "Cities",
       "home": "Home",
       "forecast": "7-Day Forecast",
+      "overview": "Overview",
       "settings": "Settings",
       "about": "About"
     },

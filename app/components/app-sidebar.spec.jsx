@@ -42,6 +42,12 @@ jest.mock('@/shadcn/components/ui/button', () => ({
   Button: props => <button {...props} />,
 }))
 
+jest.mock('./app-sidebar-cities', () => {
+  return function AppSidebarCities() {
+    return <li data-testid="app-sidebar-cities">Cities</li>
+  }
+})
+
 jest.mock('@/shadcn/components/ui/sidebar', () => ({
   Sidebar: ({ children }) => <div data-testid="sidebar">{children}</div>,
   SidebarHeader: ({ children, className }) => <div data-testid="sidebar-header" className={className}>{children}</div>,
@@ -92,6 +98,22 @@ describe('AppSidebar', () => {
     expect(screen.getByTestId('icon-info')).toBeInTheDocument()
   })
 
+  it('should render AppSidebarCities between nav groups', () => {
+    render(<AppSidebar />)
+    expect(screen.getByTestId('app-sidebar-cities')).toBeInTheDocument()
+
+    // Verify ordering: Home, Forecast, Cities, Settings, About
+    const menuItems = screen.getByRole('list').children
+    const texts = Array.from(menuItems).map(li => li.textContent)
+    expect(texts).toEqual([
+      'Home',
+      '7-Day Forecast',
+      'Cities',
+      'Settings',
+      'About',
+    ])
+  })
+
   it('should highlight the active route based on pathname', () => {
     mockUsePathname.mockReturnValue('/forecast')
     render(<AppSidebar />)
@@ -99,6 +121,16 @@ describe('AppSidebar', () => {
     expect(buttons[0]).toHaveAttribute('data-active', 'false')
     expect(buttons[1]).toHaveAttribute('data-active', 'true')
     expect(buttons[2]).toHaveAttribute('data-active', 'false')
+    expect(buttons[3]).toHaveAttribute('data-active', 'false')
+  })
+
+  it('should highlight settings route when active', () => {
+    mockUsePathname.mockReturnValue('/settings')
+    render(<AppSidebar />)
+    const buttons = screen.getAllByTestId('menu-button')
+    expect(buttons[0]).toHaveAttribute('data-active', 'false')
+    expect(buttons[1]).toHaveAttribute('data-active', 'false')
+    expect(buttons[2]).toHaveAttribute('data-active', 'true')
     expect(buttons[3]).toHaveAttribute('data-active', 'false')
   })
 

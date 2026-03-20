@@ -18,18 +18,41 @@ import {
   useSidebar,
 } from '@/shadcn/components/ui/sidebar'
 import AppLogo from './app-logo'
+import AppSidebarCities from './app-sidebar-cities'
 
-const navItems = [
+const navItemsBefore = [
   { titleKey: 'sidebar.nav.home', href: '/home', icon: Home },
   { titleKey: 'sidebar.nav.forecast', href: '/forecast', icon: Calendar },
+]
+
+const navItemsAfter = [
   { titleKey: 'sidebar.nav.settings', href: '/settings', icon: Settings },
   { titleKey: 'sidebar.nav.about', href: '/about', icon: Info },
 ]
+
+function renderNavItems({ pathname, t, isMobile, toggleSidebar, items }) {
+  return items.map(item => (
+    <SidebarMenuItem key={item.titleKey}>
+      <SidebarMenuButton
+        asChild
+        isActive={pathname === item.href}
+        className="h-auto px-4 py-3"
+        data-testid="app-sidebar-menu-button"
+      >
+        <Link href={item.href} onClick={isMobile ? toggleSidebar : undefined}>
+          <item.icon />
+          <span>{t(item.titleKey)}</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  ))
+}
 
 export default function AppSidebar() {
   const pathname = usePathname()
   const { t } = useTranslation()
   const { isMobile, toggleSidebar } = useSidebar()
+  const navProps = { pathname, t, isMobile, toggleSidebar }
 
   return (
     <Sidebar data-testid="app-sidebar">
@@ -60,21 +83,9 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map(item => (
-                <SidebarMenuItem key={item.titleKey}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.href}
-                    className="h-auto px-4 py-3"
-                    data-testid="app-sidebar-menu-button"
-                  >
-                    <Link href={item.href} onClick={isMobile ? toggleSidebar : undefined}>
-                      <item.icon />
-                      <span>{t(item.titleKey)}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {renderNavItems({ ...navProps, items: navItemsBefore })}
+              <AppSidebarCities />
+              {renderNavItems({ ...navProps, items: navItemsAfter })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
