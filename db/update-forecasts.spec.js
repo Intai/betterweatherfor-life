@@ -293,6 +293,24 @@ describe('db/update-forecasts', () => {
       dateNow.mockReturnValue(new Date(2026, 1, 14, 0, 0))
     })
 
+    it('should process locations near midnight at 00:00-00:29 when no slug is provided', async () => {
+      const { dateNow } = require('@/app/utils/date')
+      dateNow.mockReturnValue(new Date(2026, 1, 14, 0, 15))
+
+      const location = makeLocation({ forecastId: 1 })
+      const total = await loadAndCall(() => {
+        mockGroupBy.mockResolvedValue([location])
+        mockReadFileSync
+          .mockReturnValueOnce(promptTemplate)
+          .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': makeForecastValue() }))
+        mockReturning.mockResolvedValue([{ id: 1 }])
+      })
+
+      expect(total).toBe(1)
+      expect(mockExecSync).toHaveBeenCalledTimes(1)
+      dateNow.mockReturnValue(new Date(2026, 1, 14, 0, 0))
+    })
+
     it('should return 0 when slug matches no locations', async () => {
       const total = await loadAndCall(() => {
         mockGroupBy.mockResolvedValue([makeLocation()])

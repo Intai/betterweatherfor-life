@@ -12,6 +12,8 @@ import { forecasts } from './schema/forecasts.js'
 import { locations } from './schema/locations.js'
 import db from './index.js'
 
+const isLocationForSlug = filterSlug => ({ name }) => slugify(name) === filterSlug
+
 const isNearMidnight = timeZone => {
   const now = dateNow(timeZone)
   const hours = now.getHours()
@@ -27,25 +29,22 @@ const shouldFetchForecast = either(
 const currentDir = dirname(fileURLToPath(import.meta.url))
 const promptTemplatePath = resolve(currentDir, '../app/(app)/docs/ai-forecast-prompt.md')
 
-const queryLocations = async filterSlug => {
-  const all = await db
-    .select({
-      id: locations.id,
-      name: locations.name,
-      area: locations.area,
-      citySlug: locations.citySlug,
-      latitude: locations.latitude,
-      longitude: locations.longitude,
-      timeZone: locations.timeZone,
-      source: locations.source,
-      forecastId: sql`min(${forecasts.id})`.as('forecast_id'),
-    })
+const queryLocations = () => (
+  db.select({
+    id: locations.id,
+    name: locations.name,
+    area: locations.area,
+    citySlug: locations.citySlug,
+    latitude: locations.latitude,
+    longitude: locations.longitude,
+    timeZone: locations.timeZone,
+    source: locations.source,
+    forecastId: sql`min(${forecasts.id})`.as('forecast_id'),
+  })
     .from(locations)
     .leftJoin(forecasts, eq(locations.id, forecasts.locationId))
     .groupBy(locations.id)
-  if (!filterSlug) return all
-  return all.filter(({ name }) => slugify(name) === filterSlug)
-}
+)
 
 const readPromptTemplate = () => readFileSync(promptTemplatePath, 'utf-8')
 
@@ -140,9 +139,9 @@ export async function updateForecasts(filterSlug) {
   const template = readPromptTemplate()
   let count = 0
 
-  const allLocations = await queryLocations(filterSlug)
+  const allLocations = await queryLocations()
   const locationsToUpdate = filterSlug
-    ? allLocations
+    ? allLocations.filter(isLocationForSlug(filterSlug))
     : allLocations.filter(shouldFetchForecast)
 
   for (const location of locationsToUpdate) {
