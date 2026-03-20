@@ -2,7 +2,9 @@ const mockReturning = jest.fn()
 const mockOnConflictDoUpdate = jest.fn(() => ({ returning: mockReturning }))
 const mockValues = jest.fn(() => ({ onConflictDoUpdate: mockOnConflictDoUpdate }))
 const mockInsert = jest.fn(() => ({ values: mockValues }))
-const mockFrom = jest.fn()
+const mockGroupBy = jest.fn()
+const mockLeftJoin = jest.fn(() => ({ groupBy: mockGroupBy }))
+const mockFrom = jest.fn(() => ({ leftJoin: mockLeftJoin }))
 const mockSelect = jest.fn(() => ({ from: mockFrom }))
 const mockExecSync = jest.fn(() => Buffer.from(''))
 const mockReadFileSync = jest.fn()
@@ -15,7 +17,8 @@ jest.mock('@/db', () => ({
 }))
 
 jest.mock('drizzle-orm', () => ({
-  sql: jest.fn(strings => strings.join('')),
+  eq: jest.fn((a, b) => [a, b]),
+  sql: jest.fn(strings => ({ raw: strings.join(''), as: jest.fn() })),
 }))
 
 jest.mock('child_process', () => ({
@@ -38,7 +41,7 @@ jest.mock('@/app/(app)/constants', () => ({
 const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {})
 
 function setupModuleLevelMocks() {
-  mockFrom.mockResolvedValue([])
+  mockGroupBy.mockResolvedValue([])
   mockReadFileSync.mockReturnValue('')
 }
 
@@ -98,7 +101,7 @@ describe('db/update-forecasts', () => {
       const value = makeForecastValue()
 
       const total = await loadAndCall(() => {
-        mockFrom.mockResolvedValue([location])
+        mockGroupBy.mockResolvedValue([location])
         mockReadFileSync
           .mockReturnValueOnce(promptTemplate)
           .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': value }))
@@ -154,7 +157,7 @@ describe('db/update-forecasts', () => {
       const location = makeLocation()
 
       const total = await loadAndCall(() => {
-        mockFrom.mockResolvedValue([location])
+        mockGroupBy.mockResolvedValue([location])
         mockReadFileSync
           .mockReturnValueOnce(promptTemplate)
           .mockReturnValueOnce(JSON.stringify({
@@ -187,7 +190,7 @@ describe('db/update-forecasts', () => {
       })
 
       const total = await loadAndCall(() => {
-        mockFrom.mockResolvedValue([location1, location2])
+        mockGroupBy.mockResolvedValue([location1, location2])
         mockReadFileSync
           .mockReturnValueOnce(promptTemplate)
           .mockReturnValueOnce(JSON.stringify({
@@ -224,7 +227,7 @@ describe('db/update-forecasts', () => {
 
     it('should return 0 when there are no locations', async () => {
       const total = await loadAndCall(() => {
-        mockFrom.mockResolvedValue([])
+        mockGroupBy.mockResolvedValue([])
         mockReadFileSync.mockReturnValueOnce(promptTemplate)
       })
 
@@ -242,7 +245,7 @@ describe('db/update-forecasts', () => {
       })
 
       const total = await loadAndCall(() => {
-        mockFrom.mockResolvedValue([location1, location2])
+        mockGroupBy.mockResolvedValue([location1, location2])
         mockReadFileSync
           .mockReturnValueOnce(promptTemplate)
           .mockReturnValueOnce(JSON.stringify({
@@ -263,7 +266,7 @@ describe('db/update-forecasts', () => {
       dateNow.mockReturnValue(new Date(2026, 1, 14, 12, 0))
 
       const total = await loadAndCall(() => {
-        mockFrom.mockResolvedValue([makeLocation()])
+        mockGroupBy.mockResolvedValue([makeLocation({ forecastId: 1 })])
         mockReadFileSync.mockReturnValueOnce(promptTemplate)
       })
 
@@ -276,9 +279,9 @@ describe('db/update-forecasts', () => {
       const { dateNow } = require('@/app/utils/date')
       dateNow.mockReturnValue(new Date(2026, 1, 14, 23, 30))
 
-      const location = makeLocation()
+      const location = makeLocation({ forecastId: 1 })
       const total = await loadAndCall(() => {
-        mockFrom.mockResolvedValue([location])
+        mockGroupBy.mockResolvedValue([location])
         mockReadFileSync
           .mockReturnValueOnce(promptTemplate)
           .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': makeForecastValue() }))
@@ -292,7 +295,7 @@ describe('db/update-forecasts', () => {
 
     it('should return 0 when slug matches no locations', async () => {
       const total = await loadAndCall(() => {
-        mockFrom.mockResolvedValue([makeLocation()])
+        mockGroupBy.mockResolvedValue([makeLocation()])
         mockReadFileSync.mockReturnValueOnce(promptTemplate)
       }, 'no-such-place')
 
@@ -311,7 +314,7 @@ describe('db/update-forecasts', () => {
       }
 
       await loadAndCall(() => {
-        mockFrom.mockResolvedValue([location])
+        mockGroupBy.mockResolvedValue([location])
         mockReadFileSync
           .mockReturnValueOnce(promptTemplate)
           .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': value }))
@@ -336,7 +339,7 @@ describe('db/update-forecasts', () => {
 
     it('should exit with code 1 on failure', async () => {
       mockReadFileSync.mockReturnValue('')
-      mockFrom.mockRejectedValue(new Error('DB error'))
+      mockGroupBy.mockRejectedValue(new Error('DB error'))
       require('./update-forecasts')
       await new Promise(resolve => setTimeout(resolve, 0))
       expect(mockExit).toHaveBeenCalledWith(1)

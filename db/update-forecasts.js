@@ -2,8 +2,8 @@ import { execSync } from 'child_process'
 import { readFileSync } from 'fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { sql } from 'drizzle-orm'
-import { pick, pipe, propSatisfies, replace } from 'ramda'
+import { eq, sql } from 'drizzle-orm'
+import { complement, either, pick, pipe, prop, propSatisfies, replace } from 'ramda'
 import { ACTIVITIES } from '../app/(app)/constants.js'
 import { dateNow, formatISODate } from '../app/utils/date.js'
 import { error, info } from '../app/utils/logger.js'
@@ -19,11 +19,30 @@ const isNearMidnight = timeZone => {
   return (hours === 23 && minutes >= 30) || (hours === 0 && minutes < 30)
 }
 
+const shouldFetchForecast = either(
+  complement(prop('forecastId')),
+  propSatisfies(isNearMidnight, 'timeZone'),
+)
+
 const currentDir = dirname(fileURLToPath(import.meta.url))
 const promptTemplatePath = resolve(currentDir, '../app/(app)/docs/ai-forecast-prompt.md')
 
 const queryLocations = async filterSlug => {
-  const all = await db.select().from(locations)
+  const all = await db
+    .select({
+      id: locations.id,
+      name: locations.name,
+      area: locations.area,
+      citySlug: locations.citySlug,
+      latitude: locations.latitude,
+      longitude: locations.longitude,
+      timeZone: locations.timeZone,
+      source: locations.source,
+      forecastId: sql`min(${forecasts.id})`.as('forecast_id'),
+    })
+    .from(locations)
+    .leftJoin(forecasts, eq(locations.id, forecasts.locationId))
+    .groupBy(locations.id)
   if (!filterSlug) return all
   return all.filter(({ name }) => slugify(name) === filterSlug)
 }
@@ -124,7 +143,7 @@ export async function updateForecasts(filterSlug) {
   const allLocations = await queryLocations(filterSlug)
   const locationsToUpdate = filterSlug
     ? allLocations
-    : allLocations.filter(propSatisfies(isNearMidnight, 'timeZone'))
+    : allLocations.filter(shouldFetchForecast)
 
   for (const location of locationsToUpdate) {
     info(`Processing: ${location.name}`)
