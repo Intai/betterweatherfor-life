@@ -66,7 +66,11 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
       - name: Apply Kubernetes manifests
-        run: kubectl apply -k k8s/production
+        run: |
+          kubectl apply -k k8s/production
+          kubectl rollout status deployment db -n betterweather --timeout=120s
+          kubectl rollout status deployment nginx -n betterweather --timeout=120s
+          kubectl rollout status deployment web -n betterweather --timeout=120s
       - name: Restart web deployment
         run: |
           kubectl rollout restart deployment web -n betterweather
