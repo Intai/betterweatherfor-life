@@ -3,5 +3,11 @@
     "design-flow@story-flow": true,
     "junior-flow@story-flow": true,
     "story-flow@story-flow": true
+  },
+  "permissions": {
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/terraform.tfvars)"
+    ]
   }
 }

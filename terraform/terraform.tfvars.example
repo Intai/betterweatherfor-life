@@ -1,3 +1,5 @@
 do_token             = ""
 cloudflare_api_token = ""
 cloudflare_zone_id   = ""
+github_token         = ""
+google_maps_api_key  = ""

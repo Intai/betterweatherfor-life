@@ -1,0 +1,71 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test -- --silent
+
+  build-and-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: production
+          push: true
+          tags: ghcr.io/intai/betterweather-web:latest
+          build-args: |
+            NODE_ENV=production
+            NODE_CONFIG_ENV=production
+            BUILD=${{ github.run_id }}
+          secrets: |
+            GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push forecast image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.forecast
+          push: true
+          tags: ghcr.io/intai/betterweather-forecast:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - uses: azure/setup-kubectl@v4
+      - name: Set up kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+      - name: Restart web deployment
+        run: |
+          kubectl rollout restart deployment web -n betterweather
+          kubectl rollout status deployment web -n betterweather --timeout=120s

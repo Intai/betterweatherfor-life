@@ -38,3 +38,21 @@ variable "node_count" {
   type        = number
   default     = 1
 }
+
+variable "github_token" {
+  description = "GitHub PAT with repo scope for managing Actions secrets"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_repo" {
+  description = "GitHub repository name"
+  type        = string
+  default     = "betterweatherfor-life"
+}
+
+variable "google_maps_api_key" {
+  description = "Google Maps API key"
+  type        = string
+  sensitive   = true
+}
