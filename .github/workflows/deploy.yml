@@ -65,6 +65,8 @@ jobs:
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
+      - name: Apply Kubernetes manifests
+        run: kubectl apply -k k8s/production
       - name: Restart web deployment
         run: |
           kubectl rollout restart deployment web -n betterweather
