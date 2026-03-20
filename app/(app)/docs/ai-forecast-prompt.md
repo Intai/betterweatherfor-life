@@ -42,9 +42,9 @@ All data sources currently provide hourly or sub-daily granularity. Each field m
 
 Score each activity using the criteria below. Condition levels: ideal (80-100), acceptable (60-79), marginal (40-59), unsuitable (<40).
 
-The overall score and condition for each entry is determined by the worst-case factor. For example, if wind is "marginal" (40-59) and all other factors are "ideal" (80-100), the overall score must fall within the "marginal" range (40-59).
+The overall score and condition for each entry is determined by the worst-case factor. For example, if wind speed is "marginal" (40-59) and all other factors are "ideal" (80-100), the overall score must fall within the "marginal" range (40-59).
 
-### Wind thresholds (km/h)
+### Wind speed thresholds (km/h)
 
 | Condition | SUP | Kayaking | Snorkelling | Cycling |
 |---|---|---|---|---|
