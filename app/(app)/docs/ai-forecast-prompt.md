@@ -7,12 +7,10 @@ Use the Task tool with `subagent_type="general-purpose"` to execute the followin
   What is the water quality at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 2 days according to https://safeswim.org.nz/api/locations/{slug}, where the `WATER_QUALITY` array is every hour from now? Respond in JSON format without any explanation, where `waterQuality` must be strictly Green, Orange, Red or Black. Use cURL. Find the closest location slug by https://safeswim.org.nz/api/locations.
   ```
 - ```
-  When are the tide turning times according to https://tides.niwa.co.nz/?latitude=-36.97484844433063&longitude=174.62043566419308&startDate=2026-02-13&numberOfDays=10 Respond in JSON format without any explanation. Use playwright-headless MCP. Remember to close the Playwright browser when finishes.
+  When are the tide turning times according to https://api.niwa.co.nz/tides/data.csv?lat=-36.97484844433063&long=174.62043566419308&startDate=2026-02-13&numberOfDays=10&datum=LAT Respond in JSON format without any explanation. Use cURL with header `"accept": "text/csv"` and referrer `https://tides.niwa.co.nz/`.
   ```
 - ```
-  What is the swell at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://windy.app/poi/-36.97484844433063/174.62043566419308 Respond in JSON format without any explanation. Use playwright-headless MCP. Remember to close the Playwright browser when finishes. Selectors:
-    | Hours | #cellsTable tr.windywidgethours |
-    | Swell height (m) | #cellsTable tr.windywidgetwavesheight |
+  What is the swell at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://windy.app/widget/data.php?id=wfwindyapp&model=-1&lat=-36.97484844433063&lon=174.62043566419308&timelineRange=future Respond in JSON format without any explanation. Use cURL to extract wave heights in meters from JSONP (Assigned to `window.wfwindyapp` in JavaScript). `wavesHeight`, `wavesDirection` and `wavesPeriod` are in the `data` field which is a serialised JSON.
   ```
 - ```
   What are the temperature, feels-like temperature, UV index, precipitation probability, precipitation quantity, wind cardinal direction (e.g. NE, SW WSW, ENE), wind speed, wind gust and humidity at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 9 days according to https://weather.googleapis.com/v1/forecast/hours:lookup?key=${GOOGLE_WEATHER_API_KEY}&location.latitude=-36.97484844433063&location.longitude=174.62043566419308&hours=240&pageSize=24 Respond in JSON format without any explanation. Use cURL. Pass the nextPageToken value into the pageToken to fetch all 10 days.
