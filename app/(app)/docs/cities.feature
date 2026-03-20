@@ -10,7 +10,7 @@ Feature: Cities in Sidebar
   # Scenario Group: Cities Menu Item Display
   # =============================================================================
 
-  Scenario: CT-01: Cities collapsible menu item is displayed between 7-Day Forecast and Settings on mobile
+  Scenario: CT-01: Cities collapsible menu item is displayed after 7-Day Forecast on mobile
     Given the browser viewport is 375px
     When I navigate to the "/home" page
     And I open the sidebar
@@ -19,12 +19,10 @@ Feature: Cities in Sidebar
       | Home           | House    |
       | 7-Day Forecast | Calendar |
       | Cities         | Globe    |
-      | Settings       | Settings |
-      | About          | Info     |
     And the "Cities" menu item should display a ChevronRight icon
     And the "Cities" section should be collapsed
 
-  Scenario: CT-02: Cities collapsible menu item is displayed between 7-Day Forecast and Settings on desktop
+  Scenario: CT-02: Cities collapsible menu item is displayed after 7-Day Forecast on desktop
     Given the browser viewport is 1280px
     When I navigate to the "/home" page
     Then the sidebar should be visible
@@ -33,8 +31,6 @@ Feature: Cities in Sidebar
       | Home           | House    |
       | 7-Day Forecast | Calendar |
       | Cities         | Globe    |
-      | Settings       | Settings |
-      | About          | Info     |
     And the "Cities" menu item should display a ChevronRight icon
     And the "Cities" section should be collapsed
 

@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Calendar, Home, Info, Settings, X } from 'lucide-react'
+import { Calendar, Home, X } from 'lucide-react'
 import { Button } from '@/shadcn/components/ui/button'
 import {
   Sidebar,
@@ -23,11 +23,6 @@ import AppSidebarCities from './app-sidebar-cities'
 const navItemsBefore = [
   { titleKey: 'sidebar.nav.home', href: '/home', icon: Home },
   { titleKey: 'sidebar.nav.forecast', href: '/forecast', icon: Calendar },
-]
-
-const navItemsAfter = [
-  { titleKey: 'sidebar.nav.settings', href: '/settings', icon: Settings },
-  { titleKey: 'sidebar.nav.about', href: '/about', icon: Info },
 ]
 
 function renderNavItems({ pathname, t, isMobile, toggleSidebar, items }) {
@@ -85,7 +80,6 @@ export default function AppSidebar() {
             <SidebarMenu>
               {renderNavItems({ ...navProps, items: navItemsBefore })}
               <AppSidebarCities />
-              {renderNavItems({ ...navProps, items: navItemsAfter })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

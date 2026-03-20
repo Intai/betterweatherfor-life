@@ -20,8 +20,6 @@ jest.mock('react-i18next', () => ({
         'sidebar.appName': 'Better Weather for',
         'sidebar.nav.home': 'Home',
         'sidebar.nav.forecast': '7-Day Forecast',
-        'sidebar.nav.settings': 'Settings',
-        'sidebar.nav.about': 'About',
         'sidebar.closeMenu': 'Close menu',
         'sidebar.version': `Version ${opts?.version ?? ''}`,
       }
@@ -33,8 +31,6 @@ jest.mock('react-i18next', () => ({
 jest.mock('lucide-react', () => ({
   Home: () => <svg data-testid="icon-home" />,
   Calendar: () => <svg data-testid="icon-calendar" />,
-  Settings: () => <svg data-testid="icon-settings" />,
-  Info: () => <svg data-testid="icon-info" />,
   X: () => <svg data-testid="icon-x" />,
 }))
 
@@ -89,28 +85,19 @@ describe('AppSidebar', () => {
     expect(forecastLink).toHaveAttribute('href', '/forecast')
     expect(screen.getByTestId('icon-calendar')).toBeInTheDocument()
 
-    const settingsLink = screen.getByText('Settings').closest('a')
-    expect(settingsLink).toHaveAttribute('href', '/settings')
-    expect(screen.getByTestId('icon-settings')).toBeInTheDocument()
-
-    const aboutLink = screen.getByText('About').closest('a')
-    expect(aboutLink).toHaveAttribute('href', '/about')
-    expect(screen.getByTestId('icon-info')).toBeInTheDocument()
   })
 
   it('should render AppSidebarCities between nav groups', () => {
     render(<AppSidebar />)
     expect(screen.getByTestId('app-sidebar-cities')).toBeInTheDocument()
 
-    // Verify ordering: Home, Forecast, Cities, Settings, About
+    // Verify ordering: Home, Forecast, Cities
     const menuItems = screen.getByRole('list').children
     const texts = Array.from(menuItems).map(li => li.textContent)
     expect(texts).toEqual([
       'Home',
       '7-Day Forecast',
       'Cities',
-      'Settings',
-      'About',
     ])
   })
 
@@ -120,18 +107,6 @@ describe('AppSidebar', () => {
     const buttons = screen.getAllByTestId('menu-button')
     expect(buttons[0]).toHaveAttribute('data-active', 'false')
     expect(buttons[1]).toHaveAttribute('data-active', 'true')
-    expect(buttons[2]).toHaveAttribute('data-active', 'false')
-    expect(buttons[3]).toHaveAttribute('data-active', 'false')
-  })
-
-  it('should highlight settings route when active', () => {
-    mockUsePathname.mockReturnValue('/settings')
-    render(<AppSidebar />)
-    const buttons = screen.getAllByTestId('menu-button')
-    expect(buttons[0]).toHaveAttribute('data-active', 'false')
-    expect(buttons[1]).toHaveAttribute('data-active', 'false')
-    expect(buttons[2]).toHaveAttribute('data-active', 'true')
-    expect(buttons[3]).toHaveAttribute('data-active', 'false')
   })
 
   it('should call toggleSidebar when close button is clicked', () => {

@@ -1,7 +1,7 @@
 Feature: Sidebar Navigation
   As a user
   I want a navigation system that shows a hamburger menu on mobile/tablet and a persistent sidebar on desktop
-  So that I can easily navigate between Home, 7-Day Forecast, Settings, and About pages from any screen size
+  So that I can easily navigate between Home, 7-Day Forecast, and City pages from any screen size
 
   Background:
     Given the application is running
@@ -23,8 +23,6 @@ Feature: Sidebar Navigation
       | label           | icon     |
       | Home            | House    |
       | 7-Day Forecast  | Calendar |
-      | Settings        | Settings |
-      | About           | Info     |
     When I tap the backdrop overlay
     Then the sidebar should close
     And the backdrop should no longer be visible
@@ -46,8 +44,6 @@ Feature: Sidebar Navigation
       | label           | icon     |
       | Home            | House    |
       | 7-Day Forecast  | Calendar |
-      | Settings        | Settings |
-      | About           | Info     |
 
   # =============================================================================
   # Scenario Group: Active Route Highlighting
@@ -138,5 +134,5 @@ Feature: Sidebar Navigation
     Then the sidebar should close
     When I open the sidebar again
     And I use Tab to navigate through sidebar items
-    Then focus should move through each navigation link in order: Home, 7-Day Forecast, Cities, Settings, About
+    Then focus should move through each navigation links in order: Home, 7-Day Forecast
     And I should be able to activate a focused link by pressing Enter

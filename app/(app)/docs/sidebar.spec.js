@@ -30,42 +30,41 @@ test.describe('Feature: Sidebar Navigation', () => {
 
     // And the sidebar header should display the app logo
     await expect(
-      page.locator('[data-slot="sidebar-header"]').getByTestId('app-logo')
+      page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-logo')
     ).toBeVisible();
 
     // And the sidebar header should display the app name "Better Weather for"
-    await expect(page.getByTestId('app-sidebar-name')).toHaveText('Better Weather for');
+    await expect(
+      page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-sidebar-name')
+    ).toContainText('Better Weather for');
 
     // And the sidebar footer should contain "Version"
-    await expect(page.getByTestId('app-sidebar-footer')).toContainText('Version');
+    await expect(
+      page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-sidebar-footer')
+    ).toContainText('Version');
 
     // And the sidebar should display the following navigation items:
     // | label           | icon     |
     // | Home            | House    |
-    await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' }).locator('svg.lucide-house')
-    ).toBeVisible();
-
     // | 7-Day Forecast  | Calendar |
     await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' }).locator('svg.lucide-calendar')
+      page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' })
     ).toBeVisible();
-
-    // | Settings        | Settings |
     await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Settings' }).locator('svg.lucide-settings')
+      page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' }).locator('svg.lucide-house')
     ).toBeVisible();
-
-    // | About           | Info     |
     await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'About' }).locator('svg.lucide-info')
+      page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' })
+    ).toBeVisible();
+    await expect(
+      page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' }).locator('svg.lucide-calendar')
     ).toBeVisible();
 
     // When I tap the backdrop overlay
-    await page.locator('[data-slot="sheet-overlay"]').click({ position: { x: 330, y: 400 }, force: true });
+    await page.locator('[data-slot="sheet-overlay"]').click({ force: true });
 
     // Then the sidebar should close
-    await expect(page.locator('[data-slot="sidebar"][role="dialog"]')).toBeHidden();
+    await expect(page.getByRole('dialog', { name: 'Sidebar' })).toBeHidden();
 
     // And the backdrop should no longer be visible
     await expect(page.locator('[data-slot="sheet-overlay"]')).toBeHidden();
@@ -77,7 +76,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.getByTestId('app-sidebar-close-button').click();
 
     // Then the sidebar should close
-    await expect(page.locator('[data-slot="sidebar"][role="dialog"]')).toBeHidden();
+    await expect(page.getByRole('dialog', { name: 'Sidebar' })).toBeHidden();
   });
 
   test('SB-02: Desktop sidebar contains header and navigation links with icons', async ({ page }) => {
@@ -88,7 +87,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.goto('http://localhost:3000/home');
 
     // Then the sidebar should be visible
-    await expect(page.locator('[data-slot="sidebar"]')).toBeVisible();
+    await expect(page.getByTestId('app-sidebar')).toBeVisible();
 
     // And there should be no backdrop overlay
     await expect(page.locator('[data-slot="sheet-overlay"]')).toHaveCount(0);
@@ -101,36 +100,34 @@ test.describe('Feature: Sidebar Navigation', () => {
 
     // And the sidebar header should display the app logo
     await expect(
-      page.locator('[data-sidebar="sidebar"] [data-testid="app-logo"]')
+      page.getByTestId('app-sidebar').getByTestId('app-logo')
     ).toBeVisible();
 
     // And the sidebar header should display the app name "Better Weather for"
-    await expect(page.getByTestId('app-sidebar-name')).toContainText('Better Weather for');
+    await expect(
+      page.getByTestId('app-sidebar').getByTestId('app-sidebar-name')
+    ).toContainText('Better Weather for');
 
     // And the sidebar footer should contain "Version"
-    await expect(page.getByTestId('app-sidebar-footer')).toContainText('Version');
+    await expect(
+      page.getByTestId('app-sidebar').getByTestId('app-sidebar-footer')
+    ).toContainText('Version');
 
     // And the sidebar should display the following navigation items:
-    await expect(page.getByTestId('app-sidebar-menu-button')).toHaveCount(4);
-
+    // | label           | icon     |
     // | Home            | House    |
-    await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' }).locator('svg.lucide-house')
-    ).toBeVisible();
-
     // | 7-Day Forecast  | Calendar |
     await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' }).locator('svg.lucide-calendar')
+      page.getByTestId('app-sidebar').getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' })
     ).toBeVisible();
-
-    // | Settings        | Settings |
     await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Settings' }).locator('svg.lucide-settings')
+      page.getByTestId('app-sidebar').getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' }).locator('svg.lucide-house')
     ).toBeVisible();
-
-    // | About           | Info     |
     await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'About' }).locator('svg.lucide-info')
+      page.getByTestId('app-sidebar').getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' })
+    ).toBeVisible();
+    await expect(
+      page.getByTestId('app-sidebar').getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' }).locator('svg.lucide-calendar')
     ).toBeVisible();
   });
 
@@ -146,22 +143,19 @@ test.describe('Feature: Sidebar Navigation', () => {
 
     // Then the "Home" navigation item should be highlighted as active
     await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' })
+      page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' })
     ).toHaveAttribute('data-active', 'true');
 
     // And the other navigation items should not be highlighted
     await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' })
+      page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' })
     ).toHaveAttribute('data-active', 'false');
     await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Settings' })
-    ).toHaveAttribute('data-active', 'false');
-    await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'About' })
+      page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-sidebar-cities-trigger')
     ).toHaveAttribute('data-active', 'false');
   });
 
-  test('SB-04a: Active route highlighted - /home (desktop)', async ({ page }) => {
+  test('SB-04a: Active route is highlighted on desktop (/home → Home)', async ({ page }) => {
     // Given the browser viewport is 1280px
     await page.setViewportSize({ width: 1280, height: 800 });
 
@@ -181,14 +175,11 @@ test.describe('Feature: Sidebar Navigation', () => {
       page.getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' })
     ).toHaveAttribute('data-active', 'false');
     await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Settings' })
-    ).toHaveAttribute('data-active', 'false');
-    await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'About' })
+      page.getByTestId('app-sidebar-cities-trigger')
     ).toHaveAttribute('data-active', 'false');
   });
 
-  test('SB-04b: Active route highlighted - /forecast (desktop)', async ({ page }) => {
+  test('SB-04b: Active route is highlighted on desktop (/forecast → 7-Day Forecast)', async ({ page }) => {
     // Given the browser viewport is 1280px
     await page.setViewportSize({ width: 1280, height: 800 });
 
@@ -208,10 +199,7 @@ test.describe('Feature: Sidebar Navigation', () => {
       page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' })
     ).toHaveAttribute('data-active', 'false');
     await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Settings' })
-    ).toHaveAttribute('data-active', 'false');
-    await expect(
-      page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'About' })
+      page.getByTestId('app-sidebar-cities-trigger')
     ).toHaveAttribute('data-active', 'false');
   });
 
@@ -375,16 +363,19 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.getByTestId('app-sidebar-trigger').click();
 
     // And I use Tab to navigate through sidebar items
-    // Then focus should move through each navigation link in order: Home, 7-Day Forecast, Cities, Settings, About
-    const expectedOrder = ['Home', '7-Day Forecast', 'Cities', 'Settings', 'About'];
-    for (const label of expectedOrder) {
-      await page.keyboard.press('Tab');
-      const focusedText = await page.evaluate(() => document.activeElement?.textContent?.trim());
-      expect(focusedText).toBe(label);
-    }
+    // Then focus should move through each navigation links in order: Home, 7-Day Forecast
+    await page.keyboard.press('Tab');
+    expect(await page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' }).evaluate(
+      (el) => el === document.activeElement
+    )).toBe(true);
+
+    await page.keyboard.press('Tab');
+    expect(await page.getByRole('dialog', { name: 'Sidebar' }).getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' }).evaluate(
+      (el) => el === document.activeElement
+    )).toBe(true);
 
     // And I should be able to activate a focused link by pressing Enter
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/\/about/);
+    await expect(page).toHaveURL('http://localhost:3000/forecast');
   });
 });
