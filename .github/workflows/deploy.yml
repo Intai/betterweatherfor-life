@@ -9,6 +9,20 @@ permissions:
   packages: write
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      app_changed: ${{ steps.filter.outputs.app_changed }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: filter
+        run: |
+          CHANGED=$(git diff --name-only ${{ github.event.before }} HEAD)
+          APP_CHANGED=$(echo "$CHANGED" | grep -cvE '^(\.claude/|\.github/|\.husky/|k8s/|terraform/|\.env\.example|\.gitignore|[^/]*\.md)' || true)
+          echo "app_changed=$( [ "$APP_CHANGED" -gt 0 ] && echo true || echo false )" >> "$GITHUB_OUTPUT"
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -21,8 +35,9 @@ jobs:
       - run: npm run lint
       - run: npm test -- --silent
 
-  build-and-deploy:
-    needs: test
+  build:
+    needs: [detect-changes, test]
+    if: needs.detect-changes.outputs.app_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -59,6 +74,12 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  deploy:
+    needs: [detect-changes, test, build]
+    if: always() && needs.test.result == 'success' && (needs.build.result == 'success' || needs.build.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
       - uses: azure/setup-kubectl@v4
       - name: Set up kubeconfig
         run: |
@@ -72,6 +93,7 @@ jobs:
           kubectl rollout status deployment nginx -n betterweather --timeout=240s
           kubectl rollout status deployment web -n betterweather --timeout=240s
       - name: Restart web deployment
+        if: needs.detect-changes.outputs.app_changed == 'true'
         run: |
           kubectl rollout restart deployment web -n betterweather
           kubectl rollout status deployment web -n betterweather --timeout=240s
