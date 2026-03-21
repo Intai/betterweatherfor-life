@@ -35,6 +35,11 @@ spec:
                     secretKeyRef:
                       name: db-secret
                       key: DATABASE_URL
+                - name: GOOGLE_WEATHER_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: web-secret
+                      key: GOOGLE_WEATHER_API_KEY
               volumeMounts:
                 - name: claude-data
                   mountPath: /home/pwuser/.claude

@@ -10,7 +10,7 @@
 #      kubectl wait --for=condition=ready pod -l name=sealed-secrets-controller -n kube-system --timeout=60s
 #
 # Usage:
-#   ./seal-secrets.sh <POSTGRES_PASSWORD> <GOOGLE_MAPS_API_KEY>
+#   ./seal-secrets.sh <POSTGRES_PASSWORD> <GOOGLE_MAPS_API_KEY> <GOOGLE_WEATHER_API_KEY>
 #
 # Deploy order:
 #   1. kubectl apply -k k8s/cluster/           # cluster infra (once per cluster)
@@ -29,13 +29,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 NAMESPACE="betterweather"
 
-if [ $# -ne 2 ]; then
-  echo "Usage: $0 <POSTGRES_PASSWORD> <GOOGLE_MAPS_API_KEY>"
+if [ $# -ne 3 ]; then
+  echo "Usage: $0 <POSTGRES_PASSWORD> <GOOGLE_MAPS_API_KEY> <GOOGLE_WEATHER_API_KEY>"
   exit 1
 fi
 
 POSTGRES_PASSWORD="$1"
 GOOGLE_MAPS_API_KEY="$2"
+GOOGLE_WEATHER_API_KEY="$3"
 DATABASE_URL="postgres://betterweather:${POSTGRES_PASSWORD}@db:5432/betterweather"
 
 echo "Sealing db-secret..."
@@ -51,6 +52,7 @@ echo "Sealing web-secret..."
 kubectl create secret generic web-secret \
   --namespace="$NAMESPACE" \
   --from-literal="GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY" \
+  --from-literal="GOOGLE_WEATHER_API_KEY=$GOOGLE_WEATHER_API_KEY" \
   --dry-run=client -o yaml \
   | kubeseal --format yaml \
   > "$SCRIPT_DIR/web-sealed-secret.yaml"
