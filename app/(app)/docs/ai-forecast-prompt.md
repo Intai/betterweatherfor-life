@@ -195,7 +195,12 @@ When a time window spans multiple hours, aggregate each factor as follows (these
 - Humidity: use the worst-case (furthest from ideal range).
 - Underwater visibility: use the worst-case (lowest estimate).
 
-The `summary` field must explain how conditions affect the specific activity — never use generic labels like "Unsuitable conditions". Mention the dominant factor(s) and why they matter for that activity. Good: "43km/h SW wind is too strong for stable stand-up paddling." Good: "Light 8km/h tailwind, great riding conditions." Bad: "Unsuitable conditions."
+The `summary` field must explain how conditions affect the specific activity — never use generic labels like "Unsuitable conditions". Mention the dominant factor(s) and why they matter for that activity. Examples:
+- Good: "43km/h SW wind is too strong for stable stand-up paddling."
+- Good: "Light 8km/h tailwind, great riding conditions."
+- Bad: "Unsuitable conditions."
+- Bad: "Slack, 100%"
+- Bad: "28% chance of rain"
 
 The `analysis` field is a multi-paragraph AI analysis for the detail page. Use `\n\n` to separate paragraphs.
 
