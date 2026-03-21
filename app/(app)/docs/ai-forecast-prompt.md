@@ -42,7 +42,9 @@ Score each activity using the criteria below. Condition levels: ideal (80-100), 
 
 The overall score and condition for each entry is determined by the worst-case factor. For example, if wind speed is "marginal" (40-59) and all other factors are "ideal" (80-100), the overall score must fall within the "marginal" range (40-59).
 
-### Wind speed thresholds (km/h)
+### Wind thresholds (km/h)
+
+Wind speed:
 
 | Condition | SUP | Kayaking | Snorkelling | Cycling |
 |---|---|---|---|---|
@@ -51,6 +53,16 @@ The overall score and condition for each entry is determined by the worst-case f
 | Marginal | 18-27 | 20-27 | 15-22 | 25-35 |
 | Unsuitable | >27 | >27 | >22 | >35 |
 
+Wind gust — gusts are sudden and harder to brace for than sustained wind:
+
+| Condition | SUP | Kayaking | Snorkelling | Cycling |
+|---|---|---|---|---|
+| Ideal | <15 | <20 | <12 | <25 |
+| Acceptable | 15-27 | 20-30 | 12-22 | 25-40 |
+| Marginal | 27-40 | 30-40 | 22-33 | 40-50 |
+| Unsuitable | >40 | >40 | >33 | >50 |
+
+The overall wind condition is the worse of wind speed and wind gust conditions.
 SUP requires calmer wind than kayaking — standing on a board has a high center of gravity, making it far more wind-sensitive than seated kayaking.
 
 Wind direction:
