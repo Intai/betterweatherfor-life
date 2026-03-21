@@ -110,8 +110,11 @@ export function WaterIcon({ className = 'w-4 h-4' }) {
  */
 export function parseTempValue(tempStr) {
   if (!tempStr) return null
-  const match = tempStr.match(/-?\d+/)
-  return match ? parseInt(match[0], 10) : null
+  if (typeof tempStr === 'string') {
+    const match = tempStr.match(/-?\d+/)
+    return match ? parseInt(match[0], 10) : null
+  }
+  return tempStr
 }
 
 function getTempColor(temp) {

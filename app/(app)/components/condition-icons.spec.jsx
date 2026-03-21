@@ -103,6 +103,12 @@ describe('parseTempValue', () => {
     expect(parseTempValue(undefined)).toBeNull()
   })
 
+  it('should return a numeric value as-is', () => {
+    expect(parseTempValue(25)).toBe(25)
+    expect(parseTempValue(-3)).toBe(-3)
+    expect(parseTempValue(0)).toBeNull()
+  })
+
   it('should return null when no digits are found', () => {
     expect(parseTempValue('abc')).toBeNull()
   })
