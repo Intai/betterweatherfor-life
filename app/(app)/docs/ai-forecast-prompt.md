@@ -187,7 +187,7 @@ When a time window spans multiple hours, aggregate each factor as follows (these
 - Wind speed/gust: use the worst-case (highest) value.
 - Wind direction: use the predominant direction (most frequent across hours). If tied, use the direction at the hour with the highest wind speed.
 - Precipitation: use the worst-case (highest amount, highest chance).
-- Tide: use the best condition within the window — users can adjust their trip to the optimal tidal window. The overall score should also use this best tidal condition.
+- Tide: use the best condition within the window — users can adjust their trip to the optimal tidal window. The overall score should also use this best tidal condition. `nextHigh` = first high tide turning time within the time window (`null` if none). `nextLow` = first low tide turning time within the time window (`null` if none).
 - Water quality: use the worst-case.
 - Temperature/feels-like: use the best-case (closest to ideal range) — users can time their activity to the most comfortable part of the window.
 - Daylight: use the percentage of the window that falls within usable-light hours.

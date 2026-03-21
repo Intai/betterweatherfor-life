@@ -120,7 +120,7 @@ async function upsertForecasts(location, activity, forecastData) {
   let count = 0
 
   for (const [key, forecastValue] of forecastEntries) {
-    if (forecastValue.score) {
+    if (forecastValue?.score) {
       const [activity, date, timeRange] = key.split(';')
       await upsertForecast(location.id, { activity, date, timeRange, ...forecastValue })
       count++
