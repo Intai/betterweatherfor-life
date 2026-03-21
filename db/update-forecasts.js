@@ -3,11 +3,11 @@ import { readFileSync } from 'fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { eq, sql } from 'drizzle-orm'
-import { complement, either, pick, pipe, prop, propSatisfies, replace } from 'ramda'
+import { complement, either, pick, pipe, pluck, prop, propSatisfies, replace } from 'ramda'
 import { ACTIVITIES } from '../app/(app)/constants.js'
 import { dateNow, formatISODate } from '../app/utils/date.js'
 import { error, info } from '../app/utils/logger.js'
-import { slugify } from '../app/utils/string.js'
+import { joinByComma, slugify } from '../app/utils/string.js'
 import { forecasts } from './schema/forecasts.js'
 import { locations } from './schema/locations.js'
 import db from './index.js'
@@ -144,6 +144,7 @@ export async function updateForecasts(filterSlug) {
     ? allLocations.filter(isLocationForSlug(filterSlug))
     : allLocations.filter(shouldFetchForecast)
 
+  info(`Target locations: ${joinByComma(pluck('name', locationsToUpdate))}`)
   for (const location of locationsToUpdate) {
     info(`Processing: ${location.name}`)
     const locationSlug = slugify(location.name)
