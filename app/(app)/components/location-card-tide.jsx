@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { isNil } from 'ramda'
 import { TideIcon } from '@/app/(app)/components/condition-icons'
 import { getConditionColor } from '@/app/(app)/utils/condition-colors'
+import { upperFirst } from '@/app/utils/string'
 
 export default function LocationCardTide({ tide }) {
   const { t } = useTranslation()
@@ -15,7 +16,7 @@ export default function LocationCardTide({ tide }) {
         className="w-8 h-8 rounded-lg flex items-center justify-center"
         style={{ color, backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)` }}
       >
-        <TideIcon state={tide.state} percentage={tide.percentage} />
+        <TideIcon state={upperFirst(tide.state)} percentage={tide.percentage} />
       </div>
       <div>
         <p className="text-muted-foreground/70 text-xs">{t('home.conditions.tide')}</p>

@@ -14,6 +14,7 @@ import {
   IDEAL,
   MARGINAL,
   RISING,
+  SLACK,
   UNSUITABLE,
 } from '@/app/(app)/constants'
 
@@ -74,7 +75,7 @@ export function WindIcon({ rotation, className = 'w-4 h-4' }) {
  */
 export function TideIcon({ state, percentage, className = 'w-5 h-5' }) {
   const clipId = useId()
-  const isRising = state === RISING
+  const isRising = new RegExp(`${RISING}|${SLACK}`, 'i').test(state)
   const trianglePath = isRising
     ? 'M5 19Q3 19 4.1 17.3L10.9 6.7Q12 5 13.1 6.7L19.9 17.3Q21 19 19 19Z'
     : 'M5 5Q3 5 4.1 6.7L10.9 17.3Q12 19 13.1 17.3L19.9 6.7Q21 5 19 5Z'

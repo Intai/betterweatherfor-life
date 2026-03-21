@@ -3,12 +3,14 @@
 import { useTranslation } from 'react-i18next'
 import { WaterIcon } from '@/app/(app)/components/condition-icons'
 import { getWaterColor } from '@/app/(app)/utils/condition-colors'
+import { upperFirst } from '@/app/utils/string'
 
 export default function LocationCardWater({ water }) {
   const { t } = useTranslation()
-  const color = getWaterColor(water?.quality)
+  const quality = upperFirst(water?.quality)
+  const color = getWaterColor(quality)
 
-  return water?.quality && (
+  return quality && (
     <div className="flex items-center gap-2 text-sm">
       <div
         className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -18,7 +20,7 @@ export default function LocationCardWater({ water }) {
       </div>
       <div>
         <p className="text-muted-foreground/70 text-xs">{t('home.conditions.water')}</p>
-        <p className="font-medium" style={{ color }}>{water.quality}</p>
+        <p className="font-medium" style={{ color }}>{quality}</p>
       </div>
     </div>
   )
