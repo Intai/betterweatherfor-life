@@ -1,4 +1,8 @@
-FROM mcr.microsoft.com/playwright:v1.52.0-noble
+FROM node:22-slim
+
+# Install curl (not included in slim) and create pwuser
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && useradd -m pwuser
 
 WORKDIR /app
 RUN chown pwuser:pwuser /app
@@ -12,13 +16,19 @@ ENV PATH="/home/pwuser/.local/bin:$PATH"
 COPY package*.json ./
 RUN npm ci --include=dev --ignore-scripts
 
+# Install Playwright Chromium with OS dependencies (needs root for apt-get)
+USER root
+RUN npx playwright install --with-deps chromium \
+    && rm -rf /var/lib/apt/lists/*
+USER pwuser
+
 # Copy app source
 COPY app ./app
 COPY db ./db
 COPY config ./config
 COPY .mcp-playwright.json ./
 
-# Set up entrypoint (needs root briefly)
+# Set up entrypoint
 USER root
 COPY docker/forecast-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/forecast-entrypoint.sh
