@@ -44,7 +44,7 @@ spec:
                   memory: 128Mi
                 limits:
                   cpu: "1"
-                  memory: 512Mi
+                  memory: 768Mi
           volumes:
             - name: claude-data
               persistentVolumeClaim:
