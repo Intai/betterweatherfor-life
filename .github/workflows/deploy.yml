@@ -98,7 +98,7 @@ jobs:
       - name: Restart web deployment
         if: needs.detect-changes.outputs.app_changed == 'true'
         run: |
-          kubectl rollout restart deployment nginx -n betterweather
           kubectl rollout restart deployment web -n betterweather
-          kubectl rollout status deployment nginx -n betterweather --timeout=240s
           kubectl rollout status deployment web -n betterweather --timeout=240s
+          kubectl rollout restart deployment nginx -n betterweather
+          kubectl rollout status deployment nginx -n betterweather --timeout=240s
