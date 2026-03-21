@@ -86,10 +86,10 @@ Rain beyond a drizzle degrades all activities significantly. Wet conditions redu
 
 | Condition | SUP | Kayaking | Snorkelling |
 |---|---|---|---|
-| Ideal | Slack or incoming | Slack | Incoming ~2hr before high |
-| Acceptable | Outgoing, moderate flow | Moderate flow | High or slack |
-| Marginal | Strong flow | Strong flow | Low tide |
-| Unsuitable | Peak flow | Peak flow + wind | Strong currents |
+| Ideal | High tide, slack | High tide, slack | Incoming ~2hr before high |
+| Acceptable | Incoming, moderate flow | Incoming, moderate flow | High or slack |
+| Marginal | Low tide, strong flow | Low tide, strong flow | Low tide |
+| Unsuitable | Peak ebb flow | Peak ebb flow | Strong currents |
 
 Cycling: Not affected by tide, set the `tide` field to `null` in the output.
 
