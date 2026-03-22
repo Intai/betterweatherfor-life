@@ -81,12 +81,12 @@ describe('findBestHour', () => {
     expect(findBestHour(hourly)).toEqual({ time: '8am', score: 92 })
   })
 
-  it('should return the last occurrence on tie', () => {
+  it('should return the first occurrence on tie', () => {
     const hourly = [
       { time: '7am', score: 80 },
       { time: '8am', score: 80 },
     ]
-    expect(findBestHour(hourly)).toEqual({ time: '8am', score: 80 })
+    expect(findBestHour(hourly)).toEqual({ time: '7am', score: 80 })
   })
 })
 

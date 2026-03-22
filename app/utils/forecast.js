@@ -1,5 +1,8 @@
-import { apply, applySpec, assoc, concat, identical, identity, lensIndex, lte, map, maxBy, over, path, pick, pipe, propOr, propSatisfies, reduce, split, splitWhen, takeLastWhile, takeWhile, toPairs, when } from 'ramda'
+import { apply, applySpec, assoc, concat, identical, identity, lensIndex, lte, map, over, path, pick, pipe, propOr, propSatisfies, reduce, split, splitWhen, takeLastWhile, takeWhile, toPairs, when } from 'ramda'
 import { joinBySemicolon } from '@/app/utils/string'
+
+const getScore = propOr(-1, 'score')
+const maxByScore = (a, b) => getScore(b) > getScore(a) ? b : a
 
 /**
  * Find the hourly slot with the highest score.
@@ -7,7 +10,7 @@ import { joinBySemicolon } from '@/app/utils/string'
  * @param {object[]|null|undefined} hourly - Array of hourly forecast objects with a `score` property.
  * @returns {object|null} The hour object with the highest score, or null.
  */
-export const findBestHour = when(identity, reduce(maxBy(propOr(-1, 'score')), null))
+export const findBestHour = when(identity, reduce(maxByScore, null))
 
 const findBestWindowWithinThreshold = (bestHour, isWithinThreshold) => pipe(
   // Split the hourly array into [before, [bestHour, ...after]] at the peak hour.

@@ -75,7 +75,7 @@ describe('LocationDetailForecastStrip', () => {
     expect(badge).toHaveClass('bg-condition-marginal')
   })
 
-  it('should mark the last occurrence as best when multiple slots share the highest score', () => {
+  it('should mark the first occurrence as best when multiple slots share the highest score', () => {
     const tied = [
       { time: '7am', score: 80, condition: 'ideal' },
       { time: '8am', score: 80, condition: 'ideal' },
@@ -83,7 +83,7 @@ describe('LocationDetailForecastStrip', () => {
     render(<LocationDetailForecastStrip hourly={tied} />)
 
     const bestSlot = screen.getByTestId('forecast-slot-best')
-    expect(bestSlot).toHaveTextContent('8am')
+    expect(bestSlot).toHaveTextContent('7am')
   })
 
   it('should apply default color for unknown condition', () => {
