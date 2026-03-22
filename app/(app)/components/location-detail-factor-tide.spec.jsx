@@ -29,8 +29,15 @@ describe('LocationDetailFactorTide', () => {
     expect(screen.getByText('1.2m')).toBeInTheDocument()
   })
 
-  it('should render nextLow when nextLow is sooner than nextHigh', () => {
+  it('should always render nextHigh when available', () => {
     render(<LocationDetailFactorTide tide={{ ...tideData, nextHigh: '17:45', nextLow: '11:30' }} />)
+
+    expect(screen.getByText('nextHigh')).toBeInTheDocument()
+    expect(screen.getByText('17:45')).toBeInTheDocument()
+  })
+
+  it('should render nextLow when nextHigh is not available', () => {
+    render(<LocationDetailFactorTide tide={{ ...tideData, nextHigh: undefined, nextLow: '11:30' }} />)
 
     expect(screen.getByText('nextLow')).toBeInTheDocument()
     expect(screen.getByText('11:30')).toBeInTheDocument()

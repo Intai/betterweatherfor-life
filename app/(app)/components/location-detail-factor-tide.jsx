@@ -10,7 +10,7 @@ function getFactorData({ t, tide }) {
   const data = [
     { label: t('locationDetail.tide.state'), value: `${upperFirst(tide.state)} ${tide.percentage}%` },
   ]
-  if (tide.nextHigh && (!tide.nextLow || tide.nextHigh <= tide.nextLow)) {
+  if (tide.nextHigh) {
     data.push({ label: t('locationDetail.tide.nextHigh'), value: tide.nextHigh })
   } else if (tide.nextLow) {
     data.push({ label: t('locationDetail.tide.nextLow'), value: tide.nextLow })
