@@ -93,6 +93,8 @@ Rain beyond a drizzle degrades all activities significantly. Wet conditions redu
 
 Cycling: Not affected by tide, set the `tide` field to `null` in the output.
 
+`tide.state` = must be strictly `Rising` or `Falling`. Rising when tide is moving toward high, Falling when moving toward low.
+
 `tide.percentage` = current tide height as a proportion between low and high tide. 0% = low tide, 100% = high tide. Must be between 0 and 100. Interpolate linearly between the nearest low and high tide turning times from the NIWA data.
 
 ### Water quality
@@ -195,12 +197,13 @@ When a time window spans multiple hours, aggregate each factor as follows (these
 - Humidity: use the worst-case (furthest from ideal range).
 - Underwater visibility: use the worst-case (lowest estimate).
 
-The `summary` field must explain how conditions affect the specific activity — never use generic labels like "Unsuitable conditions". Mention the dominant factor(s) and why they matter for that activity. Examples:
+All `summary` fields must explain how conditions affect the specific activity — never use generic labels like "Unsuitable conditions". Mention the dominant factor(s) and why they matter for that activity. Examples:
 - Good: "43km/h SW wind is too strong for stable stand-up paddling."
 - Good: "Light 8km/h tailwind, great riding conditions."
 - Bad: "Unsuitable conditions."
 - Bad: "Slack, 100%"
 - Bad: "28% chance of rain"
+- Bad: "Water quality is green"
 
 The `analysis` field is a multi-paragraph AI analysis for the detail page. Use `\n\n` to separate paragraphs.
 

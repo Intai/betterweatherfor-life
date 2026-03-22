@@ -21,7 +21,6 @@ export const EVENING = 'evening'
 export const TIME_RANGES = [ALL_DAY, MORNING, AFTERNOON, EVENING]
 
 export const RISING = 'Rising'
-export const SLACK = 'Slack'
 export const FALLING = 'Falling'
 
 export const SELECTED_ACTIVITY = 'selectedActivity'
