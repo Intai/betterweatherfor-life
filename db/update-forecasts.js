@@ -2,7 +2,8 @@ import { execSync } from 'child_process'
 import { readFileSync } from 'fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { eq, sql } from 'drizzle-orm'
+import { subDays } from 'date-fns'
+import { eq, lt, sql } from 'drizzle-orm'
 import { complement, either, pick, pipe, pluck, prop, propSatisfies, replace } from 'ramda'
 import { ACTIVITIES } from '../app/(app)/constants.js'
 import { dateNow, formatISODate } from '../app/utils/date.js'
@@ -130,12 +131,19 @@ async function upsertForecasts(location, activity, forecastData) {
   return count
 }
 
+async function deletePastForecasts() {
+  const cutoffDate = formatISODate(subDays(dateNow(), 2))
+  const result = await db.delete(forecasts).where(lt(forecasts.date, cutoffDate))
+  info(`Deleted ${result.count} past forecasts older than ${cutoffDate}`)
+}
+
 /**
  * Update forecasts for all locations by querying AI and upserting results.
  *
  * @returns {Promise<number>} Total number of forecast entries upserted.
  */
 export async function updateForecasts(filterSlug) {
+  await deletePastForecasts()
   const template = readPromptTemplate()
   let count = 0
 

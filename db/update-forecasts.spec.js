@@ -6,6 +6,8 @@ const mockGroupBy = jest.fn()
 const mockLeftJoin = jest.fn(() => ({ groupBy: mockGroupBy }))
 const mockFrom = jest.fn(() => ({ leftJoin: mockLeftJoin }))
 const mockSelect = jest.fn(() => ({ from: mockFrom }))
+const mockDeleteWhere = jest.fn(() => ({ count: 0 }))
+const mockDelete = jest.fn(() => ({ where: mockDeleteWhere }))
 const mockExecSync = jest.fn(() => Buffer.from(''))
 const mockReadFileSync = jest.fn()
 
@@ -13,11 +15,12 @@ jest.mock('@/app/utils/logger', () => ({ info: jest.fn(), error: jest.fn() }))
 
 jest.mock('@/db', () => ({
   __esModule: true,
-  default: { insert: mockInsert, select: mockSelect },
+  default: { delete: mockDelete, insert: mockInsert, select: mockSelect },
 }))
 
 jest.mock('drizzle-orm', () => ({
   eq: jest.fn((a, b) => [a, b]),
+  lt: jest.fn((a, b) => [a, b]),
   sql: jest.fn(strings => ({ raw: strings.join(''), as: jest.fn() })),
 }))
 
@@ -41,6 +44,7 @@ jest.mock('@/app/(app)/constants', () => ({
 const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {})
 
 function setupModuleLevelMocks() {
+  mockDeleteWhere.mockResolvedValue({ count: 0 })
   mockGroupBy.mockResolvedValue([])
   mockReadFileSync.mockReturnValue('')
 }
@@ -92,9 +96,23 @@ describe('db/update-forecasts', () => {
       const { updateForecasts } = require('./update-forecasts')
       await new Promise(resolve => setTimeout(resolve, 0))
       jest.clearAllMocks()
+      mockDelete.mockReturnValue({ where: mockDeleteWhere })
+      mockDeleteWhere.mockResolvedValue({ count: 0 })
       setupMocks()
       return updateForecasts(locationSlug)
     }
+
+    it('should delete past forecasts older than 2 days', async () => {
+      await loadAndCall(() => {
+        mockGroupBy.mockResolvedValue([])
+        mockReadFileSync.mockReturnValueOnce('')
+      })
+
+      const { forecasts } = require('@/db/schema/forecasts')
+      const { lt } = require('drizzle-orm')
+      expect(mockDelete).toHaveBeenCalledWith(forecasts)
+      expect(lt).toHaveBeenCalledWith(forecasts.date, '2026-02-14')
+    })
 
     it('should process a single location with a single forecast entry', async () => {
       const location = makeLocation()
