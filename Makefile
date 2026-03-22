@@ -62,8 +62,13 @@ k8s-forecast-login: ## Exec into a pod for Claude OAuth login
 	kubectl exec forecast-login -n betterweather -- cp /home/pwuser/.claude.json /home/pwuser/.claude/.claude.json
 	kubectl delete pod forecast-login -n betterweather
 
-k8s-forecast: ## Manually trigger a forecast job
+k8s-forecast: ## Manually trigger a forecast job, e.g. make k8s-forecast location=mission-bay
+ifdef location
+	kubectl create job --from=cronjob/forecast forecast-manual-$$(date +%s) -n betterweather \
+		--dry-run=client -o json | jq '.spec.template.spec.containers[0].command = ["node", "db/update-forecasts.js", "$(location)"]' | kubectl apply -f -
+else
 	kubectl create job --from=cronjob/forecast forecast-manual-$$(date +%s) -n betterweather
+endif
 
 k8s-forecast-clean: ## Delete completed forecast jobs
 	kubectl delete jobs -n betterweather --field-selector status.successful=1

@@ -11,8 +11,8 @@ describe('LocationDetailFactorTide', () => {
     state: 'Rising',
     percentage: 70,
     swell: '1.2m',
-    nextHigh: '11:30 AM',
-    nextLow: '5:45 PM',
+    nextHigh: '11:30',
+    nextLow: '17:45',
     condition: 'ideal',
     summary: 'Rising tide.',
   }
@@ -24,15 +24,15 @@ describe('LocationDetailFactorTide', () => {
     expect(screen.getByText('state')).toBeInTheDocument()
     expect(screen.getByText('Rising 70%')).toBeInTheDocument()
     expect(screen.getByText('nextHigh')).toBeInTheDocument()
-    expect(screen.getByText('11:30 AM')).toBeInTheDocument()
+    expect(screen.getByText('11:30')).toBeInTheDocument()
     expect(screen.getByText('swell')).toBeInTheDocument()
     expect(screen.getByText('1.2m')).toBeInTheDocument()
   })
 
-  it('should render nextLow when state is Falling', () => {
-    render(<LocationDetailFactorTide tide={{ ...tideData, state: 'Falling' }} />)
+  it('should render nextLow when nextLow is sooner than nextHigh', () => {
+    render(<LocationDetailFactorTide tide={{ ...tideData, nextHigh: '17:45', nextLow: '11:30' }} />)
 
     expect(screen.getByText('nextLow')).toBeInTheDocument()
-    expect(screen.getByText('5:45 PM')).toBeInTheDocument()
+    expect(screen.getByText('11:30')).toBeInTheDocument()
   })
 })

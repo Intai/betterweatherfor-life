@@ -3,14 +3,14 @@
 import { useTranslation } from 'react-i18next'
 import { TideIcon } from '@/app/(app)/components/condition-icons'
 import LocationDetailFactorCard from '@/app/(app)/components/location-detail-factor-card'
-import { RISING } from '@/app/(app)/constants'
 import { getConditionColor } from '@/app/(app)/utils/condition-colors'
+import { upperFirst } from '@/app/utils/string'
 
 function getFactorData({ t, tide }) {
   const data = [
-    { label: t('locationDetail.tide.state'), value: `${tide.state} ${tide.percentage}%` },
+    { label: t('locationDetail.tide.state'), value: `${upperFirst(tide.state)} ${tide.percentage}%` },
   ]
-  if (tide.state === RISING && tide.nextHigh) {
+  if (tide.nextHigh && (!tide.nextLow || tide.nextHigh <= tide.nextLow)) {
     data.push({ label: t('locationDetail.tide.nextHigh'), value: tide.nextHigh })
   } else if (tide.nextLow) {
     data.push({ label: t('locationDetail.tide.nextLow'), value: tide.nextLow })
