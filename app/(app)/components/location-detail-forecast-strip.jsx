@@ -38,7 +38,7 @@ const renderHourlySlot = bestHour => function HourlySlot(slot) {
   return (
     <div
       key={slot.time}
-      className={`w-16 flex flex-col items-center p-2 rounded-xl relative overflow-visible ${borderClassName}`}
+      className={`w-15 flex flex-col items-center p-2 rounded-xl relative overflow-visible ${borderClassName}`}
       style={bestStyle}
       data-testid={isBest ? 'forecast-slot-best' : 'forecast-slot'}
     >
