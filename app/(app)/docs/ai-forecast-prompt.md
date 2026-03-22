@@ -2,7 +2,7 @@ Do not output any text. Only use tools. Write all output to the JSON file specif
 
 ## Data Fetching
 
-Use the Task tool with `subagent_type="general-purpose"` to execute the following 6 in parallel:
+Use the Task tool with `subagent_type="general-purpose"` and `model="sonnet"` to execute the following 6 in parallel:
 - ```
   What is the water quality at geolocation -36.97484844433063,174.62043566419308 on 2026-02-13 and for the next 2 days according to https://safeswim.org.nz/api/locations/{slug}, where the `WATER_QUALITY` array is every hour from now? Respond in JSON format without any explanation, where `waterQuality` must be strictly Green, Orange, Red or Black. Use cURL. Find the closest location slug by https://safeswim.org.nz/api/locations.
   ```
@@ -93,10 +93,6 @@ Rain beyond a drizzle degrades all activities significantly. Wet conditions redu
 
 Cycling: Not affected by tide, set the `tide` field to `null` in the output.
 
-`tide.state` = must be strictly `Rising` or `Falling`. Rising when tide is moving toward high, Falling when moving toward low.
-
-`tide.percentage` = current tide height as a proportion between low and high tide. 0% = low tide, 100% = high tide. Must be between 0 and 100. Interpolate linearly between the nearest low and high tide turning times from the NIWA data.
-
 ### Water quality
 
 | Quality | Snorkelling | SUP | Kayaking |
@@ -173,7 +169,7 @@ Poor visibility reduces the snorkelling experience and can mask hazards like roc
 
 ## JSON Output
 
-Use the Task tool with `subagent_type="general-purpose"` to execute 4 scoring in parallel — one for each activity (`sup`, `kayaking`, `snorkelling`, `cycling`). Pass the fetched data and the full "## Data Granularity", "## Scoring Criteria", and "## JSON Output" sections (from "Time windows:" onward, including the JSON example) to each task. Each task:
+Use the Task tool with `subagent_type="general-purpose"` and `model="opus"` to execute 4 scoring in parallel — one for each activity (`sup`, `kayaking`, `snorkelling`, `cycling`). Pass the fetched data and the full "## Data Granularity", "## Scoring Criteria", and "## JSON Output" sections (from "Time windows:" onward, including the JSON example) to each task. Each task:
 - Uses the scoring criteria to produce a JSON object with entries for each time window (`all-day`, `morning`, `afternoon`, `evening`) on 2026-02-13 and for the next 9 days
 - Writes the JSON output to `forecast-{activity}.json` in the project root directory (e.g. `forecast-sup.json`)
 
@@ -189,7 +185,7 @@ When a time window spans multiple hours, aggregate each factor as follows (these
 - Wind speed/gust: use the worst-case (highest) value.
 - Wind direction: use the predominant direction (most frequent across hours). If tied, use the direction at the hour with the highest wind speed.
 - Precipitation: use the worst-case (highest amount, highest chance).
-- Tide: use the best condition within the window — users can adjust their trip to the optimal tidal window. The overall score should also use this best tidal condition. `nextHigh` = first high tide turning time within the time window (`null` if none). `nextLow` = first low tide turning time within the time window (`null` if none).
+- Tide: use the best condition within the window — users can adjust their trip to the optimal tidal window. The overall score should also use this best tidal condition. `nextHigh` = first high tide turning time within the time window (`null` if none). `nextLow` = first low tide turning time within the time window (`null` if none). `tide.state` = must be strictly `Rising` or `Falling`. Rising when tide is moving toward high, Falling when moving toward low. `tide.percentage` = current tide height as a proportion between low and high tide. 0% = low tide, 100% = high tide. Must be between 0 and 100. Interpolate linearly between the nearest low and high tide turning times from the NIWA data.
 - Water quality: use the worst-case.
 - Temperature/feels-like: use the best-case (closest to ideal range) — users can time their activity to the most comfortable part of the window.
 - Daylight: use the percentage of the window that falls within usable-light hours.
