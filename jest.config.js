@@ -30,6 +30,8 @@ const customJestConfig = {
     '!**/config/**',
     '!**/docs/**',
     '!**/shadcn/**',
+    '!**/{.venv,venv}/**',
+    '!**/htmlcov/**',
   ],
   coverageThreshold: {
     global: {

@@ -1,0 +1,7 @@
+What are the sunrise and sunset times at geolocation {latitude},{longitude} on {date} and for the next 9 days?
+
+Use https://api.sunrise-sunset.org/json?lat={latitude}&lng={longitude}&date={{date}}&formatted=0 for each date.
+
+Respond with raw JSON only. Do not wrap in markdown code fences or backticks. Convert UTC times to the local timezone of the geolocation ({timezone}). Include sunrise, sunset, and civilTwilightEnd for each date.
+
+Use the curl tool.

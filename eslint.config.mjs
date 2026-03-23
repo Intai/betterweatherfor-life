@@ -17,6 +17,8 @@ const eslintConfig = defineConfig([
     'next-env.d.ts',
     '**/docs/*',
     'shadcn/**',
+    '{.venv,venv}/**',
+    'htmlcov/**',
   ]), {
     plugins: {
       import: importPlugin,

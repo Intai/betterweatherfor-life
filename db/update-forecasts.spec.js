@@ -13,6 +13,12 @@ const mockReadFileSync = jest.fn()
 
 jest.mock('@/app/utils/logger', () => ({ info: jest.fn(), error: jest.fn() }))
 
+const mockConfigGet = jest.fn(() => 'claude')
+jest.mock('config', () => ({
+  __esModule: true,
+  default: { get: mockConfigGet },
+}))
+
 jest.mock('@/db', () => ({
   __esModule: true,
   default: { delete: mockDelete, insert: mockInsert, select: mockSelect },
@@ -114,133 +120,220 @@ describe('db/update-forecasts', () => {
       expect(lt).toHaveBeenCalledWith(forecasts.date, '2026-02-14')
     })
 
-    it('should process a single location with a single forecast entry', async () => {
-      const location = makeLocation()
-      const value = makeForecastValue()
+    describe('with claude engine', () => {
+      it('should process a single location with a single forecast entry', async () => {
+        const location = makeLocation()
+        const value = makeForecastValue()
 
-      const total = await loadAndCall(() => {
-        mockGroupBy.mockResolvedValue([location])
-        mockReadFileSync
-          .mockReturnValueOnce(promptTemplate)
-          .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': value }))
-        mockReturning.mockResolvedValue([{ id: 1 }])
-      })
+        const total = await loadAndCall(() => {
+          mockGroupBy.mockResolvedValue([location])
+          mockReadFileSync
+            .mockReturnValueOnce(promptTemplate)
+            .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': value }))
+          mockReturning.mockResolvedValue([{ id: 1 }])
+        })
 
-      expect(total).toBe(1)
-      expect(mockExecSync).toHaveBeenCalledTimes(1)
-      const prompt = mockExecSync.mock.calls[0][1].input
-      expect(prompt).toContain('-36.8547')
-      expect(prompt).toContain('174.8317')
-      expect(prompt).toContain('2026-02-14')
-      expect(prompt).not.toContain('-36.97484844433063')
-      expect(prompt).toContain('mission-bay-{activity}.json')
-      expect(prompt).not.toContain('forecast-{activity}.json')
-      expect(mockValues).toHaveBeenCalledWith({
-        locationId: 1,
-        activity: 'sup',
-        date: '2026-02-14',
-        timeRange: 'all-day',
-        score: 85,
-        condition: 'ideal',
-        wind: { speed: '8km/h', direction: 'NE', condition: 'ideal' },
-        tide: { state: 'Rising', percentage: 70, condition: 'ideal' },
-        water: 'Green',
-        temp: '22\u00B0C',
-        precipitation: { amount: '0mm', condition: 'ideal' },
-        daylight: { sunset: '20:22', condition: 'ideal' },
-        summary: 'Light onshore breeze.',
-        uv: { index: 4, condition: 'ideal' },
-        humidity: null,
-        visibility: null,
-        analysis: 'Good conditions.',
-        hourly: [{ time: '06:00', score: 82, condition: 'ideal' }],
-      })
-      const { forecasts } = require('@/db/schema/forecasts')
-      expect(mockOnConflictDoUpdate).toHaveBeenCalledWith({
-        target: [forecasts.locationId, forecasts.activity, forecasts.date, forecasts.timeRange],
-        set: expect.objectContaining({
+        expect(total).toBe(1)
+        expect(mockExecSync).toHaveBeenCalledTimes(1)
+        const prompt = mockExecSync.mock.calls[0][1].input
+        expect(prompt).toContain('-36.8547')
+        expect(prompt).toContain('174.8317')
+        expect(prompt).toContain('2026-02-14')
+        expect(prompt).not.toContain('-36.97484844433063')
+        expect(prompt).toContain('mission-bay-{activity}.json')
+        expect(prompt).not.toContain('forecast-{activity}.json')
+        expect(mockValues).toHaveBeenCalledWith({
+          locationId: 1,
+          activity: 'sup',
+          date: '2026-02-14',
+          timeRange: 'all-day',
           score: 85,
           condition: 'ideal',
+          wind: { speed: '8km/h', direction: 'NE', condition: 'ideal' },
+          tide: { state: 'Rising', percentage: 70, condition: 'ideal' },
+          water: 'Green',
+          temp: '22\u00B0C',
+          precipitation: { amount: '0mm', condition: 'ideal' },
+          daylight: { sunset: '20:22', condition: 'ideal' },
           summary: 'Light onshore breeze.',
           uv: { index: 4, condition: 'ideal' },
           humidity: null,
           visibility: null,
           analysis: 'Good conditions.',
           hourly: [{ time: '06:00', score: 82, condition: 'ideal' }],
-        }),
+        })
+        const { forecasts } = require('@/db/schema/forecasts')
+        expect(mockOnConflictDoUpdate).toHaveBeenCalledWith({
+          target: [forecasts.locationId, forecasts.activity, forecasts.date, forecasts.timeRange],
+          set: expect.objectContaining({
+            score: 85,
+            condition: 'ideal',
+            summary: 'Light onshore breeze.',
+            uv: { index: 4, condition: 'ideal' },
+            humidity: null,
+            visibility: null,
+            analysis: 'Good conditions.',
+            hourly: [{ time: '06:00', score: 82, condition: 'ideal' }],
+          }),
+        })
+      })
+
+      it('should upsert multiple forecast entries per location', async () => {
+        const location = makeLocation()
+
+        const total = await loadAndCall(() => {
+          mockGroupBy.mockResolvedValue([location])
+          mockReadFileSync
+            .mockReturnValueOnce(promptTemplate)
+            .mockReturnValueOnce(JSON.stringify({
+              'sup;2026-02-14;all-day': makeForecastValue(),
+              'sup;2026-02-14;morning': makeForecastValue(),
+            }))
+          mockReturning.mockResolvedValue([{ id: 1 }])
+        })
+
+        expect(total).toBe(2)
+        expect(mockInsert).toHaveBeenCalledTimes(2)
+        const prompt = mockExecSync.mock.calls[0][1].input
+        expect(prompt.match(/-36\.8547/g)).toHaveLength(4)
+        expect(prompt.match(/174\.8317/g)).toHaveLength(4)
+        expect(prompt.match(/2026-02-14/g)).toHaveLength(4)
+        expect(prompt.match(/-36\.97484844433063/g)).toBeNull()
+        expect(prompt.match(/174\.62043566419308/g)).toBeNull()
+        expect(prompt.match(/2026-02-13/g)).toBeNull()
+        expect(prompt.match(/mission-bay-\{activity\}\.json/g)).toHaveLength(1)
+        expect(prompt.match(/forecast-\{activity\}\.json/g)).toBeNull()
+      })
+
+      it('should process multiple locations', async () => {
+        const location1 = makeLocation()
+        const location2 = makeLocation({
+          id: 2,
+          name: 'Takapuna Beach',
+          latitude: '-36.7840',
+          longitude: '174.7740',
+        })
+
+        const total = await loadAndCall(() => {
+          mockGroupBy.mockResolvedValue([location1, location2])
+          mockReadFileSync
+            .mockReturnValueOnce(promptTemplate)
+            .mockReturnValueOnce(JSON.stringify({
+              'sup;2026-02-14;all-day': makeForecastValue(),
+            }))
+            .mockReturnValueOnce(JSON.stringify({
+              'sup;2026-02-14;all-day': makeForecastValue(),
+            }))
+          mockReturning.mockResolvedValue([{ id: 1 }])
+        })
+
+        expect(total).toBe(2)
+        expect(mockExecSync).toHaveBeenCalledTimes(2)
+        expect(mockReadFileSync).toHaveBeenCalledTimes(3)
+        const prompt1 = mockExecSync.mock.calls[0][1].input
+        expect(prompt1.match(/-36\.8547/g)).toHaveLength(4)
+        expect(prompt1.match(/174\.8317/g)).toHaveLength(4)
+        expect(prompt1.match(/2026-02-14/g)).toHaveLength(4)
+        expect(prompt1.match(/-36\.97484844433063/g)).toBeNull()
+        expect(prompt1.match(/174\.62043566419308/g)).toBeNull()
+        expect(prompt1.match(/2026-02-13/g)).toBeNull()
+        expect(prompt1.match(/mission-bay-\{activity\}\.json/g)).toHaveLength(1)
+        expect(prompt1.match(/forecast-\{activity\}\.json/g)).toBeNull()
+        const prompt2 = mockExecSync.mock.calls[1][1].input
+        expect(prompt2.match(/-36\.7840/g)).toHaveLength(4)
+        expect(prompt2.match(/174\.7740/g)).toHaveLength(4)
+        expect(prompt2.match(/2026-02-14/g)).toHaveLength(4)
+        expect(prompt2.match(/-36\.97484844433063/g)).toBeNull()
+        expect(prompt2.match(/174\.62043566419308/g)).toBeNull()
+        expect(prompt2.match(/2026-02-13/g)).toBeNull()
+        expect(prompt2.match(/takapuna-beach-\{activity\}\.json/g)).toHaveLength(1)
+        expect(prompt2.match(/forecast-\{activity\}\.json/g)).toBeNull()
+      })
+
+      it('should filter to a single location when slug is provided', async () => {
+        const location1 = makeLocation()
+        const location2 = makeLocation({
+          id: 2,
+          name: 'Takapuna Beach',
+          latitude: '-36.7840',
+          longitude: '174.7740',
+        })
+
+        const total = await loadAndCall(() => {
+          mockGroupBy.mockResolvedValue([location1, location2])
+          mockReadFileSync
+            .mockReturnValueOnce(promptTemplate)
+            .mockReturnValueOnce(JSON.stringify({
+              'sup;2026-02-14;all-day': makeForecastValue(),
+            }))
+          mockReturning.mockResolvedValue([{ id: 1 }])
+        }, 'takapuna-beach')
+
+        expect(total).toBe(1)
+        expect(mockExecSync).toHaveBeenCalledTimes(1)
+        const prompt = mockExecSync.mock.calls[0][1].input
+        expect(prompt).toContain('-36.7840')
+        expect(prompt).toContain('174.7740')
       })
     })
 
-    it('should upsert multiple forecast entries per location', async () => {
-      const location = makeLocation()
-
-      const total = await loadAndCall(() => {
-        mockGroupBy.mockResolvedValue([location])
-        mockReadFileSync
-          .mockReturnValueOnce(promptTemplate)
-          .mockReturnValueOnce(JSON.stringify({
-            'sup;2026-02-14;all-day': makeForecastValue(),
-            'sup;2026-02-14;morning': makeForecastValue(),
-          }))
-        mockReturning.mockResolvedValue([{ id: 1 }])
+    describe('with langgraph engine', () => {
+      beforeEach(() => {
+        mockConfigGet.mockReturnValue('langgraph')
       })
 
-      expect(total).toBe(2)
-      expect(mockInsert).toHaveBeenCalledTimes(2)
-      const prompt = mockExecSync.mock.calls[0][1].input
-      expect(prompt.match(/-36\.8547/g)).toHaveLength(4)
-      expect(prompt.match(/174\.8317/g)).toHaveLength(4)
-      expect(prompt.match(/2026-02-14/g)).toHaveLength(4)
-      expect(prompt.match(/-36\.97484844433063/g)).toBeNull()
-      expect(prompt.match(/174\.62043566419308/g)).toBeNull()
-      expect(prompt.match(/2026-02-13/g)).toBeNull()
-      expect(prompt.match(/mission-bay-\{activity\}\.json/g)).toHaveLength(1)
-      expect(prompt.match(/forecast-\{activity\}\.json/g)).toBeNull()
-    })
-
-    it('should process multiple locations', async () => {
-      const location1 = makeLocation()
-      const location2 = makeLocation({
-        id: 2,
-        name: 'Takapuna Beach',
-        latitude: '-36.7840',
-        longitude: '174.7740',
+      afterEach(() => {
+        mockConfigGet.mockReturnValue('claude')
       })
 
-      const total = await loadAndCall(() => {
-        mockGroupBy.mockResolvedValue([location1, location2])
-        mockReadFileSync
-          .mockReturnValueOnce(promptTemplate)
-          .mockReturnValueOnce(JSON.stringify({
-            'sup;2026-02-14;all-day': makeForecastValue(),
-          }))
-          .mockReturnValueOnce(JSON.stringify({
-            'sup;2026-02-14;all-day': makeForecastValue(),
-          }))
-        mockReturning.mockResolvedValue([{ id: 1 }])
+      it('should run langgraph with correct args for a single location', async () => {
+        const location = makeLocation()
+
+        await loadAndCall(() => {
+          mockGroupBy.mockResolvedValue([location])
+          mockReadFileSync
+            .mockReturnValueOnce(promptTemplate)
+            .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': makeForecastValue() }))
+          mockReturning.mockResolvedValue([{ id: 1 }])
+        })
+
+        expect(mockExecSync).toHaveBeenCalledTimes(1)
+        const command = mockExecSync.mock.calls[0][0]
+        expect(command).toContain('python3.13 -m langraph.app.update_forecasts')
+        expect(command).toContain('--lat "-36.8547"')
+        expect(command).toContain('--lng "174.8317"')
+        expect(command).toContain('--date "2026-02-14"')
+        expect(command).toContain('--timezone "Pacific/Auckland"')
+        expect(command).toContain('--slug "mission-bay"')
+        expect(mockExecSync.mock.calls[0][1]).not.toHaveProperty('input')
       })
 
-      expect(total).toBe(2)
-      expect(mockExecSync).toHaveBeenCalledTimes(2)
-      expect(mockReadFileSync).toHaveBeenCalledTimes(3)
-      const prompt1 = mockExecSync.mock.calls[0][1].input
-      expect(prompt1.match(/-36\.8547/g)).toHaveLength(4)
-      expect(prompt1.match(/174\.8317/g)).toHaveLength(4)
-      expect(prompt1.match(/2026-02-14/g)).toHaveLength(4)
-      expect(prompt1.match(/-36\.97484844433063/g)).toBeNull()
-      expect(prompt1.match(/174\.62043566419308/g)).toBeNull()
-      expect(prompt1.match(/2026-02-13/g)).toBeNull()
-      expect(prompt1.match(/mission-bay-\{activity\}\.json/g)).toHaveLength(1)
-      expect(prompt1.match(/forecast-\{activity\}\.json/g)).toBeNull()
-      const prompt2 = mockExecSync.mock.calls[1][1].input
-      expect(prompt2.match(/-36\.7840/g)).toHaveLength(4)
-      expect(prompt2.match(/174\.7740/g)).toHaveLength(4)
-      expect(prompt2.match(/2026-02-14/g)).toHaveLength(4)
-      expect(prompt2.match(/-36\.97484844433063/g)).toBeNull()
-      expect(prompt2.match(/174\.62043566419308/g)).toBeNull()
-      expect(prompt2.match(/2026-02-13/g)).toBeNull()
-      expect(prompt2.match(/takapuna-beach-\{activity\}\.json/g)).toHaveLength(1)
-      expect(prompt2.match(/forecast-\{activity\}\.json/g)).toBeNull()
+      it('should run langgraph for multiple locations', async () => {
+        const location1 = makeLocation()
+        const location2 = makeLocation({
+          id: 2,
+          name: 'Takapuna Beach',
+          latitude: '-36.7840',
+          longitude: '174.7740',
+        })
+
+        await loadAndCall(() => {
+          mockGroupBy.mockResolvedValue([location1, location2])
+          mockReadFileSync
+            .mockReturnValueOnce(promptTemplate)
+            .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': makeForecastValue() }))
+            .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': makeForecastValue() }))
+          mockReturning.mockResolvedValue([{ id: 1 }])
+        })
+
+        expect(mockExecSync).toHaveBeenCalledTimes(2)
+        const command1 = mockExecSync.mock.calls[0][0]
+        expect(command1).toContain('--lat "-36.8547"')
+        expect(command1).toContain('--slug "mission-bay"')
+        const command2 = mockExecSync.mock.calls[1][0]
+        expect(command2).toContain('--lat "-36.7840"')
+        expect(command2).toContain('--slug "takapuna-beach"')
+      })
     })
 
     it('should return 0 when there are no locations', async () => {
@@ -251,32 +344,6 @@ describe('db/update-forecasts', () => {
 
       expect(total).toBe(0)
       expect(mockExecSync).not.toHaveBeenCalled()
-    })
-
-    it('should filter to a single location when slug is provided', async () => {
-      const location1 = makeLocation()
-      const location2 = makeLocation({
-        id: 2,
-        name: 'Takapuna Beach',
-        latitude: '-36.7840',
-        longitude: '174.7740',
-      })
-
-      const total = await loadAndCall(() => {
-        mockGroupBy.mockResolvedValue([location1, location2])
-        mockReadFileSync
-          .mockReturnValueOnce(promptTemplate)
-          .mockReturnValueOnce(JSON.stringify({
-            'sup;2026-02-14;all-day': makeForecastValue(),
-          }))
-        mockReturning.mockResolvedValue([{ id: 1 }])
-      }, 'takapuna-beach')
-
-      expect(total).toBe(1)
-      expect(mockExecSync).toHaveBeenCalledTimes(1)
-      const prompt = mockExecSync.mock.calls[0][1].input
-      expect(prompt).toContain('-36.7840')
-      expect(prompt).toContain('174.7740')
     })
 
     it('should skip locations not near midnight when no slug is provided', async () => {

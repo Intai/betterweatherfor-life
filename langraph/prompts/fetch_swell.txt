@@ -1,0 +1,5 @@
+What is the swell at geolocation {latitude},{longitude} on {date} and for the next 9 days according to https://windy.app/widget/data.php?id=wfwindyapp&model=-1&lat={latitude}&lon={longitude}&timelineRange=future
+
+Respond with raw JSON only. Do not wrap in markdown code fences or backticks.
+
+Use the curl tool to extract wave heights in meters from JSONP (Assigned to `window.wfwindyapp` in JavaScript). `wavesHeight`, `wavesDirection` and `wavesPeriod` are in the `data` field which is a serialised JSON.

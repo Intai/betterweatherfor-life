@@ -19,6 +19,8 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
 - `npm test` to run all unit tests.
 - `npm run test:coverage` to generate test coverage in the `coverage` folder.
 - `npm run test:e2e` to run all Playwright integration tests.
+- `pytest langraph/tests/` to run all LangGraph unit tests.
+- `pytest langraph/tests/ --cov --cov-config=langraph/pyproject.toml --cov-report=term-missing --cov-report=html` to generate LangGraph test coverage in the `htmlcov` folder.
 
 ## Deployment
 

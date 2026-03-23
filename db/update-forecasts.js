@@ -2,6 +2,7 @@ import { execSync } from 'child_process'
 import { readFileSync } from 'fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import config from 'config'
 import { subDays } from 'date-fns'
 import { eq, lt, sql } from 'drizzle-orm'
 import { complement, either, pick, pipe, pluck, prop, propSatisfies, replace } from 'ramda'
@@ -60,6 +61,20 @@ const runClaude = prompt => {
   info('Running Claude prompt')
   const stdout = execSync(`claude --dangerously-skip-permissions \
 --strict-mcp-config --mcp-config ".mcp-playwright.json" --print`, { input: prompt })
+  info(stdout.toString())
+}
+
+const runLangGraph = location => {
+  info('Running LangGraph forecast')
+  const stdout = execSync(
+    `python3.13 -m langraph.app.update_forecasts `
+    + `--lat "${location.latitude}" `
+    + `--lng "${location.longitude}" `
+    + `--date "${formatISODate(dateNow(location.timeZone))}" `
+    + `--timezone "${location.timeZone}"`
+    + `--slug "${slugify(location.name)}" `,
+    { cwd: resolve(currentDir, '..') },
+  )
   info(stdout.toString())
 }
 
@@ -156,9 +171,13 @@ export async function updateForecasts(filterSlug) {
   for (const location of locationsToUpdate) {
     info(`Processing: ${location.name}`)
     const locationSlug = slugify(location.name)
-    const prompt = buildPrompt(location)(template)
-    runClaude(prompt)
 
+    if (config.get('forecast.engine') === 'langgraph') {
+      runLangGraph(location)
+    } else {
+      const prompt = buildPrompt(location)(template)
+      runClaude(prompt)
+    }
     for (const activity of ACTIVITIES) {
       const filepath = resolve(currentDir, `../${locationSlug}-${activity}.json`)
       const forecastData = JSON.parse(readFileSync(filepath, 'utf-8'))

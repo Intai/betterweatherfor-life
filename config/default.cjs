@@ -1,5 +1,8 @@
 module.exports = {
   build: process.env.BUILD || '0.0.0',
+  forecast: {
+    engine: process.env.FORECAST_ENGINE || 'claude',
+  },
   database: {
     url: process.env.DATABASE_URL || 'postgres://betterweather:betterweather@localhost:5432/betterweather',
   },

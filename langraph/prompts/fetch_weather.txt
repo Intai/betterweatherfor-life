@@ -1,0 +1,5 @@
+What are the temperature, feels-like temperature, UV index, precipitation probability, precipitation quantity, wind cardinal direction (e.g. NE, SW WSW, ENE), wind speed, wind gust and humidity at geolocation {latitude},{longitude} on {date} and for the next 9 days according to https://weather.googleapis.com/v1/forecast/hours:lookup?key={google_weather_api_key}&location.latitude={latitude}&location.longitude={longitude}&hours=240&pageSize=24
+
+Respond with raw JSON only. Do not wrap in markdown code fences or backticks.
+
+Use the curl tool. Pass the nextPageToken value into the pageToken to fetch all 10 days.

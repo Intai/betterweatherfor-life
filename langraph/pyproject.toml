@@ -1,0 +1,21 @@
+[project]
+name = "langraph"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "langchain-google-genai",
+    "langchain-xai",
+    "langgraph",
+    "langsmith",
+    "python-dotenv",
+]
+
+[project.optional-dependencies]
+dev = ["langgraph-cli[inmem]", "pytest", "pytest-cov"]
+
+[tool.setuptools.packages.find]
+exclude = ["tests*"]
+
+[tool.coverage.run]
+source = ["langraph/agents", "langraph/app", "langraph/models", "langraph/nodes", "langraph/prompts", "langraph/tools"]
+omit = ["*/__init__.py"]

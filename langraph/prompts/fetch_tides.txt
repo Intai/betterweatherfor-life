@@ -1,0 +1,5 @@
+When are the tide turning times according to https://api.niwa.co.nz/tides/data.csv?lat={latitude}&long={longitude}&startDate={date}&numberOfDays=10&datum=LAT
+
+Respond with raw JSON only. Do not wrap in markdown code fences or backticks.
+
+Use the curl tool with header `"accept": "text/csv"` and referrer `https://tides.niwa.co.nz/`.
