@@ -28,6 +28,19 @@ def test_fetch_llm_xai():
     sys.modules["langraph.models.fetch_llm"] = MagicMock(fetch_llm=MagicMock())
 
 
+def test_fetch_llm_openrouter():
+    mock_cls = MagicMock()
+    sys.modules.pop("langraph.models.fetch_llm", None)
+    with patch.dict("os.environ", {"LANGGRAPH_LLM_PROVIDER": "openrouter"}, clear=False):
+        with patch("langchain_openai.ChatOpenAI", mock_cls):
+            import langraph.models.fetch_llm
+            importlib.reload(langraph.models.fetch_llm)
+            assert mock_cls.call_count >= 1
+            assert mock_cls.call_args[1]["model"] == "nvidia/nemotron-3-super-120b-a12b:free"
+            assert mock_cls.call_args[1]["temperature"] == 0
+    sys.modules["langraph.models.fetch_llm"] = MagicMock(fetch_llm=MagicMock())
+
+
 def test_score_llm_default_gemini():
     mock_cls = MagicMock()
     sys.modules.pop("langraph.models.score_llm", None)
@@ -49,4 +62,17 @@ def test_score_llm_xai():
             importlib.reload(langraph.models.score_llm)
             assert mock_cls.call_count >= 1
             assert mock_cls.call_args[1]["model"] == "grok-4.20-reasoning"
+    sys.modules["langraph.models.score_llm"] = MagicMock(score_llm=MagicMock())
+
+
+def test_score_llm_openrouter():
+    mock_cls = MagicMock()
+    sys.modules.pop("langraph.models.score_llm", None)
+    with patch.dict("os.environ", {"LANGGRAPH_LLM_PROVIDER": "openrouter"}, clear=False):
+        with patch("langchain_openai.ChatOpenAI", mock_cls):
+            import langraph.models.score_llm
+            importlib.reload(langraph.models.score_llm)
+            assert mock_cls.call_count >= 1
+            assert mock_cls.call_args[1]["model"] == "nvidia/nemotron-3-super-120b-a12b:free"
+            assert mock_cls.call_args[1]["temperature"] == 0
     sys.modules["langraph.models.score_llm"] = MagicMock(score_llm=MagicMock())
