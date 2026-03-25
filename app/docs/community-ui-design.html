@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Links Sidebar UI Design - Better Weather for Life</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', 'system-ui', 'sans-serif'],
+            mono: ['Geist Mono', 'monospace'],
+          },
+          colors: {
+            ocean: {
+              50: '#e6f4fa',
+              100: '#cce9f5',
+              200: '#99d3eb',
+              300: '#66bde1',
+              400: '#33a7d7',
+              500: '#0891cd',
+              600: '#0074a4',
+              700: '#00577b',
+              800: '#003a52',
+              900: '#001d29',
+            },
+            sky: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .community-link {
+      transition: opacity 0.15s ease;
+    }
+    .community-link:hover {
+      opacity: 0.75 !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans leading-relaxed px-6 pt-10 pb-20">
+
+<h1 class="text-[28px] font-bold mb-2">Community Links Sidebar -- UI Design</h1>
+<p class="text-[15px] text-slate-500 mb-10">Community and support links at the bottom of sidebar content, above the version footer. Light and dark mode, desktop and mobile variants.</p>
+
+<!-- ================================================================
+     SVG Icon Definitions (hidden, referenced via <use>)
+     ================================================================ -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <!-- Home -->
+  <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+    <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+  </symbol>
+  <!-- Calendar -->
+  <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 2v4"/><path d="M16 2v4"/>
+    <rect width="18" height="18" x="3" y="4" rx="2"/>
+    <path d="M3 10h18"/>
+  </symbol>
+  <!-- Globe -->
+  <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+    <path d="M2 12h20"/>
+  </symbol>
+  <!-- ChevronRight -->
+  <symbol id="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m9 18 6-6-6-6"/>
+  </symbol>
+  <!-- X -->
+  <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+  </symbol>
+  <!-- Logo placeholder (sun + cloud) -->
+  <symbol id="icon-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/>
+    <path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/>
+    <path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/>
+  </symbol>
+  <!-- Ko-fi cup logo -->
+  <symbol id="icon-kofi" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/>
+  </symbol>
+  <!-- Discord clyde logo -->
+  <symbol id="icon-discord" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/>
+  </symbol>
+</svg>
+
+<!-- ================================================================
+     STATE 1: Light Mode - Desktop (w-72)
+     ================================================================ -->
+<div class="mb-12">
+  <div class="text-base font-semibold text-slate-700 mb-1">1. Light Mode - Desktop (w-72)</div>
+  <div class="text-[13px] text-slate-400 mb-4">Full sidebar with community links pushed to bottom via mt-auto, muted style.</div>
+  <div class="flex gap-6 flex-wrap">
+    <!-- Light Desktop -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Light</div>
+      <div class="w-72 h-[540px] rounded-xl overflow-hidden flex flex-col bg-white text-ocean-900 text-sm">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-ocean-600 to-sky-500 px-4 py-4 flex items-center">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather for Life</span>
+          </div>
+        </div>
+        <!-- Content -->
+        <div class="flex-1 flex flex-col py-4 overflow-y-auto">
+          <!-- Primary Nav -->
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40"><use href="#icon-chevron"/></svg>
+            </div>
+          </div>
+          <!-- Community Links (mt-auto pushes to bottom) -->
+          <div class="mt-auto space-y-1 mx-2">
+            <a href="https://ko-fi.com/P5P414B69G" target="_blank" rel="noopener noreferrer" class="community-link flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 opacity-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0"><use href="#icon-kofi"/></svg><span class="flex-1">Buy me a coffee</span>
+            </a>
+            <a href="https://discord.gg/Ve3TeBqZQ7" target="_blank" rel="noopener noreferrer" class="community-link flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 opacity-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0"><use href="#icon-discord"/></svg><span class="flex-1">Join our Discord</span>
+            </a>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div class="border-t border-ocean-100 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-900">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+    <!-- Dark Desktop -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Dark</div>
+      <div class="w-72 h-[540px] rounded-xl overflow-hidden flex flex-col bg-ocean-900 text-ocean-50 text-sm">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-ocean-500 to-sky-400 px-4 py-4 flex items-center">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather for Life</span>
+          </div>
+        </div>
+        <!-- Content -->
+        <div class="flex-1 flex flex-col py-4 overflow-y-auto">
+          <!-- Primary Nav -->
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-white/10">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-white/10">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-white/10">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40"><use href="#icon-chevron"/></svg>
+            </div>
+          </div>
+          <!-- Community Links (mt-auto pushes to bottom) -->
+          <div class="mt-auto space-y-1 mx-2">
+            <a href="https://ko-fi.com/P5P414B69G" target="_blank" rel="noopener noreferrer" class="community-link flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 opacity-50 rounded-xl cursor-pointer transition-colors hover:bg-white/10">
+              <svg class="w-5 h-5 flex-shrink-0"><use href="#icon-kofi"/></svg><span class="flex-1">Buy me a coffee</span>
+            </a>
+            <a href="https://discord.gg/Ve3TeBqZQ7" target="_blank" rel="noopener noreferrer" class="community-link flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 opacity-50 rounded-xl cursor-pointer transition-colors hover:bg-white/10">
+              <svg class="w-5 h-5 flex-shrink-0"><use href="#icon-discord"/></svg><span class="flex-1">Join our Discord</span>
+            </a>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div class="border-t border-white/10 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-50">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     STATE 2: Light Mode - Mobile (320px)
+     ================================================================ -->
+<div class="mb-12">
+  <div class="text-base font-semibold text-slate-700 mb-1">2. Mobile Drawer (320px minimum)</div>
+  <div class="text-[13px] text-slate-400 mb-4">Narrower mobile drawer with the same layout structure. Shorter header title.</div>
+  <div class="flex gap-6 flex-wrap">
+    <!-- Light Mobile -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Light</div>
+      <div class="w-80 h-[540px] rounded-xl overflow-hidden flex flex-col bg-white text-ocean-900 text-sm">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-ocean-600 to-sky-500 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <!-- Content -->
+        <div class="flex-1 flex flex-col py-4 overflow-y-auto">
+          <!-- Primary Nav -->
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40"><use href="#icon-chevron"/></svg>
+            </div>
+          </div>
+          <!-- Community Links (mt-auto pushes to bottom) -->
+          <div class="mt-auto space-y-1 mx-2">
+            <a href="https://ko-fi.com/P5P414B69G" target="_blank" rel="noopener noreferrer" class="community-link flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 opacity-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0"><use href="#icon-kofi"/></svg><span class="flex-1">Buy me a coffee</span>
+            </a>
+            <a href="https://discord.gg/Ve3TeBqZQ7" target="_blank" rel="noopener noreferrer" class="community-link flex items-center gap-3 px-4 py-3 font-medium text-ocean-900 opacity-50 rounded-xl cursor-pointer transition-colors hover:bg-ocean-50">
+              <svg class="w-5 h-5 flex-shrink-0"><use href="#icon-discord"/></svg><span class="flex-1">Join our Discord</span>
+            </a>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div class="border-t border-ocean-100 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-900">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+    <!-- Dark Mobile -->
+    <div>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Dark</div>
+      <div class="w-80 h-[540px] rounded-xl overflow-hidden flex flex-col bg-ocean-900 text-ocean-50 text-sm">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-ocean-500 to-sky-400 px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-[22px] h-[22px] text-white flex-shrink-0"><use href="#icon-logo"/></svg>
+            <span class="text-base font-semibold tracking-tight text-white whitespace-nowrap">Better Weather</span>
+          </div>
+          <button class="p-1 rounded-md flex items-center justify-center cursor-pointer text-white hover:bg-white/15">
+            <svg class="w-[18px] h-[18px]"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <!-- Content -->
+        <div class="flex-1 flex flex-col py-4 overflow-y-auto">
+          <!-- Primary Nav -->
+          <div class="space-y-1 mx-2">
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-white/10">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-home"/></svg><span class="flex-1">Home</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-white/10">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-calendar"/></svg><span class="flex-1">7-Day Forecast</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 rounded-xl cursor-pointer transition-colors hover:bg-white/10">
+              <svg class="w-5 h-5 flex-shrink-0 opacity-70"><use href="#icon-globe"/></svg><span class="flex-1">Cities</span>
+              <svg class="w-4 h-4 opacity-40"><use href="#icon-chevron"/></svg>
+            </div>
+          </div>
+          <!-- Community Links (mt-auto pushes to bottom) -->
+          <div class="mt-auto space-y-1 mx-2">
+            <a href="https://ko-fi.com/P5P414B69G" target="_blank" rel="noopener noreferrer" class="community-link flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 opacity-50 rounded-xl cursor-pointer transition-colors hover:bg-white/10">
+              <svg class="w-5 h-5 flex-shrink-0"><use href="#icon-kofi"/></svg><span class="flex-1">Buy me a coffee</span>
+            </a>
+            <a href="https://discord.gg/Ve3TeBqZQ7" target="_blank" rel="noopener noreferrer" class="community-link flex items-center gap-3 px-4 py-3 font-medium text-ocean-50 opacity-50 rounded-xl cursor-pointer transition-colors hover:bg-white/10">
+              <svg class="w-5 h-5 flex-shrink-0"><use href="#icon-discord"/></svg><span class="flex-1">Join our Discord</span>
+            </a>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div class="border-t border-white/10 px-4 py-4 text-center">
+          <span class="text-xs opacity-50 text-ocean-50">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
