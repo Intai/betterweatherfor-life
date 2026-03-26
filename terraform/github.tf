@@ -1,7 +1,7 @@
-resource "github_actions_secret" "kube_config" {
+resource "github_actions_secret" "digitalocean_access_token" {
   repository      = var.github_repo
-  secret_name     = "KUBE_CONFIG"
-  plaintext_value = digitalocean_kubernetes_cluster.this.kube_config[0].raw_config
+  secret_name     = "DIGITALOCEAN_ACCESS_TOKEN"
+  plaintext_value = var.do_token
 }
 
 resource "github_actions_secret" "google_maps_api_key" {

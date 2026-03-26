@@ -13,9 +13,3 @@ output "reserved_ip" {
   description = "Reserved IP for the LoadBalancer"
   value       = digitalocean_reserved_ip.this.ip_address
 }
-
-output "kubeconfig" {
-  description = "Kubeconfig for the DOKS cluster"
-  value       = digitalocean_kubernetes_cluster.this.kube_config[0].raw_config
-  sensitive   = true
-}
