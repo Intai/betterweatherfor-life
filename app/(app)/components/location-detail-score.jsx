@@ -2,8 +2,10 @@
 
 import { useTranslation } from 'react-i18next'
 import { getConditionBackgroundColor } from '@/app/(app)/utils/condition-colors'
+import { formatShortDateWithWeekday } from '@/app/utils/date'
+import { kebabToCamel } from '@/app/utils/string'
 
-export default function LocationDetailScore({ score, condition, bestHourTime }) {
+export default function LocationDetailScore({ score, condition, bestHourTime, date, timeRange }) {
   const { t } = useTranslation()
   const colorClass = getConditionBackgroundColor(condition)
 
@@ -24,7 +26,10 @@ export default function LocationDetailScore({ score, condition, bestHourTime }) 
         <span className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse" />
         {t(`home.conditions.${condition}`)}
       </span>
-      <p className="text-muted-foreground text-sm mt-2" data-testid="best-hour">
+      <p className="text-muted-foreground text-sm mt-2" data-testid="forecast-date">
+        {formatShortDateWithWeekday(date)} · {t(`home.timeWindow.${kebabToCamel(timeRange)}`)}
+      </p>
+      <p className="text-muted-foreground text-sm" data-testid="best-hour">
         {t('locationDetail.bestAt', { time: bestHourTime })}
       </p>
     </section>

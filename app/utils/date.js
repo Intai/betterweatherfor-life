@@ -72,6 +72,25 @@ export function formatISODate(date) {
 }
 
 /**
+ * Resolve a forecast day selection to a Date object.
+ *
+ * @param {string} selectedDay - One of 'today', 'tomorrow', or 'pick-date'.
+ * @param {Date} [selectedDate] - The user-picked date (required when selectedDay is 'pick-date').
+ * @param {string} [timeZone] - IANA timezone for resolving "today"/"tomorrow" (e.g. 'Pacific/Auckland').
+ * @returns {Date} The resolved date.
+ */
+export function parseForecastDate(selectedDay, selectedDate, timeZone) {
+  switch (selectedDay) {
+  case TODAY:
+    return startOfDay(dateNow(timeZone))
+  case TOMORROW:
+    return addDays(startOfDay(dateNow(timeZone)), 1)
+  case PICK_DATE:
+    return selectedDate
+  }
+}
+
+/**
  * Resolve a forecast day selection to an ISO date string.
  *
  * @param {string} selectedDay - One of 'today', 'tomorrow', or 'pick-date'.
@@ -80,12 +99,5 @@ export function formatISODate(date) {
  * @returns {string} ISO-formatted date string (yyyy-MM-dd).
  */
 export function formatForecastDate(selectedDay, selectedDate, timeZone) {
-  switch (selectedDay) {
-  case TODAY:
-    return formatISODate(startOfDay(dateNow(timeZone)))
-  case TOMORROW:
-    return formatISODate(addDays(startOfDay(dateNow(timeZone)), 1))
-  case PICK_DATE:
-    return formatISODate(selectedDate)
-  }
+  return formatISODate(parseForecastDate(selectedDay, selectedDate, timeZone))
 }

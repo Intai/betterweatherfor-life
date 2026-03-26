@@ -6,6 +6,8 @@ import LocationDetailConditions from '@/app/(app)/components/location-detail-con
 import LocationDetailForecastStrip from '@/app/(app)/components/location-detail-forecast-strip'
 import LocationDetailScore from '@/app/(app)/components/location-detail-score'
 import { useForecastEntry } from '@/app/(app)/stores/forecast-selectors'
+import { useForecastStore } from '@/app/(app)/stores/forecast-store'
+import { parseForecastDate } from '@/app/utils/date'
 import { findBestHour } from '@/app/utils/forecast'
 
 /**
@@ -15,6 +17,7 @@ import { findBestHour } from '@/app/utils/forecast'
  * @param {string} props.geolocation - Coordinates string in "lat,lng" format.
  */
 export default function LocationDetail({ geolocation }) {
+  const { selectedDay, selectedDate, selectedTimeRange } = useForecastStore()
   const entry = useForecastEntry(geolocation)
   const locationForecast = entry?.[1]
 
@@ -29,6 +32,8 @@ export default function LocationDetail({ geolocation }) {
         score={locationForecast.score}
         condition={locationForecast.condition}
         bestHourTime={bestHour?.time}
+        date={parseForecastDate(selectedDay, selectedDate, locationForecast.timeZone)}
+        timeRange={selectedTimeRange}
       />
       <LocationDetailConditions
         wind={locationForecast.wind}

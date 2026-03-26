@@ -1,12 +1,21 @@
 import { render, screen } from '@testing-library/react'
+import { formatISODate } from '@/app/utils/date'
 
 jest.mock('@/app/(app)/stores/forecast-selectors', () => ({
   useForecastEntry: jest.fn(),
 }))
 
+jest.mock('@/app/(app)/stores/forecast-store', () => ({
+  useForecastStore: () => ({
+    selectedDay: 'today',
+    selectedDate: null,
+    selectedTimeRange: 'all-day',
+  }),
+}))
+
 jest.mock('@/app/(app)/components/location-detail-score', () =>
-  function MockScore({ score, condition, bestHourTime }) {
-    return <div data-testid="score">{score}-{condition}-{bestHourTime}</div>
+  function MockScore({ score, condition, bestHourTime, date, timeRange }) {
+    return <div data-testid="score">{score}-{condition}-{bestHourTime}-{formatISODate(date)}-{timeRange}</div>
   },
 )
 
@@ -32,6 +41,15 @@ import { useForecastEntry } from '@/app/(app)/stores/forecast-selectors'
 import LocationDetail from './location-detail'
 
 describe('LocationDetail', () => {
+  beforeEach(() => {
+    jest.useFakeTimers()
+    jest.setSystemTime(new Date('2025-01-15T00:00:00.000Z'))
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
   const baseEntry = {
     name: 'Test Beach',
     score: 85,
@@ -61,7 +79,7 @@ describe('LocationDetail', () => {
     render(<LocationDetail geolocation="-36.8,174.7" />)
 
     expect(screen.getByTestId('location-detail')).toBeInTheDocument()
-    expect(screen.getByTestId('score')).toHaveTextContent('85-ideal-9am')
+    expect(screen.getByTestId('score')).toHaveTextContent('85-ideal-9am-2025-01-15-all-day')
     expect(screen.getByTestId('conditions')).toHaveTextContent('wind,temp')
     expect(screen.getByTestId('analysis')).toHaveTextContent('Great conditions today.-ideal')
     expect(screen.getByTestId('forecast-strip')).toHaveTextContent('3')
@@ -81,7 +99,7 @@ describe('LocationDetail', () => {
 
     render(<LocationDetail geolocation="-36.8,174.7" />)
 
-    expect(screen.getByTestId('score')).toHaveTextContent('85-ideal-')
+    expect(screen.getByTestId('score')).toHaveTextContent('85-ideal--2025-01-15-all-day')
     expect(screen.getByTestId('forecast-strip')).toHaveTextContent('0')
   })
 
@@ -90,7 +108,7 @@ describe('LocationDetail', () => {
 
     render(<LocationDetail geolocation="-36.8,174.7" />)
 
-    expect(screen.getByTestId('score')).toHaveTextContent('85-ideal-')
+    expect(screen.getByTestId('score')).toHaveTextContent('85-ideal--2025-01-15-all-day')
     expect(screen.getByTestId('forecast-strip')).toHaveTextContent('0')
   })
 })

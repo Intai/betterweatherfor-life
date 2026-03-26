@@ -1,4 +1,4 @@
-import { dateIsToday, dateNow, formatForecastDate, formatISODate, formatShortDate, formatShortDateWithWeekday, formatShortWeekday } from './date'
+import { dateIsToday, dateNow, formatForecastDate, formatISODate, formatShortDate, formatShortDateWithWeekday, formatShortWeekday, parseForecastDate } from './date'
 
 describe('dateNow', () => {
   beforeEach(() => {
@@ -108,6 +108,49 @@ describe('formatISODate', () => {
   it('should format a date as yyyy-MM-dd', () => {
     const date = new Date('2026-02-10T00:00:00')
     expect(formatISODate(date)).toBe('2026-02-10')
+  })
+})
+
+describe('parseForecastDate', () => {
+  beforeEach(() => {
+    jest.useFakeTimers()
+    jest.setSystemTime(new Date('2026-02-10T12:30:00'))
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  it('should return today\'s date as a Date object when selectedDay is today', () => {
+    const result = parseForecastDate('today')
+    expect(result).toBeInstanceOf(Date)
+    expect(result.getFullYear()).toBe(2026)
+    expect(result.getMonth()).toBe(1)
+    expect(result.getDate()).toBe(10)
+  })
+
+  it('should return tomorrow\'s date as a Date object when selectedDay is tomorrow', () => {
+    const result = parseForecastDate('tomorrow')
+    expect(result).toBeInstanceOf(Date)
+    expect(result.getDate()).toBe(11)
+  })
+
+  it('should return the selected date when selectedDay is pick-date', () => {
+    const picked = new Date('2026-03-15T00:00:00')
+    const result = parseForecastDate('pick-date', picked)
+    expect(result).toBe(picked)
+  })
+
+  it('should resolve today in the given timeZone', () => {
+    jest.setSystemTime(new Date('2026-02-10T12:30:00Z'))
+    const result = parseForecastDate('today', null, 'Pacific/Auckland')
+    expect(result.getDate()).toBe(11)
+  })
+
+  it('should resolve tomorrow in the given timeZone', () => {
+    jest.setSystemTime(new Date('2026-02-10T12:30:00Z'))
+    const result = parseForecastDate('tomorrow', null, 'Pacific/Auckland')
+    expect(result.getDate()).toBe(12)
   })
 })
 
