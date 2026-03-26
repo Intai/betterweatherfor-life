@@ -1,6 +1,6 @@
 # Sidebar Community Links Layout
 
-Community and support links positioned at the bottom of the sidebar content area, above the version footer. These links use a secondary visual style to remain unobtrusive relative to primary navigation.
+Community and support links positioned at the bottom of the sidebar content area, above the version footer. These links are positioned at the bottom of the sidebar content area.
 
 ## Desktop Sidebar (w-72)
 
@@ -28,7 +28,6 @@ Community and support links positioned at the bottom of the sidebar content area
 - Community links live in a separate SidebarGroup with `mt-auto` to push them to the bottom of the scrollable SidebarContent area.
 - They sit above the `SidebarFooter` which contains only the version text and the border-t separator.
 - Icons use official Ko-fi and Discord SVG logos (not lucide icons). No explicit size class needed — `SidebarMenuButton` applies `[&>svg]:size-4` automatically, matching all other sidebar icons.
-- Text and icons use muted foreground colour (`text-sidebar-foreground/50`) to differentiate from primary navigation.
 - Links open in new tabs (`target="_blank" rel="noopener noreferrer"`).
 
 ## Mobile Drawer (320px minimum)
@@ -62,7 +61,7 @@ Community and support links positioned at the bottom of the sidebar content area
 |----------------------|--------------------------------------|--------------------------------------------------|
 | Links container      | SidebarGroup                         | `mt-auto` to push to bottom of SidebarContent    |
 | Links list           | SidebarGroupContent + SidebarMenu    | Standard menu wrapper                            |
-| Link item            | SidebarMenuItem + SidebarMenuButton  | `asChild` wrapping `<a>`, muted styling          |
+| Link item            | SidebarMenuItem + SidebarMenuButton  | `asChild` wrapping `<a>`                         |
 | Ko-fi icon           | KofiLogo (custom SVG component)      | Sized by SidebarMenuButton (`size-4`), follows app-logo.jsx pattern |
 | Discord icon         | DiscordLogo (custom SVG component)   | Sized by SidebarMenuButton (`size-4`), follows app-logo.jsx pattern |
 

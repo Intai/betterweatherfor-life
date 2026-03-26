@@ -10,6 +10,10 @@
       "settings": "Settings",
       "about": "About"
     },
+    "community": {
+      "buyMeACoffee": "Buy me a coffee",
+      "joinDiscord": "Join our Discord"
+    },
     "version": "Version {{version}}"
   },
   "topAppbar": {

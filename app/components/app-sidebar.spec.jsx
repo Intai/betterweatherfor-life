@@ -22,6 +22,8 @@ jest.mock('react-i18next', () => ({
         'sidebar.nav.forecast': '7-Day Forecast',
         'sidebar.closeMenu': 'Close menu',
         'sidebar.version': `Version ${opts?.version ?? ''}`,
+        'sidebar.community.buyMeACoffee': 'Buy me a coffee',
+        'sidebar.community.joinDiscord': 'Join our Discord',
       }
       return translations[key] ?? key
     },
@@ -38,6 +40,18 @@ jest.mock('@/shadcn/components/ui/button', () => ({
   Button: props => <button {...props} />,
 }))
 
+jest.mock('./ko-fi-logo', () => {
+  return function KofiLogo() {
+    return <svg data-testid="kofi-logo" />
+  }
+})
+
+jest.mock('./discord-logo', () => {
+  return function DiscordLogo() {
+    return <svg data-testid="discord-logo" />
+  }
+})
+
 jest.mock('./app-sidebar-cities', () => {
   return function AppSidebarCities() {
     return <li data-testid="app-sidebar-cities">Cities</li>
@@ -49,7 +63,7 @@ jest.mock('@/shadcn/components/ui/sidebar', () => ({
   SidebarHeader: ({ children, className }) => <div data-testid="sidebar-header" className={className}>{children}</div>,
   SidebarContent: ({ children }) => <div data-testid="sidebar-content">{children}</div>,
   SidebarFooter: ({ children }) => <div data-testid="sidebar-footer">{children}</div>,
-  SidebarGroup: ({ children }) => <div>{children}</div>,
+  SidebarGroup: ({ children, className }) => <div data-testid="sidebar-group" className={className}>{children}</div>,
   SidebarGroupContent: ({ children }) => <div>{children}</div>,
   SidebarMenu: ({ children }) => <ul>{children}</ul>,
   SidebarMenuItem: ({ children }) => <li>{children}</li>,
@@ -92,7 +106,7 @@ describe('AppSidebar', () => {
     expect(screen.getByTestId('app-sidebar-cities')).toBeInTheDocument()
 
     // Verify ordering: Home, Forecast, Cities
-    const menuItems = screen.getByRole('list').children
+    const menuItems = screen.getAllByRole('list')[0].children
     const texts = Array.from(menuItems).map(li => li.textContent)
     expect(texts).toEqual([
       'Home',
@@ -136,6 +150,28 @@ describe('AppSidebar', () => {
     mockIsMobile.mockReturnValue(false)
     render(<AppSidebar />)
     fireEvent.click(screen.getByText('Home').closest('a'))
+    expect(mockToggleSidebar).not.toHaveBeenCalled()
+  })
+
+  it('should render community links with correct hrefs, icons, labels, and external link attributes', () => {
+    render(<AppSidebar />)
+    const kofiLink = screen.getByText('Buy me a coffee').closest('a')
+    expect(kofiLink).toHaveAttribute('href', 'https://ko-fi.com/P5P414B69G')
+    expect(kofiLink).toHaveAttribute('target', '_blank')
+    expect(kofiLink).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(screen.getByTestId('kofi-logo')).toBeInTheDocument()
+
+    const discordLink = screen.getByText('Join our Discord').closest('a')
+    expect(discordLink).toHaveAttribute('href', 'https://discord.gg/Ve3TeBqZQ7')
+    expect(discordLink).toHaveAttribute('target', '_blank')
+    expect(discordLink).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(screen.getByTestId('discord-logo')).toBeInTheDocument()
+  })
+
+  it('should not call toggleSidebar when a community link is clicked on mobile', () => {
+    mockIsMobile.mockReturnValue(true)
+    render(<AppSidebar />)
+    fireEvent.click(screen.getByText('Buy me a coffee').closest('a'))
     expect(mockToggleSidebar).not.toHaveBeenCalled()
   })
 })

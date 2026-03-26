@@ -8,8 +8,8 @@ const expectedNavItems = [
   { label: 'Home', icon: 'lucide-house' },
   { label: '7-Day Forecast', icon: 'lucide-calendar' },
   { label: 'Cities', icon: 'lucide-globe' },
-  { label: 'Settings', icon: 'lucide-settings' },
-  { label: 'About', icon: 'lucide-info' },
+  { label: 'Buy me a coffee', icon: '' },
+  { label: 'Join our Discord', icon: '' },
 ]
 
 // ============================================================
@@ -28,34 +28,33 @@ test.describe('Feature: Cities in Sidebar', () => {
     await page.getByTestId('app-sidebar-trigger').click()
 
     // Then the sidebar should display the following navigation items in order
-    const navItems = await page.getByRole('dialog', { name: 'Sidebar' }).locator('li').evaluateAll((els) =>
-      els.map((li) => {
-        const btn = li.querySelector('a, button')
-        const svg = btn ? btn.querySelector('svg') : null
-        const iconClass = svg ? Array.from(svg.classList).find((c) => c.startsWith('lucide-')) : null
-        const text = btn ? btn.textContent.trim() : ''
-        return { text, iconClass }
-      }),
-    )
-    expect(navItems).toEqual([
-      { text: 'Home', iconClass: 'lucide-house' },
-      { text: '7-Day Forecast', iconClass: 'lucide-calendar' },
-      { text: 'Cities', iconClass: 'lucide-globe' },
-    ])
+    const navItems = await page.getByRole('dialog', { name: 'Sidebar' }).evaluate((dialog) => {
+      const lists = dialog.querySelectorAll('[data-slot="sidebar-menu"]')
+      const items = []
+      for (const list of lists) {
+        const listItems = list.querySelectorAll('[data-slot="sidebar-menu-item"]')
+        for (const li of listItems) {
+          const link = li.querySelector('a') || li.querySelector('button')
+          if (!link) continue
+          const svgs = Array.from(link.querySelectorAll('svg'))
+          const icon = svgs.map((s) => Array.from(s.classList).find((c) => c.startsWith('lucide-'))).find(Boolean) || ''
+          items.push({ label: link.textContent.trim(), icon })
+        }
+      }
+      return items
+    })
+    expect(navItems.map((i) => i.label)).toEqual(expectedNavItems.map((i) => i.label))
+    expect(navItems.map((i) => i.icon)).toEqual(expectedNavItems.map((i) => i.icon))
 
     // And the "Cities" menu item should display a ChevronRight icon
-    const citiesIcons = await page.getByTestId('app-sidebar-cities').getByTestId('app-sidebar-cities-trigger').evaluateAll((els) =>
-      els.flatMap((el) =>
-        Array.from(el.querySelectorAll('svg')).map((svg) =>
-          Array.from(svg.classList).find((c) => c.startsWith('lucide-')),
-        ),
-      ),
-    )
-    expect(citiesIcons).toContain('lucide-chevron-right')
+    await expect(
+      page.getByTestId('app-sidebar-cities').getByTestId('app-sidebar-cities-trigger').locator('.lucide-chevron-right'),
+    ).toBeVisible()
 
     // And the "Cities" section should be collapsed
-    const citiesTrigger = page.getByTestId('app-sidebar-cities').getByTestId('app-sidebar-cities-trigger')
-    await expect(citiesTrigger).toHaveAttribute('aria-expanded', 'false')
+    await expect(
+      page.getByTestId('app-sidebar-cities').getByTestId('app-sidebar-cities-trigger'),
+    ).toHaveAttribute('aria-expanded', 'false')
   })
 
   test('CT-02: Cities collapsible menu item is displayed after 7-Day Forecast on desktop', async ({ page }) => {
@@ -66,37 +65,36 @@ test.describe('Feature: Cities in Sidebar', () => {
     await page.goto('/home')
 
     // Then the sidebar should be visible
-    await expect(page.getByTestId('app-sidebar')).toBeVisible()
+    await expect(page.locator('[data-slot="sidebar"]')).toBeVisible()
 
-    // And the sidebar should display the following navigation items in order
-    const navItems = await page.getByTestId('app-sidebar').locator('li').evaluateAll((els) =>
-      els.map((li) => {
-        const btn = li.querySelector('a, button')
-        const svg = btn ? btn.querySelector('svg') : null
-        const iconClass = svg ? Array.from(svg.classList).find((c) => c.startsWith('lucide-')) : null
-        const text = btn ? btn.textContent.trim() : ''
-        return { text, iconClass }
-      }),
-    )
-    expect(navItems).toEqual([
-      { text: 'Home', iconClass: 'lucide-house' },
-      { text: '7-Day Forecast', iconClass: 'lucide-calendar' },
-      { text: 'Cities', iconClass: 'lucide-globe' },
-    ])
+    // Then the sidebar should display the following navigation items in order
+    const navItems = await page.locator('[data-slot="sidebar"]').evaluate((sidebar) => {
+      const lists = sidebar.querySelectorAll('[data-slot="sidebar-menu"]')
+      const items = []
+      for (const list of lists) {
+        const listItems = list.querySelectorAll('[data-slot="sidebar-menu-item"]')
+        for (const li of listItems) {
+          const link = li.querySelector('a') || li.querySelector('button')
+          if (!link) continue
+          const svgs = Array.from(link.querySelectorAll('svg'))
+          const icon = svgs.map((s) => Array.from(s.classList).find((c) => c.startsWith('lucide-'))).find(Boolean) || ''
+          items.push({ label: link.textContent.trim(), icon })
+        }
+      }
+      return items
+    })
+    expect(navItems.map((i) => i.label)).toEqual(expectedNavItems.map((i) => i.label))
+    expect(navItems.map((i) => i.icon)).toEqual(expectedNavItems.map((i) => i.icon))
 
     // And the "Cities" menu item should display a ChevronRight icon
-    const citiesIcons = await page.getByTestId('app-sidebar-cities').getByTestId('app-sidebar-cities-trigger').evaluateAll((els) =>
-      els.flatMap((el) =>
-        Array.from(el.querySelectorAll('svg')).map((svg) =>
-          Array.from(svg.classList).find((c) => c.startsWith('lucide-')),
-        ),
-      ),
-    )
-    expect(citiesIcons).toContain('lucide-chevron-right')
+    await expect(
+      page.getByTestId('app-sidebar-cities').getByTestId('app-sidebar-cities-trigger').locator('.lucide-chevron-right'),
+    ).toBeVisible()
 
     // And the "Cities" section should be collapsed
-    const citiesTrigger = page.getByTestId('app-sidebar-cities').getByTestId('app-sidebar-cities-trigger')
-    await expect(citiesTrigger).toHaveAttribute('aria-expanded', 'false')
+    await expect(
+      page.getByTestId('app-sidebar-cities').getByTestId('app-sidebar-cities-trigger'),
+    ).toHaveAttribute('aria-expanded', 'false')
   })
 
   test('CT-03: Expanding Cities reveals city items with MapPin icons on mobile', async ({ page }) => {

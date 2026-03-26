@@ -19,10 +19,17 @@ import {
 } from '@/shadcn/components/ui/sidebar'
 import AppLogo from './app-logo'
 import AppSidebarCities from './app-sidebar-cities'
+import DiscordLogo from './discord-logo'
+import KofiLogo from './ko-fi-logo'
 
 const navItemsBefore = [
   { titleKey: 'sidebar.nav.home', href: '/home', icon: Home },
   { titleKey: 'sidebar.nav.forecast', href: '/forecast', icon: Calendar },
+]
+
+const communityLinks = [
+  { titleKey: 'sidebar.community.buyMeACoffee', href: 'https://ko-fi.com/P5P414B69G', icon: KofiLogo },
+  { titleKey: 'sidebar.community.joinDiscord', href: 'https://discord.gg/Ve3TeBqZQ7', icon: DiscordLogo },
 ]
 
 function renderNavItems({ pathname, t, isMobile, toggleSidebar, items }) {
@@ -75,11 +82,31 @@ export default function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
+        <SidebarGroup className="pb-0">
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems({ ...navProps, items: navItemsBefore })}
               <AppSidebarCities />
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup className="mt-auto pt-0">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {communityLinks.map(item => (
+                <SidebarMenuItem key={item.titleKey}>
+                  <SidebarMenuButton
+                    asChild
+                    className="h-auto px-4 py-3"
+                    data-testid="app-sidebar-community-link"
+                  >
+                    <a href={item.href} target="_blank" rel="noopener noreferrer">
+                      <item.icon />
+                      <span>{t(item.titleKey)}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

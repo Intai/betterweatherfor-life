@@ -15,10 +15,12 @@ Feature: Cities in Sidebar
     When I navigate to the "/home" page
     And I open the sidebar
     Then the sidebar should display the following navigation items in order:
-      | label          | icon     |
-      | Home           | House    |
-      | 7-Day Forecast | Calendar |
-      | Cities         | Globe    |
+      | label            | icon     |
+      | Home             | House    |
+      | 7-Day Forecast   | Calendar |
+      | Cities           | Globe    |
+      | Buy me a coffee  |          |
+      | Join our Discord |          |
     And the "Cities" menu item should display a ChevronRight icon
     And the "Cities" section should be collapsed
 
@@ -27,10 +29,12 @@ Feature: Cities in Sidebar
     When I navigate to the "/home" page
     Then the sidebar should be visible
     And the sidebar should display the following navigation items in order:
-      | label          | icon     |
-      | Home           | House    |
-      | 7-Day Forecast | Calendar |
-      | Cities         | Globe    |
+      | label            | icon     |
+      | Home             | House    |
+      | 7-Day Forecast   | Calendar |
+      | Cities           | Globe    |
+      | Buy me a coffee  |          |
+      | Join our Discord |          |
     And the "Cities" menu item should display a ChevronRight icon
     And the "Cities" section should be collapsed
 

@@ -6,7 +6,6 @@ As a user, I want to see Ko-fi and Discord community links in the sidebar so tha
 - Display a "Join our Discord" link with Discord logo icon in the sidebar, opening https://discord.gg/Ve3TeBqZQ7 in a new tab.
 - Community links are positioned at the bottom of the SidebarContent area (above the version footer) using a separate SidebarGroup with `mt-auto`.
 - Icons use custom SVG components (KofiLogo, DiscordLogo) following the app-logo.jsx component structure (default export, `className` prop, spread props).
-- Text and icons use muted foreground colour (`text-sidebar-foreground/50`) to differentiate from primary navigation.
 - Links open in new tabs (`target="_blank" rel="noopener noreferrer"`).
 - On mobile, tapping a community link opens the URL in a new tab without closing the drawer.
 - Touch targets maintain minimum 44px height via `py-3`.
@@ -23,4 +22,4 @@ As a user, I want to see Ko-fi and Discord community links in the sidebar so tha
 
 **Sequential task 5 after tasks 1-2 complete:**
 
-5. Use frontend-developer subagent to add community links section to the sidebar @app/components/app-sidebar.jsx. Add a new SidebarGroup with `className="mt-auto"` inside SidebarContent, below the existing primary navigation SidebarGroup. Render Ko-fi and Discord links as SidebarMenuItem > SidebarMenuButton (`asChild`) wrapping `<a>` tags with `target="_blank" rel="noopener noreferrer"`. Apply muted styling `text-sidebar-foreground/50` on the SidebarGroup. Use KofiLogo and DiscordLogo components for icons. Use `className="h-auto px-4 py-3"` on SidebarMenuButton for touch targets. On mobile, ensure tapping a community link opens the URL in a new tab without closing the sidebar drawer (external `<a>` tags should not trigger drawer close, but verify and prevent if needed). Reference layout spec @app/docs/community-layout.md and UI design @app/docs/community-ui-design.html.
+5. Use frontend-developer subagent to add community links section to the sidebar @app/components/app-sidebar.jsx. Add a new SidebarGroup with `className="mt-auto"` inside SidebarContent, below the existing primary navigation SidebarGroup. Render Ko-fi and Discord links as SidebarMenuItem > SidebarMenuButton (`asChild`) wrapping `<a>` tags with `target="_blank" rel="noopener noreferrer"`. Use KofiLogo and DiscordLogo components for icons. Use `className="h-auto px-4 py-3"` on SidebarMenuButton for touch targets. On mobile, ensure tapping a community link opens the URL in a new tab without closing the sidebar drawer (external `<a>` tags should not trigger drawer close, but verify and prevent if needed). Reference layout spec @app/docs/community-layout.md and UI design @app/docs/community-ui-design.html.
