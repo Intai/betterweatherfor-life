@@ -1,3 +1,8 @@
+variable "kubernetes_version" {
+  description = "Kubernetes version for the DOKS cluster"
+  type        = string
+}
+
 variable "do_token" {
   description = "DigitalOcean API token"
   type        = string

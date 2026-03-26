@@ -1,3 +1,4 @@
+kubernetes_version   = "1.35.1-do.1"
 do_token             = ""
 cloudflare_api_token = ""
 cloudflare_zone_id   = ""
