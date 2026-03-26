@@ -127,10 +127,10 @@ Calculate the percentage of usable-light hours within each time window:
 
 | Condition | Water activities | Cycling |
 |---|---|---|
-| Ideal | 100% of window in daylight | 100% of window before civil twilight end |
-| Acceptable | >=75% of window in daylight | >=75% of window before civil twilight end |
-| Marginal | 60-74% of window in daylight | 60-74% of window before civil twilight end |
-| Unsuitable | <60% of window in daylight | <60% of window before civil twilight end |
+| Ideal | >=75% of window in daylight | >=75% of window before civil twilight end |
+| Acceptable | >=55% of window in daylight | >=55% of window before civil twilight end |
+| Marginal | 40-54% of window in daylight | 40-54% of window before civil twilight end |
+| Unsuitable | <40% of window in daylight | <40% of window before civil twilight end |
 
 ### UV index
 
