@@ -98,8 +98,8 @@
     "tide": {
       "state": "State",
       "swell": "Swell",
-      "nextHigh": "Next high",
-      "nextLow": "Next low"
+      "nextHigh": "High tide",
+      "nextLow": "Low tide"
     },
     "water": {
       "quality": "Quality"

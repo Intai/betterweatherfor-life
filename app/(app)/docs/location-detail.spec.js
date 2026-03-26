@@ -92,10 +92,10 @@ test.describe('Feature: Location Detail Page', () => {
   });
 
   [
-    { activity: 'sup', name: 'Mission Bay', url: '/location/mission-bay/-36.8547,174.8317', score: '85', theme: 'condition-ideal', badge: 'Ideal', bestHour: '09:00' },
-    { activity: 'sup', name: 'Takapuna Beach', url: '/location/takapuna-beach/-36.7878,174.7768', score: '62', theme: 'condition-acceptable', badge: 'Acceptable', bestHour: '08:00' },
-    { activity: 'sup', name: 'St Heliers Bay', url: '/location/st-heliers-bay/-36.8508,174.8593', score: '58', theme: 'condition-marginal', badge: 'Marginal', bestHour: '06:00' },
-    { activity: 'cycling', name: 'Piha Beach', url: '/location/piha-beach/-36.9553,174.4681', score: '25', theme: 'condition-unsuitable', badge: 'Unsuitable', bestHour: '19:00' },
+    { activity: 'sup', name: 'Mission Bay', url: '/location/mission-bay/-36.8547,174.8317', score: '85', theme: 'condition-ideal', badge: 'Ideal', bestHour: 'Best conditions at 09:00' },
+    { activity: 'sup', name: 'Takapuna Beach', url: '/location/takapuna-beach/-36.7878,174.7768', score: '62', theme: 'condition-acceptable', badge: 'Acceptable', bestHour: 'Best conditions at 08:00' },
+    { activity: 'sup', name: 'St Heliers Bay', url: '/location/st-heliers-bay/-36.8508,174.8593', score: '58', theme: 'condition-marginal', badge: 'Marginal', bestHour: 'Better conditions at 06:00' },
+    { activity: 'cycling', name: 'Piha Beach', url: '/location/piha-beach/-36.9553,174.4681', score: '25', theme: 'condition-unsuitable', badge: 'Unsuitable', bestHour: 'Better conditions at 19:00' },
   ].forEach(({ activity, name, url, score, theme, badge, bestHour }) => {
     test(`LDP-02: Large circular score displays score, condition, and best hour for ${name}`, async ({ page, context }) => {
       // Given the browser viewport is 375px
@@ -129,7 +129,7 @@ test.describe('Feature: Location Detail Page', () => {
       await expect(page.getByTestId('location-detail').getByTestId('score-badge')).toHaveText(badge);
 
       // And the subtitle "Best conditions at <bestHour>" should be visible
-      await expect(page.getByTestId('location-detail')).toContainText(`Best conditions at ${bestHour}`);
+      await expect(page.getByTestId('location-detail')).toContainText(bestHour);
     });
   });
 
@@ -194,11 +194,11 @@ test.describe('Feature: Location Detail Page', () => {
     await expect(windGrid).toContainText('Gust');
     await expect(windGrid).toContainText('12km/h');
 
-    // And the "Tide" factor card data grid should show: State Rising 70%, Next high 10:30, Swell 0.3m
+    // And the "Tide" factor card data grid should show: State Rising 70%, High tide 10:30, Swell 0.3m
     const tideGrid = page.getByTestId('factor-card-tide').getByTestId('data-grid');
     await expect(tideGrid).toContainText('State');
     await expect(tideGrid).toContainText('Rising 70%');
-    await expect(tideGrid).toContainText('Next high');
+    await expect(tideGrid).toContainText('High tide');
     await expect(tideGrid).toContainText('10:30');
     await expect(tideGrid).toContainText('Swell');
     await expect(tideGrid).toContainText('0.3m');
@@ -296,11 +296,11 @@ test.describe('Feature: Location Detail Page', () => {
     await expect(waterGrid).toContainText('Quality');
     await expect(waterGrid).toContainText('Green');
 
-    // And the "Tide" factor card data grid should show: State Rising 55%, Next high 11:15, Swell 0.4m
+    // And the "Tide" factor card data grid should show: State Rising 55%, High tide 11:15, Swell 0.4m
     const tideGrid = page.getByTestId('factor-card-tide').getByTestId('data-grid');
     await expect(tideGrid).toContainText('State');
     await expect(tideGrid).toContainText('Rising 55%');
-    await expect(tideGrid).toContainText('Next high');
+    await expect(tideGrid).toContainText('High tide');
     await expect(tideGrid).toContainText('11:15');
     await expect(tideGrid).toContainText('Swell');
     await expect(tideGrid).toContainText('0.4m');

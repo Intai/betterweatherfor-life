@@ -46,14 +46,14 @@ Feature: Location Detail Page
     And the score circle should display "<score>"
     And the score circle should use the "<theme>" background colour
     And a condition badge pill "<badge>" should be displayed below the score
-    And the subtitle "Best conditions at <bestHour>" should be visible
+    And the subtitle "<bestHour>" should be visible
 
     Examples:
-      | activity | name           | url                                        | score | theme                | badge      | bestHour |
-      | sup      | Mission Bay    | /location/mission-bay/-36.8547,174.8317    | 85    | condition-ideal      | Ideal      | 09:00    |
-      | sup      | Takapuna Beach | /location/takapuna-beach/-36.7878,174.7768 | 62    | condition-acceptable | Acceptable | 08:00    |
-      | sup      | St Heliers Bay | /location/st-heliers-bay/-36.8508,174.8593 | 58    | condition-marginal   | Marginal   | 06:00    |
-      | cycling  | Piha Beach     | /location/piha-beach/-36.9553,174.4681     | 25    | condition-unsuitable | Unsuitable | 19:00    |
+      | activity | name           | url                                        | score | theme                | badge      | bestHour                   |
+      | sup      | Mission Bay    | /location/mission-bay/-36.8547,174.8317    | 85    | condition-ideal      | Ideal      | Best conditions at 09:00   |
+      | sup      | Takapuna Beach | /location/takapuna-beach/-36.7878,174.7768 | 62    | condition-acceptable | Acceptable | Best conditions at 08:00   |
+      | sup      | St Heliers Bay | /location/st-heliers-bay/-36.8508,174.8593 | 58    | condition-marginal   | Marginal   | Better conditions at 06:00 |
+      | cycling  | Piha Beach     | /location/piha-beach/-36.9553,174.4681     | 25    | condition-unsuitable | Unsuitable | Better conditions at 19:00 |
 
   # =============================================================================
   # Scenario Group: Factor Breakdown Cards
@@ -87,7 +87,7 @@ Feature: Location Detail Page
     And the "Tide" factor card data grid should show:
       | label     | value      |
       | State     | Rising 70% |
-      | Next high | 10:30      |
+      | High tide | 10:30      |
       | Swell     | 0.3m       |
     And the "Water" factor card data grid should show:
       | label   | value |
@@ -138,7 +138,7 @@ Feature: Location Detail Page
     And the "Tide" factor card data grid should show:
       | label     | value      |
       | State     | Rising 55% |
-      | Next high | 11:15      |
+      | High tide | 11:15      |
       | Swell     | 0.4m       |
     And the "Temp" factor card data grid should show:
       | label      | value |
