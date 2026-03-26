@@ -17,7 +17,7 @@ function CollapsibleTrigger({
 function CollapsibleContent({
   ...props
 }) {
-  return <CollapsiblePrimitive.Content data-slot="collapsible-content" {...props} />
+  return <CollapsiblePrimitive.Content data-slot="collapsible-content" suppressHydrationWarning {...props} />
 }
 
 export {

@@ -2,6 +2,10 @@ import { render, screen } from '@testing-library/react'
 import { formatShortDateWithWeekday } from '@/app/utils/date'
 import LocationDetailScore from './location-detail-score'
 
+jest.mock('@/app/components/locale-provider', () => ({
+  useLocale: () => 'en-NZ',
+}))
+
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key, opts) => opts ? `${key.split('.').pop()}:${opts.time}` : key.split('.').pop(),
@@ -27,7 +31,7 @@ describe('LocationDetailScore', () => {
     expect(screen.getByTestId('score-badge')).toHaveTextContent('ideal')
     expect(screen.getByTestId('best-hour')).toHaveTextContent('bestAt:8am')
     const dateEl = screen.getByTestId('forecast-date')
-    expect(dateEl).toHaveTextContent(formatShortDateWithWeekday(defaultProps.date))
+    expect(dateEl).toHaveTextContent(formatShortDateWithWeekday(defaultProps.date, 'en-NZ'))
     expect(dateEl).toHaveTextContent('allDay')
   })
 

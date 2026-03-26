@@ -3,11 +3,13 @@
 import { useTranslation } from 'react-i18next'
 import { MARGINAL, UNSUITABLE } from '@/app/(app)/constants'
 import { getConditionBackgroundColor } from '@/app/(app)/utils/condition-colors'
+import { useLocale } from '@/app/components/locale-provider'
 import { formatShortDateWithWeekday } from '@/app/utils/date'
 import { kebabToCamel } from '@/app/utils/string'
 
 export default function LocationDetailScore({ score, condition, bestHourTime, date, timeRange }) {
   const { t } = useTranslation()
+  const locale = useLocale()
   const colorClass = getConditionBackgroundColor(condition)
   const bestAtKey = condition === MARGINAL || condition === UNSUITABLE
     ? 'locationDetail.betterAt'
@@ -32,7 +34,7 @@ export default function LocationDetailScore({ score, condition, bestHourTime, da
           {t(`home.conditions.${condition}`)}
         </span>
         <p className="text-muted-foreground text-sm mt-2" data-testid="forecast-date">
-          {formatShortDateWithWeekday(date)} · {t(`home.timeWindow.${kebabToCamel(timeRange)}`)}
+          {formatShortDateWithWeekday(date, locale)} · {t(`home.timeWindow.${kebabToCamel(timeRange)}`)}
         </p>
         <p className="text-muted-foreground text-sm" data-testid="best-hour">
           {t(bestAtKey, { time: bestHourTime })}
