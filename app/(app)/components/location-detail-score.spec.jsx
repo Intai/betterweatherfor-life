@@ -38,18 +38,20 @@ describe('LocationDetailScore', () => {
     expect(screen.getByTestId('score-badge')).toHaveClass('bg-condition-acceptable')
   })
 
-  it('should render correct color for marginal condition', () => {
+  it('should render correct color for marginal condition and use betterAt wording', () => {
     render(<LocationDetailScore {...defaultProps} score={45} condition="marginal" bestHourTime="2pm" />)
 
     expect(screen.getByTestId('score-circle')).toHaveClass('bg-condition-marginal')
     expect(screen.getByTestId('score-badge')).toHaveClass('bg-condition-marginal')
+    expect(screen.getByTestId('best-hour')).toHaveTextContent('betterAt:2pm')
   })
 
-  it('should render correct color for unsuitable condition', () => {
+  it('should render correct color for unsuitable condition and use betterAt wording', () => {
     render(<LocationDetailScore {...defaultProps} score={20} condition="unsuitable" bestHourTime="6am" />)
 
     expect(screen.getByTestId('score-circle')).toHaveClass('bg-condition-unsuitable')
     expect(screen.getByTestId('score-badge')).toHaveClass('bg-condition-unsuitable')
+    expect(screen.getByTestId('best-hour')).toHaveTextContent('betterAt:6am')
   })
 
   it('should render default color for unknown condition', () => {

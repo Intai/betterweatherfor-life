@@ -89,6 +89,7 @@
     "forecast": "Forecast",
     "share": "Share Location",
     "bestAt": "Best conditions at {{time}}",
+    "betterAt": "Better conditions at {{time}}",
     "wind": {
       "speed": "Speed",
       "direction": "Direction",

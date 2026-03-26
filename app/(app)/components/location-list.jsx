@@ -51,7 +51,7 @@ export default function LocationList() {
         <section className="px-4 pb-6 md:px-6">
           <div className="space-y-4 md:grid md:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] md:gap-4 md:space-y-0">
             {entries.map(([key, entry]) => (
-              <Link key={key} href={`/location/${slugify(entry.name)}/${buildLocationKey(entry.latitude, entry.longitude)}`}>
+              <Link key={key} className="block" href={`/location/${slugify(entry.name)}/${buildLocationKey(entry.latitude, entry.longitude)}`}>
                 <LocationCard
                   forecastKey={key}
                   name={entry.name}

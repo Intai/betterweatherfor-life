@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
+import { MARGINAL, UNSUITABLE } from '@/app/(app)/constants'
 import { getConditionBackgroundColor } from '@/app/(app)/utils/condition-colors'
 import { formatShortDateWithWeekday } from '@/app/utils/date'
 import { kebabToCamel } from '@/app/utils/string'
@@ -8,6 +9,9 @@ import { kebabToCamel } from '@/app/utils/string'
 export default function LocationDetailScore({ score, condition, bestHourTime, date, timeRange }) {
   const { t } = useTranslation()
   const colorClass = getConditionBackgroundColor(condition)
+  const bestAtKey = condition === MARGINAL || condition === UNSUITABLE
+    ? 'locationDetail.betterAt'
+    : 'locationDetail.bestAt'
 
   return (
     <section className="px-4 py-6 flex flex-col items-center md:flex-row md:justify-center md:gap-6">
@@ -31,7 +35,7 @@ export default function LocationDetailScore({ score, condition, bestHourTime, da
           {formatShortDateWithWeekday(date)} · {t(`home.timeWindow.${kebabToCamel(timeRange)}`)}
         </p>
         <p className="text-muted-foreground text-sm" data-testid="best-hour">
-          {t('locationDetail.bestAt', { time: bestHourTime })}
+          {t(bestAtKey, { time: bestHourTime })}
         </p>
       </div>
     </section>
