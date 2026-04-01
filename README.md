@@ -15,6 +15,7 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
 - If you prefer Kubernetes, `make k8s-dev` to start http://localhost:30000
   - `make k8s-db` to port-forward K8s database to localhost:5432 for `make db-*`
 - `langgraph dev` to launch LangSmith Studio in [venv](https://docs.python.org/3/library/venv.html).
+- Install https://github.com/Intai/story-flow for agentic development workflow.
 
 ## Testing
 
