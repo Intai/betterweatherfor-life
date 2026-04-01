@@ -66,7 +66,6 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
   - Provide proof of testing with screenshots or videos.
   - Add notes in the pull request about interesting points for discussion.
 - Convention:
-  - Leverage [Agentic Development Workflow](https://github.com/Intai/story-flow).
   - Our file names use hyphenated lowercase.
   - Our variables and functions use camelCase.
   - Our components and classes use PascalCase.
