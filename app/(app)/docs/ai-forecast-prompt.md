@@ -201,6 +201,8 @@ All `summary` fields must explain how conditions affect the specific activity â€
 - Bad: "28% chance of rain"
 - Bad: "Water quality is green"
 
+The `tide.swell` field must be a string with the wave height in meters (e.g. `'0.5m'`), extracted from `wavesHeight` in the swell data. Never pass the raw swell object.
+
 The `analysis` field is a multi-paragraph AI analysis for the detail page. Use `\n\n` to separate paragraphs.
 
 The `hourly` array contains hourly scores for the hours within that time range. Each entry has `time` (HH:MM), `score`, and `condition`. When a factor only has daily data, hourly scores for that factor will be identical. Variation in hourly scores should come only from factors with real hourly data (e.g. tide position, water quality, daylight).

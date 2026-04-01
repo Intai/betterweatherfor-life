@@ -15,7 +15,7 @@ function getFactorData({ t, tide }) {
   } else if (tide.nextLow) {
     data.push({ label: t('locationDetail.tide.nextLow'), value: tide.nextLow })
   }
-  if (tide.swell) {
+  if (tide.swell && typeof tide.swell === 'string') {
     data.push({ label: t('locationDetail.tide.swell'), value: tide.swell })
   }
   return data
