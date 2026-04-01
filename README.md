@@ -3,6 +3,7 @@
 A website that helps outdoor enthusiasts quickly find the best places to go by ranking locations based on weather, tide, and sea conditions tailored to specific activities like SUP, kayaking, snorkeling, and cycling.
 
 ## Local Development
+
 - On Windows 11, install [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
 - Install [Docker Desktop](https://docs.docker.com/get-started/introduction/get-docker-desktop/).
 - Clone the Git repo. On Windows, do this within WSL2.
