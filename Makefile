@@ -1,7 +1,7 @@
 -include .env
 export
 
-.PHONY: help dev dev-bg dev-stop prod prod-stop db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean tf-plan tf-apply
+.PHONY: help dev dev-bg dev-stop prod prod-stop db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean k8s-forecast-suspend tf-plan tf-apply
 .DEFAULT_GOAL := help
 
 help: ## Show available commands
@@ -72,6 +72,13 @@ endif
 
 k8s-forecast-clean: ## Delete completed forecast jobs
 	kubectl delete jobs -n betterweather --field-selector status.successful=1
+
+k8s-forecast-suspend: ## Suspend the forecast cronjob, e.g. make k8s-forecast-suspend resume=true
+ifeq ($(resume),true)
+	kubectl patch cronjob forecast -n betterweather -p '{"spec":{"suspend":false}}'
+else
+	kubectl patch cronjob forecast -n betterweather -p '{"spec":{"suspend":true}}'
+endif
 
 db-migrate: ## Migrate database schema changes
 	npx drizzle-kit migrate
