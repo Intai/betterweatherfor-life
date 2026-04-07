@@ -5,7 +5,7 @@ export
 .DEFAULT_GOAL := help
 
 help: ## Show available commands
-	@grep -E '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-16s %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z0-9_-]+:.*## .*$$' Makefile | sed 's/:.*## /	/' | awk -F'\t' '{printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 dev: ## Start development environment
 	docker compose up
