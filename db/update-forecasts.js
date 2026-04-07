@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import config from 'config'
 import { subDays } from 'date-fns'
 import { eq, lt, sql } from 'drizzle-orm'
-import { complement, either, pick, pipe, pluck, prop, propSatisfies, replace } from 'ramda'
+import { either, pick, pipe, pluck, propSatisfies, replace } from 'ramda'
 import { ACTIVITIES } from '../app/(app)/constants.js'
 import { dateNow, formatISODate } from '../app/utils/date.js'
 import { error, info } from '../app/utils/logger.js'
@@ -23,8 +23,11 @@ const isNearMidnight = timeZone => {
   return (hours === 23 && minutes >= 30) || (hours === 0 && minutes < 30)
 }
 
+const isForecastStale = ({ forecastUpdatedAt }) =>
+  !forecastUpdatedAt || (dateNow() - new Date(forecastUpdatedAt)) > 24 * 60 * 60 * 1000
+
 const shouldFetchForecast = either(
-  complement(prop('forecastId')),
+  isForecastStale,
   propSatisfies(isNearMidnight, 'timeZone'),
 )
 
@@ -41,7 +44,7 @@ const queryLocations = () => (
     longitude: locations.longitude,
     timeZone: locations.timeZone,
     source: locations.source,
-    forecastId: sql`min(${forecasts.id})`.as('forecast_id'),
+    forecastUpdatedAt: sql`max(${forecasts.updatedAt})`.as('forecast_updated_at'),
   })
     .from(locations)
     .leftJoin(forecasts, eq(locations.id, forecasts.locationId))
@@ -165,7 +168,8 @@ export async function updateForecasts(filterSlug) {
   const allLocations = await queryLocations()
   const locationsToUpdate = filterSlug
     ? allLocations.filter(isLocationForSlug(filterSlug))
-    : allLocations.filter(shouldFetchForecast)
+    // Limit to 2 locations per run to avoid LLM rate limits.
+    : allLocations.filter(shouldFetchForecast).slice(0, 2)
 
   info(`Target locations: ${joinByComma(pluck('name', locationsToUpdate))}`)
   for (const location of locationsToUpdate) {

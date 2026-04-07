@@ -346,12 +346,13 @@ describe('db/update-forecasts', () => {
       expect(mockExecSync).not.toHaveBeenCalled()
     })
 
-    it('should skip locations not near midnight when no slug is provided', async () => {
+    it('should skip locations not near midnight and not stale when no slug is provided', async () => {
       const { dateNow } = require('@/app/utils/date')
-      dateNow.mockReturnValue(new Date(2026, 1, 14, 12, 0))
+      const now = new Date(2026, 1, 14, 12, 0)
+      dateNow.mockReturnValue(now)
 
       const total = await loadAndCall(() => {
-        mockGroupBy.mockResolvedValue([makeLocation({ forecastId: 1 })])
+        mockGroupBy.mockResolvedValue([makeLocation({ forecastUpdatedAt: now })])
         mockReadFileSync.mockReturnValueOnce(promptTemplate)
       })
 
@@ -362,9 +363,10 @@ describe('db/update-forecasts', () => {
 
     it('should process locations near midnight at 23:30+ when no slug is provided', async () => {
       const { dateNow } = require('@/app/utils/date')
-      dateNow.mockReturnValue(new Date(2026, 1, 14, 23, 30))
+      const now = new Date(2026, 1, 14, 23, 30)
+      dateNow.mockReturnValue(now)
 
-      const location = makeLocation({ forecastId: 1 })
+      const location = makeLocation({ forecastUpdatedAt: now })
       const total = await loadAndCall(() => {
         mockGroupBy.mockResolvedValue([location])
         mockReadFileSync
@@ -380,9 +382,30 @@ describe('db/update-forecasts', () => {
 
     it('should process locations near midnight at 00:00-00:29 when no slug is provided', async () => {
       const { dateNow } = require('@/app/utils/date')
-      dateNow.mockReturnValue(new Date(2026, 1, 14, 0, 15))
+      const now = new Date(2026, 1, 14, 0, 15)
+      dateNow.mockReturnValue(now)
 
-      const location = makeLocation({ forecastId: 1 })
+      const location = makeLocation({ forecastUpdatedAt: now })
+      const total = await loadAndCall(() => {
+        mockGroupBy.mockResolvedValue([location])
+        mockReadFileSync
+          .mockReturnValueOnce(promptTemplate)
+          .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': makeForecastValue() }))
+        mockReturning.mockResolvedValue([{ id: 1 }])
+      })
+
+      expect(total).toBe(1)
+      expect(mockExecSync).toHaveBeenCalledTimes(1)
+      dateNow.mockReturnValue(new Date(2026, 1, 14, 0, 0))
+    })
+
+    it('should process locations with stale forecasts older than 24 hours', async () => {
+      const { dateNow } = require('@/app/utils/date')
+      const now = new Date(2026, 1, 14, 12, 0)
+      dateNow.mockReturnValue(now)
+
+      const staleDate = new Date(now - 25 * 60 * 60 * 1000)
+      const location = makeLocation({ forecastUpdatedAt: staleDate })
       const total = await loadAndCall(() => {
         mockGroupBy.mockResolvedValue([location])
         mockReadFileSync
