@@ -63,7 +63,7 @@ const buildPrompt = location => pipe(
 const runClaude = prompt => {
   info('Running Claude prompt')
   const stdout = execSync(`claude --dangerously-skip-permissions \
---strict-mcp-config" --print`, { input: prompt })
+--strict-mcp-config --print`, { input: prompt })
   // --strict-mcp-config --mcp-config ".mcp-playwright.json" --print`, { input: prompt })
   info(stdout.toString())
 }
