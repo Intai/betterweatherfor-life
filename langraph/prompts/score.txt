@@ -48,7 +48,7 @@ The overall wind condition is the worse of wind speed and wind gust conditions.
 SUP requires calmer wind than kayaking — standing on a board has a high center of gravity, making it far more wind-sensitive than seated kayaking.
 
 Wind direction:
-- SUP: Onshore/cross-shore ideal, offshore unsuitable.
+- SUP: Calm ideal, wind-against-tide unsuitable.
 - Kayaking: Calm ideal, wind-against-tide unsuitable.
 - Snorkelling: Calm ideal (affects surface chop and visibility).
 - Cycling: Headwind/crosswind degrades, tailwind helps.
@@ -168,7 +168,7 @@ When a time window spans multiple hours, aggregate each factor as follows (these
 - Temperature/feels-like: use the best-case (closest to ideal range) — users can time their activity to the most comfortable part of the window.
 - Daylight: use the percentage of the window that falls within usable-light hours.
 - UV index: use the worst-case (highest).
-- Humidity: use the worst-case (furthest from ideal range).
+- Humidity: use the best-case (closest to ideal range) — users can time their activity to the most comfortable part of the window.
 - Underwater visibility: use the worst-case (lowest estimate).
 
 All `summary` fields must explain how conditions affect the specific activity — never use generic labels like "Unsuitable conditions". Mention the dominant factor(s) and why they matter for that activity. Examples:
@@ -196,7 +196,7 @@ Output in the following JSON format:
     timeRange: 'all-day',
     score: 85,
     condition: 'ideal',
-    wind: {{ speed: '8km/h', gust: '12km/h', direction: 'NE', condition: 'ideal', summary: 'Light onshore breeze. Ideal for paddling - will gently push you back to shore.' }},
+    wind: {{ speed: '8km/h', gust: '12km/h', direction: 'NE', condition: 'ideal', summary: 'Light 8km/h NE breeze, easy paddling conditions.' }},
     precipitation: {{ amount: '0mm', chance: '5%', condition: 'ideal', summary: 'Dry conditions expected through the morning window.' }},
     tide: {{ state: 'Rising', percentage: 70, nextHigh: '10:30', nextLow: '16:15', swell: '0.5m', condition: 'ideal', summary: 'Rising tide with gentle flow. Good water depth at launch. Low 0.5m swell.' }},
     water: {{ quality: 'Green', condition: 'ideal', summary: 'No contamination risk detected. Safe for swimming and paddling.' }},
