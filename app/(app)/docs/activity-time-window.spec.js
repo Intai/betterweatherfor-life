@@ -205,6 +205,13 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
 
     // And the "Kayaking" activity pill should be unselected
     await expect(kayaking).toHaveAttribute('class', /bg-secondary/);
+
+    // When I reload the page
+    await page.reload();
+
+    // Then the "Cycling" activity pill should be selected
+    // (the selected activity is persisted to a cookie and restored on reload)
+    await expect(page.getByTestId('activity-cycling')).toHaveAttribute('class', /bg-primary/);
   });
 
   // ===========================================================

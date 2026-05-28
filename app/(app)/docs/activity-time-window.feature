@@ -65,6 +65,8 @@ Feature: Activity Selector and Time Window Picker
     When I tap the "Cycling" activity pill
     Then the "Cycling" activity pill should be selected
     And the "Kayaking" activity pill should be unselected
+    When I reload the page
+    Then the "Cycling" activity pill should be selected
 
   # =============================================================================
   # Scenario Group: Time Window Picker - Default State and Layout
