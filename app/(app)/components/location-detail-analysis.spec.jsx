@@ -52,4 +52,23 @@ describe('LocationDetailAnalysis', () => {
     expect(paragraphs[2]).toHaveTextContent('Third paragraph.')
     expect(paragraphs[2]).not.toHaveClass('mb-3')
   })
+
+  it('should split analysis containing literal escaped newlines into paragraphs', () => {
+    render(
+      <LocationDetailAnalysis
+        analysis={'First paragraph.\\n\\nSecond paragraph.\\n\\nThird paragraph.'}
+        condition="ideal"
+      />,
+    )
+
+    const card = screen.getByTestId('analysis-card')
+    const paragraphs = card.querySelectorAll('p')
+    expect(paragraphs).toHaveLength(3)
+    expect(paragraphs[0]).toHaveTextContent('First paragraph.')
+    expect(paragraphs[0]).toHaveClass('mb-3')
+    expect(paragraphs[1]).toHaveTextContent('Second paragraph.')
+    expect(paragraphs[1]).toHaveClass('mb-3')
+    expect(paragraphs[2]).toHaveTextContent('Third paragraph.')
+    expect(paragraphs[2]).not.toHaveClass('mb-3')
+  })
 })

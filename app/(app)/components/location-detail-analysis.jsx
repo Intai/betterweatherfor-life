@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 export default function LocationDetailAnalysis({ analysis, condition }) {
   const { t } = useTranslation()
-  const paragraphs = analysis.split('\n\n')
+  const paragraphs = analysis.split(/\\n\\n|\n\n/)
 
   return (
     <section className="px-4 pb-4" data-testid="location-detail-analysis">
