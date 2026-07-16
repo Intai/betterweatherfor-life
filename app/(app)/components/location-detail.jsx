@@ -17,7 +17,7 @@ import { findBestHour } from '@/app/utils/forecast'
  * @param {string} props.geolocation - Coordinates string in "lat,lng" format.
  */
 export default function LocationDetail({ geolocation }) {
-  const { selectedDay, selectedDate, selectedTimeRange } = useForecastStore()
+  const { selectedActivity, selectedDay, selectedDate, selectedTimeRange } = useForecastStore()
   const entry = useForecastEntry(geolocation)
   const locationForecast = entry?.[1]
 
@@ -36,6 +36,7 @@ export default function LocationDetail({ geolocation }) {
         timeRange={selectedTimeRange}
       />
       <LocationDetailConditions
+        activity={selectedActivity}
         wind={locationForecast.wind}
         tide={locationForecast.tide}
         water={locationForecast.water}

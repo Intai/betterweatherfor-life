@@ -15,6 +15,7 @@ import LocationDetailFactorWind from '@/app/(app)/components/location-detail-fac
  * Renders a "Conditions" section with a vertical stack of factor cards
  * for each non-null condition field in the forecast entry.
  * @param {Object} props
+ * @param {string} props.activity - Selected activity key (e.g. 'sup') used to name the section heading.
  * @param {Object} props.wind - Wind condition data.
  * @param {Object} props.tide - Tide condition data.
  * @param {Object} props.water - Water quality data.
@@ -26,6 +27,7 @@ import LocationDetailFactorWind from '@/app/(app)/components/location-detail-fac
  * @param {Object} props.daylight - Daylight data.
  */
 export default function LocationDetailConditions({
+  activity,
   wind,
   tide,
   water,
@@ -41,7 +43,7 @@ export default function LocationDetailConditions({
   return (
     <section data-testid="conditions-section" className="px-4 pb-6 md:px-6">
       <h2 className="text-lg font-semibold mb-4">
-        {t('locationDetail.conditions')}
+        {t('locationDetail.conditions', { activity: t(`home.activities.${activity}`) })}
       </h2>
       <div className="space-y-4 md:grid md:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] md:gap-4 md:space-y-0">
         {wind && <LocationDetailFactorWind wind={wind} />}

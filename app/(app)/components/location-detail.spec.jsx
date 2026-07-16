@@ -7,6 +7,7 @@ jest.mock('@/app/(app)/stores/forecast-selectors', () => ({
 
 jest.mock('@/app/(app)/stores/forecast-store', () => ({
   useForecastStore: () => ({
+    selectedActivity: 'sup',
     selectedDay: 'today',
     selectedDate: null,
     selectedTimeRange: 'all-day',
@@ -20,8 +21,12 @@ jest.mock('@/app/(app)/components/location-detail-score', () =>
 )
 
 jest.mock('@/app/(app)/components/location-detail-conditions', () =>
-  function MockConditions(props) {
-    return <div data-testid="conditions">{Object.keys(props).filter(k => props[k]).join(',')}</div>
+  function MockConditions({ activity, ...props }) {
+    return (
+      <div data-testid="conditions" data-activity={activity}>
+        {Object.keys(props).filter(k => props[k]).join(',')}
+      </div>
+    )
   },
 )
 
@@ -83,6 +88,14 @@ describe('LocationDetail', () => {
     expect(screen.getByTestId('conditions')).toHaveTextContent('wind,temp')
     expect(screen.getByTestId('analysis')).toHaveTextContent('Great conditions today.-ideal')
     expect(screen.getByTestId('forecast-strip')).toHaveTextContent('3')
+  })
+
+  it('should pass the selected activity from the store to conditions', () => {
+    useForecastEntry.mockReturnValue(['forecast-key', baseEntry])
+
+    render(<LocationDetail geolocation="-36.8,174.7" />)
+
+    expect(screen.getByTestId('conditions')).toHaveAttribute('data-activity', 'sup')
   })
 
   it('should omit analysis section when entry has no analysis', () => {

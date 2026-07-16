@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react'
-
-jest.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: key => key.split('.').pop() }),
-}))
-
+import I18nProvider from '@/app/components/i18n-provider'
 import LocationDetailConditions from './location-detail-conditions'
+
+// Render inside the app's real, initialized i18n instance (app/i18n.js) so t()
+// resolves against the actual en/translation.json strings and interpolation.
+const renderWithI18n = ui => render(ui, { wrapper: I18nProvider })
 
 describe('LocationDetailConditions', () => {
   const windData = {
@@ -60,9 +60,10 @@ describe('LocationDetailConditions', () => {
     condition: 'ideal',
   }
 
-  it('should render conditions heading', () => {
-    render(
+  it('should name the selected activity in the conditions heading', () => {
+    renderWithI18n(
       <LocationDetailConditions
+        activity="sup"
         wind={windData}
         tide={null}
         water={null}
@@ -75,14 +76,34 @@ describe('LocationDetailConditions', () => {
       />,
     )
 
-    const heading = screen.getByText('conditions')
+    const heading = screen.getByText('Conditions for SUP')
     expect(heading.tagName).toBe('H2')
     expect(heading).toHaveClass('text-lg', 'font-semibold')
   })
 
-  it('should render factor cards for all non-null factors', () => {
-    render(
+  it('should name a different selected activity in the conditions heading', () => {
+    renderWithI18n(
       <LocationDetailConditions
+        activity="kayaking"
+        wind={windData}
+        tide={null}
+        water={null}
+        temp={null}
+        precipitation={null}
+        uv={null}
+        humidity={null}
+        visibility={null}
+        daylight={null}
+      />,
+    )
+
+    expect(screen.getByText('Conditions for Kayaking')).toBeInTheDocument()
+  })
+
+  it('should render factor cards for all non-null factors', () => {
+    renderWithI18n(
+      <LocationDetailConditions
+        activity="sup"
         wind={windData}
         tide={tideData}
         water={waterData}
@@ -100,8 +121,9 @@ describe('LocationDetailConditions', () => {
   })
 
   it('should skip null factors and only render non-null ones', () => {
-    render(
+    renderWithI18n(
       <LocationDetailConditions
+        activity="sup"
         wind={windData}
         tide={null}
         water={null}
@@ -119,8 +141,9 @@ describe('LocationDetailConditions', () => {
   })
 
   it('should render no factor cards when all factors are null', () => {
-    render(
+    renderWithI18n(
       <LocationDetailConditions
+        activity="sup"
         wind={null}
         tide={null}
         water={null}
@@ -133,13 +156,14 @@ describe('LocationDetailConditions', () => {
       />,
     )
 
-    expect(screen.getByText('conditions')).toBeInTheDocument()
+    expect(screen.getByText('Conditions for SUP')).toBeInTheDocument()
     expect(screen.queryAllByTestId('factor-card')).toHaveLength(0)
   })
 
   it('should render all nine factor cards when all factors are provided', () => {
-    render(
+    renderWithI18n(
       <LocationDetailConditions
+        activity="sup"
         wind={windData}
         tide={tideData}
         water={waterData}

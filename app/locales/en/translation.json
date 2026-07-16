@@ -84,7 +84,7 @@
     "today": "Today"
   },
   "locationDetail": {
-    "conditions": "Conditions",
+    "conditions": "Conditions for {{activity}}",
     "aiAnalysis": "AI Analysis",
     "forecast": "Forecast",
     "share": "Share Location",
