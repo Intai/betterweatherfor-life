@@ -1,22 +1,97 @@
-import { expect, test } from '@playwright/test';
+import { chromium, expect, test } from '@playwright/test';
+import { PlaywrightVisualRegressionTracker } from '@visual-regression-tracker/agent-playwright';
 import { execSync } from 'child_process';
+import { ignoreAreasOf } from './vrt-ignore-areas.js';
+
+// ============================================================
+// Visual Regression Tracking
+// ============================================================
+
+// Track only when the VRT backend is fully configured; otherwise the spec runs unchanged
+const isVrtEnabled = Boolean(
+  process.env.VRT_APIURL &&
+    process.env.VRT_APIKEY &&
+    process.env.VRT_PROJECT &&
+    process.env.VRT_BRANCHNAME,
+);
+
+// Reads VRT_APIURL / VRT_PROJECT / VRT_APIKEY / VRT_BRANCHNAME / VRT_CIBUILDID / VRT_ENABLESOFTASSERT
+const vrt = isVrtEnabled ? new PlaywrightVisualRegressionTracker(chromium.name()) : null;
+
+// page.screenshot() defaults to animations: 'allow', unlike toHaveScreenshot()
+const DEFAULT_SCREENSHOT_OPTIONS = { animations: 'disabled' };
+
+function withScreenshotDefaults(options) {
+  return {
+    ...options,
+    screenshotOptions: { ...DEFAULT_SCREENSHOT_OPTIONS, ...options?.screenshotOptions },
+  };
+}
+
+async function trackVisualPage(page, name, options) {
+  if (!vrt) return;
+  await vrt.trackPage(page, name, withScreenshotDefaults(options));
+}
 
 // ============================================================
 // Test Suite
 // ============================================================
 
 test.describe('Feature: Location Detail Activity Naming', () => {
+  test.beforeAll(async () => { if (vrt) await vrt.start(); });
+  test.afterAll(async () => { if (vrt) await vrt.stop(); });
+
   // ----------------------------------------------------------
   // Scenario Group: Conditions Heading Names the Selected Activity
   // ----------------------------------------------------------
 
   [
-    { activity: 'sup', activityLabel: 'SUP', url: '/location/mission-bay/-36.8547,174.8317' },
-    { activity: 'kayaking', activityLabel: 'Kayaking', url: '/location/bondi-beach/-33.8915,151.2767' },
-    { activity: 'snorkelling', activityLabel: 'Snorkelling', url: '/location/goat-island/-36.2675,174.7936' },
-    { activity: 'cycling', activityLabel: 'Cycling', url: '/location/piha-beach/-36.9553,174.4681' },
-  ].forEach(({ activity, activityLabel, url }) => {
-    test(`LDA-01: Conditions heading names the ${activityLabel} activity the forecast is tailored to @purge-data`, async ({ page, context }) => {
+    {
+      activity: 'sup',
+      activityLabel: 'SUP',
+      url: '/location/mission-bay/-36.8547,174.8317',
+      vrtNames: {
+        conditionsSection: 'LDA-01-sup-the-conditions-section-should-be-visible',
+        headingVisible: 'LDA-01-sup-the-heading-conditions-for-sup-should-be-visible-in-the-conditions-section',
+        localizedLabel: 'LDA-01-sup-the-heading-should-use-the-localized-home-activities-sup-label-sup-for-the',
+        plainHeading: 'LDA-01-sup-the-plain-heading-conditions-without-an-activity-name-should-not-be-visible',
+      },
+    },
+    {
+      activity: 'kayaking',
+      activityLabel: 'Kayaking',
+      url: '/location/bondi-beach/-33.8915,151.2767',
+      vrtNames: {
+        conditionsSection: 'LDA-01-kayaking-the-conditions-section-should-be-visible',
+        headingVisible: 'LDA-01-kayaking-the-heading-conditions-for-kayaking-should-be-visible-in-the-conditions-section',
+        localizedLabel: 'LDA-01-kayaking-the-heading-should-use-the-localized-home-activities-kayaking-label-kayaking-for',
+        plainHeading: 'LDA-01-kayaking-the-plain-heading-conditions-without-an-activity-name-should-not-be-visible',
+      },
+    },
+    {
+      activity: 'snorkelling',
+      activityLabel: 'Snorkelling',
+      url: '/location/goat-island/-36.2675,174.7936',
+      vrtNames: {
+        conditionsSection: 'LDA-01-snorkelling-the-conditions-section-should-be-visible',
+        headingVisible: 'LDA-01-snorkelling-the-heading-conditions-for-snorkelling-should-be-visible-in-the-conditions',
+        localizedLabel: 'LDA-01-snorkelling-the-heading-should-use-the-localized-home-activities-snorkelling-label',
+        plainHeading: 'LDA-01-snorkelling-the-plain-heading-conditions-without-an-activity-name-should-not-be-visible',
+      },
+    },
+    {
+      activity: 'cycling',
+      activityLabel: 'Cycling',
+      url: '/location/piha-beach/-36.9553,174.4681',
+      vrtNames: {
+        conditionsSection: 'LDA-01-cycling-the-conditions-section-should-be-visible',
+        headingVisible: 'LDA-01-cycling-the-heading-conditions-for-cycling-should-be-visible-in-the-conditions-section',
+        localizedLabel: 'LDA-01-cycling-the-heading-should-use-the-localized-home-activities-cycling-label-cycling-for',
+        plainHeading: 'LDA-01-cycling-the-plain-heading-conditions-without-an-activity-name-should-not-be-visible',
+      },
+    },
+  ].forEach(({ activity, activityLabel, url, vrtNames }) => {
+    test(`LDA-01: Conditions heading names the ${activityLabel} activity the forecast is tailored to @purge-data @screenshots`, async ({ page, context }) => {
       // @purge-data - Restore the seed data to initial state (runs FIRST)
       execSync('make reseed', { stdio: 'inherit' });
 
@@ -35,24 +110,36 @@ test.describe('Feature: Location Detail Activity Naming', () => {
       await expect(
         page.getByTestId('location-detail').getByTestId('conditions-section'),
       ).toBeVisible();
+      await trackVisualPage(page, vrtNames.conditionsSection, {
+        ignoreAreas: await ignoreAreasOf(page, ['forecast-date']),
+      });
 
       // And the heading "Conditions for <activityLabel>" should be visible in the conditions section
       await expect(
         page.getByTestId('location-detail').getByTestId('conditions-section')
           .getByRole('heading', { name: `Conditions for ${activityLabel}` }),
       ).toBeVisible();
+      await trackVisualPage(page, vrtNames.headingVisible, {
+        ignoreAreas: await ignoreAreasOf(page, ['forecast-date']),
+      });
 
       // And the heading should use the localized "home.activities.<activity>" label "<activityLabel>" for the activity name
       await expect(
         page.getByTestId('location-detail').getByTestId('conditions-section')
           .getByRole('heading', { name: `Conditions for ${activityLabel}` }),
       ).toContainText(activityLabel);
+      await trackVisualPage(page, vrtNames.localizedLabel, {
+        ignoreAreas: await ignoreAreasOf(page, ['forecast-date']),
+      });
 
       // And the plain heading "Conditions" without an activity name should not be visible
       await expect(
         page.getByTestId('location-detail').getByTestId('conditions-section')
           .getByRole('heading', { name: 'Conditions', exact: true }),
       ).toBeHidden();
+      await trackVisualPage(page, vrtNames.plainHeading, {
+        ignoreAreas: await ignoreAreasOf(page, ['forecast-date']),
+      });
     });
   });
 

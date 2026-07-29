@@ -13,6 +13,7 @@
     "test:e2e": "npx playwright test",
     "test:e2e:headed": "npx playwright test --headed",
     "test:e2e:ui": "npx playwright test --ui",
+    "test:vr": "npx playwright test --grep @screenshots",
     "prepare": "husky"
   },
   "dependencies": {
@@ -44,6 +45,7 @@
     "@testing-library/jest-dom": "^6",
     "@testing-library/react": "^16",
     "@testing-library/user-event": "^14",
+    "@visual-regression-tracker/agent-playwright": "^5.3.1",
     "babel-plugin-react-compiler": "^1.0.0",
     "dotenv": "^17.2.4",
     "drizzle-kit": "^0.31.9",

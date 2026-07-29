@@ -17,7 +17,7 @@ Feature: Location Detail Activity Naming
   # Scenario Group: Conditions Heading Names the Selected Activity
   # =============================================================================
 
-  @purge-data
+  @purge-data @screenshots
   Scenario Outline: LDA-01: Conditions heading names the <activityLabel> activity the forecast is tailored to
     Given the browser viewport is 375px
     And the browser cookie "selectedActivity" is set to "<activity>" in context

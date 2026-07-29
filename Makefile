@@ -1,7 +1,7 @@
 -include .env
 export
 
-.PHONY: help dev dev-bg dev-stop prod prod-stop db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean k8s-forecast-suspend tf-plan tf-apply
+.PHONY: help dev dev-bg dev-stop prod prod-stop vrt vrt-bg vrt-stop vrt-creds vrt-reset db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean k8s-forecast-suspend tf-plan tf-apply
 .DEFAULT_GOAL := help
 
 help: ## Show available commands
@@ -21,6 +21,21 @@ prod: ## Start production environment
 
 prod-stop: ## Stop production environment
 	docker compose --profile prod down
+
+vrt: ## Start visual regression tracker on port 8080
+	docker compose -f docker-compose.vrt.yml up
+
+vrt-bg: ## Start visual regression tracker in background
+	docker compose -f docker-compose.vrt.yml up -d
+
+vrt-stop: ## Stop visual regression tracker
+	docker compose -f docker-compose.vrt.yml down
+
+vrt-creds: ## Show the seeded visual regression tracker credentials
+	docker compose -f docker-compose.vrt.yml logs vrt-migration
+
+vrt-reset: ## Delete visual regression tracker data including baselines
+	docker compose -f docker-compose.vrt.yml down -v
 
 k8s-dev: ## Start local Kubernetes dev environment with file sync
 	skaffold dev --cache-artifacts --auto-build=false
