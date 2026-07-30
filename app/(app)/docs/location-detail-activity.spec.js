@@ -104,14 +104,14 @@ test.describe('Feature: Location Detail Activity Naming', () => {
       ]);
 
       // When I navigate to the "<url>" page
-      await page.goto(`http://localhost:3000${url}`);
+      await page.goto(url);
 
       // Then the conditions section should be visible
       await expect(
         page.getByTestId('location-detail').getByTestId('conditions-section'),
       ).toBeVisible();
       await trackVisualPage(page, vrtNames.conditionsSection, {
-        ignoreAreas: await ignoreAreasOf(page, ['forecast-date']),
+        ignoreAreas: await ignoreAreasOf(page, ['forecast-date'], { paddingX: 36 }),
       });
 
       // And the heading "Conditions for <activityLabel>" should be visible in the conditions section
@@ -120,7 +120,7 @@ test.describe('Feature: Location Detail Activity Naming', () => {
           .getByRole('heading', { name: `Conditions for ${activityLabel}` }),
       ).toBeVisible();
       await trackVisualPage(page, vrtNames.headingVisible, {
-        ignoreAreas: await ignoreAreasOf(page, ['forecast-date']),
+        ignoreAreas: await ignoreAreasOf(page, ['forecast-date'], { paddingX: 36 }),
       });
 
       // And the heading should use the localized "home.activities.<activity>" label "<activityLabel>" for the activity name
@@ -129,7 +129,7 @@ test.describe('Feature: Location Detail Activity Naming', () => {
           .getByRole('heading', { name: `Conditions for ${activityLabel}` }),
       ).toContainText(activityLabel);
       await trackVisualPage(page, vrtNames.localizedLabel, {
-        ignoreAreas: await ignoreAreasOf(page, ['forecast-date']),
+        ignoreAreas: await ignoreAreasOf(page, ['forecast-date'], { paddingX: 36 }),
       });
 
       // And the plain heading "Conditions" without an activity name should not be visible
@@ -138,7 +138,7 @@ test.describe('Feature: Location Detail Activity Naming', () => {
           .getByRole('heading', { name: 'Conditions', exact: true }),
       ).toBeHidden();
       await trackVisualPage(page, vrtNames.plainHeading, {
-        ignoreAreas: await ignoreAreasOf(page, ['forecast-date']),
+        ignoreAreas: await ignoreAreasOf(page, ['forecast-date'], { paddingX: 36 }),
       });
     });
   });
@@ -157,7 +157,7 @@ test.describe('Feature: Location Detail Activity Naming', () => {
     ]);
 
     // When I navigate to the "/location/mission-bay/-36.8547,174.8317" page
-    await page.goto('http://localhost:3000/location/mission-bay/-36.8547,174.8317');
+    await page.goto('/location/mission-bay/-36.8547,174.8317');
 
     // Then the heading "Conditions for SUP" should be visible in the conditions section
     await expect(
@@ -171,7 +171,7 @@ test.describe('Feature: Location Detail Activity Naming', () => {
     ]);
 
     // And I navigate to the "/location/piha-beach/-36.9553,174.4681" page
-    await page.goto('http://localhost:3000/location/piha-beach/-36.9553,174.4681');
+    await page.goto('/location/piha-beach/-36.9553,174.4681');
 
     // Then the heading "Conditions for Cycling" should be visible in the conditions section
     await expect(
@@ -191,7 +191,7 @@ test.describe('Feature: Location Detail Activity Naming', () => {
     ]);
 
     // And I navigate to the "/location/goat-island/-36.2675,174.7936" page
-    await page.goto('http://localhost:3000/location/goat-island/-36.2675,174.7936');
+    await page.goto('/location/goat-island/-36.2675,174.7936');
 
     // Then the heading "Conditions for Snorkelling" should be visible in the conditions section
     await expect(
@@ -225,7 +225,7 @@ test.describe('Feature: Location Detail Activity Naming', () => {
       ]);
 
       // When I navigate to the "<url>" page
-      await page.goto(`http://localhost:3000${url}`);
+      await page.goto(url);
 
       // Then the score card best-hour line should be visible
       await expect(

@@ -13,14 +13,14 @@ Extends the plugin skill's VRT rules.
   layout change and are unreviewable in a diff.
 
   ```javascript
-  ignoreAreas: await ignoreAreasOf(page, ['forecast-date'])
+  ignoreAreas: await ignoreAreasOf(page, ['forecast-date'], { paddingX: 36 })
   ```
 
   `db/seed.js` dates forecasts relative to today, so any element rendering a forecast date changes
   daily and would invalidate its baseline overnight. Pass whichever volatile testids are present on
-  the page under capture:
+  the page under capture, with the padding its box needs:
 
-  | testid | Renders |
-  |--------|---------|
-  | `forecast-date` | Date and time window under the score circle on location detail |
-  | `day-selector-strip` | Day tabs on the 7-day forecast page |
+  | testid | Renders | Padding |
+  |--------|---------|---------|
+  | `forecast-date` | Date and time window under the score circle on location detail | `{ paddingX: 36 }` |
+  | `day-selector-strip` | Day tabs on the 7-day forecast page | defaults |
