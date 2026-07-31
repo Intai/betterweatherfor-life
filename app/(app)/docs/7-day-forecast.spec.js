@@ -6,7 +6,7 @@ import { execSync } from 'child_process';
 // ============================================================
 
 // Background: Given the application is running
-// (no special setup needed - app runs at localhost:3000)
+// (no special setup needed - navigations resolve against use.baseURL)
 
 // ============================================================
 // Test Suite
@@ -25,7 +25,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
 
     // Then the top appbar should be sticky at the top of the viewport
     const appbarStyle = await page.getByTestId('top-appbar-mobile-sub').evaluate((el) => {
@@ -57,7 +57,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
 
     // Then the activity selector should be visible
     await expect(page.getByTestId('activity-selector')).toBeVisible();
@@ -112,7 +112,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
 
     // And I select the "SUP" activity pill
     await page.getByTestId('activity-selector').getByTestId('activity-sup').click();
@@ -166,7 +166,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
 
     // And I tap the Day 7 button in the day selector strip
     await page.getByTestId('forecast-day-list').getByTestId('day-selector-strip').getByTestId('day-selector-button').last().click();
@@ -184,7 +184,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await page.setViewportSize({ width: 667, height: 375 });
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
 
     // Then the day selector strip should not be visible
     await expect(page.getByTestId('forecast-day-list').getByTestId('day-selector-strip')).toBeHidden();
@@ -217,7 +217,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await page.setViewportSize({ width: 768, height: 1024 });
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
 
     // Then the day selector strip should be visible
     await expect(page.getByTestId('forecast-day-list').getByTestId('day-selector-strip')).toBeVisible();
@@ -244,7 +244,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await page.setViewportSize({ width: 1024, height: 768 });
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
 
     // Then the day selector strip should be visible
     await expect(page.getByTestId('forecast-day-list').getByTestId('day-selector-strip')).toBeVisible();
@@ -271,7 +271,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
 
     // Then the day selector strip should be visible
     await expect(page.getByTestId('forecast-day-list').getByTestId('day-selector-strip')).toBeVisible();
@@ -313,7 +313,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
       await page.setViewportSize({ width: 375, height: 812 });
 
       // When I navigate to the "/auckland/forecast" page
-      await page.goto('http://localhost:3000/auckland/forecast');
+      await page.goto('/auckland/forecast');
       await page.waitForLoadState('networkidle');
 
       const card = page.getByTestId('forecast-day-list').getByTestId('forecast-cards').getByTestId('forecast-day-card').nth(day - 1);
@@ -382,7 +382,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
       await page.setViewportSize({ width: 375, height: 812 });
 
       // When I navigate to the "/auckland/forecast" page
-      await page.goto('http://localhost:3000/auckland/forecast');
+      await page.goto('/auckland/forecast');
       await page.waitForLoadState('networkidle');
 
       // And I select the "Cycling" activity pill
@@ -444,7 +444,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     const page = await context.newPage();
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
     await page.waitForLoadState('networkidle');
 
     // And I select the "SUP" activity pill
@@ -524,7 +524,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     const page = await context.newPage();
 
     // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
+    await page.goto('/forecast');
 
     // Then the empty state should be displayed
     await expect(page.getByTestId('forecast-day-list').getByTestId('forecast-empty')).toBeVisible();
@@ -545,7 +545,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await expect(page).toHaveURL(/\/home$/);
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
 
     // And I select the "Kayaking" activity pill
     await page.getByTestId('activity-kayaking').click();
@@ -578,7 +578,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     const page = await context.newPage();
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // And I select the "SUP" activity pill
     await page.getByTestId('activity-sup').click();
@@ -618,7 +618,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     const page = await context.newPage();
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
     await page.waitForLoadState('networkidle');
 
     // And I use Tab to navigate to the first day card
@@ -656,7 +656,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
 
     // And I use Tab to navigate to the day selector strip
     // Tab order: Back link (1), SUP (2), Kayaking (3), Snorkelling (4), Cycling (5), first day button (6)
@@ -698,7 +698,7 @@ test.describe('Feature: 7-Day Forecast Page', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/forecast" page
-    await page.goto('http://localhost:3000/auckland/forecast');
+    await page.goto('/auckland/forecast');
 
     // And I use Tab to navigate to the back button
     await page.keyboard.press('Tab');

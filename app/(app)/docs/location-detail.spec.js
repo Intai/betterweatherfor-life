@@ -7,7 +7,7 @@ import { execSync } from 'child_process';
 
 async function setupBackground(page) {
   // Background: navigate to home page with default SUP activity and Today/All day
-  await page.goto('http://localhost:3000/auckland/home');
+  await page.goto('/auckland/home');
   await page.waitForLoadState('networkidle');
 }
 
@@ -107,7 +107,7 @@ test.describe('Feature: Location Detail Page', () => {
       ]);
 
       // When I navigate to the "<url>" page
-      await page.goto(`http://localhost:3000${url}`);
+      await page.goto(url);
 
       // Then the page title metadata should contain "<name>"
       await expect(page).toHaveTitle(new RegExp(name));
@@ -143,7 +143,7 @@ test.describe('Feature: Location Detail Page', () => {
     ]);
 
     // When I navigate to the "/location/mission-bay/-36.8547,174.8317" page
-    await page.goto('http://localhost:3000/location/mission-bay/-36.8547,174.8317');
+    await page.goto('/location/mission-bay/-36.8547,174.8317');
 
     // Then the heading "Conditions" should be visible
     await expect(page.getByTestId('conditions-section').getByRole('heading', { name: 'Conditions' })).toBeVisible();
@@ -238,7 +238,7 @@ test.describe('Feature: Location Detail Page', () => {
     ]);
 
     // When I navigate to the "/location/goat-island/-36.2675,174.7936" page
-    await page.goto('http://localhost:3000/location/goat-island/-36.2675,174.7936');
+    await page.goto('/location/goat-island/-36.2675,174.7936');
 
     // Then the heading "Conditions" should be visible
     await expect(page.getByTestId('conditions-section').getByRole('heading', { name: 'Conditions' })).toBeVisible();
@@ -342,7 +342,7 @@ test.describe('Feature: Location Detail Page', () => {
     ]);
 
     // When I navigate to the "/location/piha-beach/-36.9553,174.4681" page
-    await page.goto('http://localhost:3000/location/piha-beach/-36.9553,174.4681');
+    await page.goto('/location/piha-beach/-36.9553,174.4681');
 
     // Then the heading "Conditions" should be visible
     await expect(page.getByTestId('conditions-section').getByRole('heading', { name: 'Conditions' })).toBeVisible();
@@ -444,7 +444,7 @@ test.describe('Feature: Location Detail Page', () => {
     ]);
 
     // When I navigate to the "/location/mission-bay/-36.8547,174.8317" page
-    await page.goto('http://localhost:3000/location/mission-bay/-36.8547,174.8317');
+    await page.goto('/location/mission-bay/-36.8547,174.8317');
 
     // Then the heading "AI Analysis" should be visible
     await expect(page.getByTestId('location-detail-analysis').getByRole('heading', { name: 'AI Analysis' })).toBeVisible();
@@ -489,7 +489,7 @@ test.describe('Feature: Location Detail Page', () => {
       ]);
 
       // When I navigate to the "<url>" page
-      await page.goto(`http://localhost:3000${url}`);
+      await page.goto(url);
 
       // Then the AI analysis card should have a subtle tint of the "<theme>" colour as background
       const hasTint = await page.getByTestId('location-detail-analysis').getByTestId('analysis-card').evaluate(
@@ -515,7 +515,7 @@ test.describe('Feature: Location Detail Page', () => {
       ]);
 
       // When I navigate to the "/location/takapuna-beach/-36.7878,174.7768" page
-      await page.goto('http://localhost:3000/location/takapuna-beach/-36.7878,174.7768');
+      await page.goto('/location/takapuna-beach/-36.7878,174.7768');
 
       // Then a share icon button should be visible in the top app bar
       await expect(page.locator('[data-testid="top-appbar-share"]:visible')).toBeVisible();
@@ -551,7 +551,7 @@ test.describe('Feature: Location Detail Page', () => {
     ]);
 
     // When I navigate to the "/location/mission-bay/-36.8547,174.8317" page
-    await page.goto('http://localhost:3000/location/mission-bay/-36.8547,174.8317');
+    await page.goto('/location/mission-bay/-36.8547,174.8317');
 
     // Then the heading "Forecast" should be visible
     await expect(page.getByTestId('location-detail').getByRole('heading', { name: 'Forecast' })).toBeVisible();
@@ -636,7 +636,7 @@ test.describe('Feature: Location Detail Page', () => {
     await context.clearCookies();
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
     await page.waitForLoadState('networkidle');
 
     // And I tap the "Mission Bay" location card
@@ -673,7 +673,7 @@ test.describe('Feature: Location Detail Page', () => {
     ]);
 
     // When I navigate to the "/location/mission-bay/-36.8547,174.8317" page
-    await page.goto('http://localhost:3000/location/mission-bay/-36.8547,174.8317');
+    await page.goto('/location/mission-bay/-36.8547,174.8317');
 
     // Mock navigator.share before tabbing to the share button
     await page.evaluate(() => {
@@ -713,7 +713,7 @@ test.describe('Feature: Location Detail Page', () => {
     await context.clearCookies();
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
     await page.waitForLoadState('networkidle');
 
     // Then the "SUP" activity pill should be selected

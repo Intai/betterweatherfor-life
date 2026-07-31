@@ -23,6 +23,14 @@ process.env.VRT_CIBUILDID ||= gitOutput('git rev-parse HEAD')
 // Default soft-assert to true unless the project opted into strict mode
 process.env.VRT_ENABLESOFTASSERT ??= 'true'
 
+// PLAYWRIGHT_WEB_SERVER is ours, not one of Playwright's own PLAYWRIGHT_* variables - it
+// overrides the webServer command below. The Makefile e2e targets set it: prod-e2e points
+// BASE_URL at nginx and PLAYWRIGHT_WEB_SERVER at the prod compose profile, while
+// k8s-prod-e2e clears it because the site it tests is already deployed. Nullish coalescing
+// rather than || so that cleared empty string means "manage no server" instead of the default.
+const baseURL = process.env.BASE_URL || 'http://localhost:3000'
+const webServerCommand = process.env.PLAYWRIGHT_WEB_SERVER ?? 'make dev-bg'
+
 export default defineConfig({
   testDir: './app',
   testMatch: '**/docs/*.spec.js',
@@ -36,7 +44,7 @@ export default defineConfig({
   // Closes the VRT build once per run - see the file for why afterAll cannot own this.
   globalTeardown: './app/(app)/docs/vrt-teardown.js',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -48,9 +56,11 @@ export default defineConfig({
     name: 'chromium',
     use: { ...devices['Desktop Chrome'] },
   }],
-  webServer: [{
-    command: 'make dev-bg',
-    url: 'http://localhost:3000',
+  // No server to manage when testing an already deployed site - see PLAYWRIGHT_WEB_SERVER above.
+  webServer: webServerCommand ? [{
+    command: webServerCommand,
+    url: baseURL,
+    timeout: 120000, // 2 minutes, the production stage may need a cold build
     reuseExistingServer: !process.env.CI,
-  }],
+  }] : undefined,
 })

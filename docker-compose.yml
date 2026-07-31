@@ -23,6 +23,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # Tagged by stage so development and production images cache side by side rather than
+    # overwriting each other under one derived name when switching between make dev and prod.
+    image: betterweatherfor-life-web:${NODE_ENV:-development}
     build:
       context: .
       target: ${NODE_ENV:-development}

@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 // ============================================================
 
 // Background: Given the application is running
-// (no special setup needed - app runs at localhost:3000)
+// (no special setup needed - navigations resolve against use.baseURL)
 
 // ============================================================
 // Test Suite
@@ -21,7 +21,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the activity selector should be visible
     const activitySelector = page.getByTestId('activity-selector');
@@ -75,7 +75,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     await page.setViewportSize({ width: 320, height: 568 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the activity selector should be visible
     const activitySelector = page.getByTestId('activity-selector');
@@ -107,7 +107,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     await page.setViewportSize({ width: 768, height: 1024 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the activity selector should be visible
     const activitySelector = page.getByTestId('activity-selector');
@@ -157,7 +157,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
       await page.setViewportSize({ width: 375, height: 812 });
 
       // When I navigate to the "/home" page
-      await page.goto('http://localhost:3000/home');
+      await page.goto('/home');
 
       // And I tap the "<activity>" activity pill
       const targetPill = page.getByTestId(testId);
@@ -179,7 +179,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the "SUP" activity pill should be selected
     const sup = page.getByTestId('activity-sup');
@@ -223,7 +223,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the time window picker should be visible
     const timeWindowPicker = page.getByTestId('time-window-picker');
@@ -299,7 +299,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     for (const timeRange of timeRanges) {
       test(`ATW-07: Selecting ${timeRange} time range for ${day} updates the button label`, async ({ page }) => {
         // When I navigate to the "/home" page
-        await page.goto('http://localhost:3000/home');
+        await page.goto('/home');
 
         // And I tap the "<day>" day option button
         const dayButton = page.getByTestId(testId);
@@ -328,7 +328,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I tap the "Pick date" day option button
     const pickDateButton = page.getByTestId('pick-date-button');
@@ -423,7 +423,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     const page = await context.newPage();
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I tap the "Pick date" day option button
     const pickDateButton = page.getByTestId('pick-date-button');
@@ -460,7 +460,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     const page = await context.newPage();
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I tap the "Pick date" day option button
     const pickDateButton = page.getByTestId('pick-date-button');
@@ -534,7 +534,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     const page = await context.newPage();
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I tap the "Pick date" day option button
     const pickDateButton = page.getByTestId('pick-date-button');
@@ -588,7 +588,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
 
   test('ATW-12: Switching between Today and Tomorrow preserves each option\'s time range independently', async ({ page }) => {
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I tap the "Today" day option button
     const todayButton = page.getByTestId('today-button');
@@ -638,7 +638,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
       await page.setViewportSize({ width, height: 1024 });
 
       // When I navigate to the "/home" page
-      await page.goto('http://localhost:3000/home');
+      await page.goto('/home');
 
       // Then the activity selector should be visible with all activity pills in a single row
       const activitySelector = page.getByTestId('activity-selector');
@@ -699,7 +699,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I use Tab to navigate to the activity selector
     // Tab 1: Toggle Sidebar button, Tab 2: first activity pill (SUP)
@@ -736,7 +736,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I use Tab to navigate to the "Today" day option button
     // Tab order at 375px: Toggle Sidebar -> SUP -> Kayaking -> Snorkelling -> Cycling -> Today
@@ -778,7 +778,7 @@ test.describe('Feature: Activity Selector and Time Window Picker', () => {
     const page = await context.newPage();
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I focus on the "Pick date" day option button
     await page.getByTestId('pick-date-button').evaluate((el) => el.focus());

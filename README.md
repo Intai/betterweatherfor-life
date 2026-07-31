@@ -21,7 +21,9 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
 
 - `npm test` to run all unit tests.
 - `npm run test:coverage` to generate test coverage in the `coverage` folder.
-- `npm run test:e2e` to run all Playwright integration tests.
+- `make dev-e2e` to run all Playwright integration tests.
+  - `make dev-smoke` to run only the `@smoke` scenario for a quick check.
+- `make prod-e2e` to run the `@prod` scenarios against the production build behind Nginx.
 - `pytest langraph/tests/` to run all LangGraph unit tests.
 - `pytest langraph/tests/ --cov --cov-config=langraph/pyproject.toml --cov-report=term-missing --cov-report=html` to generate LangGraph test coverage in the `htmlcov` folder.
 
@@ -30,6 +32,7 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
 - An example `terraform/main.tf` is provided for provisioning a single-node DigitalOcean Kubernetes cluster and Cloudflare.
 - Follow `k8s/production/seal-secrets.sh` to generate a public/private key pair in the Kubernetes cluster and use it to seal secrets.
 - `make k8s-prod` to deploy the PostgreSQL database, Nginx, Next.js app, and a cron job for collecting weather forecasts.
+- `make k8s-prod-e2e` to test the deployed site with the `@prod` Playwright scenarios.
 - `make k8s-db` to port-forward the Kubernetes database to `localhost:5432`, allowing you to run `make db-migrate` and `make db-studio`.
 - `make k8s-forecast-login` to log in to your Claude Code subscription, enabling AI-powered weather forecast collection and analysis.
 - `make k8s-prod-stop` to tear down the production Kubernetes deployments.

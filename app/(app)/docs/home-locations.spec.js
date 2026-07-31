@@ -8,7 +8,7 @@ import { execSync } from 'child_process';
 async function setupBackground(page) {
   // Background: Application is running with mock forecast data
   // Default activity SUP, default day Today with All day time range
-  await page.goto('http://localhost:3000/auckland/home');
+  await page.goto('/auckland/home');
   await page.waitForLoadState('networkidle');
 }
 

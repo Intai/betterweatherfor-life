@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 // ============================================================
 
 // Background: Given the application is running
-// (no special setup needed - app runs at localhost:3000)
+// (no special setup needed - navigations resolve against use.baseURL)
 
 // ============================================================
 // Test Suite
@@ -17,7 +17,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the sidebar should not be visible
     await expect(page.getByTestId('app-sidebar')).toHaveCount(0);
@@ -84,7 +84,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the sidebar should be visible
     await expect(page.getByTestId('app-sidebar')).toBeVisible();
@@ -136,7 +136,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I open the sidebar
     await page.getByTestId('app-sidebar-trigger').click();
@@ -160,7 +160,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the sidebar should be visible
     await expect(page.getByTestId('app-sidebar')).toBeVisible();
@@ -184,7 +184,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
+    await page.goto('/forecast');
 
     // Then the sidebar should be visible
     await expect(page.getByTestId('app-sidebar')).toBeVisible();
@@ -208,7 +208,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I open the sidebar
     await page.getByTestId('app-sidebar-trigger').click();
@@ -226,7 +226,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await expect(page.getByRole('dialog', { name: 'Sidebar' })).toBeHidden();
 
     // And the browser URL should be "/forecast"
-    await expect(page).toHaveURL('http://localhost:3000/forecast');
+    await expect(page).toHaveURL('/forecast');
 
     // And the page should load without a full page refresh
     expect(await page.evaluate(() => window.__SB05_NAV_MARKER__ === true)).toBe(true);
@@ -235,7 +235,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.getByTestId('top-appbar-back').click();
 
     // Then the browser URL should be "/home"
-    await expect(page).toHaveURL('http://localhost:3000/home');
+    await expect(page).toHaveURL('/home');
 
     // And the page should load without a full page refresh
     expect(await page.evaluate(() => window.__SB05_NAV_MARKER__ === true)).toBe(true);
@@ -246,7 +246,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the sidebar should be visible
     await expect(page.getByTestId('app-sidebar')).toBeVisible();
@@ -258,7 +258,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.getByTestId('app-sidebar-menu-button').filter({ hasText: '7-Day Forecast' }).click();
 
     // Then the browser URL should be "/forecast"
-    await expect(page).toHaveURL('http://localhost:3000/forecast');
+    await expect(page).toHaveURL('/forecast');
 
     // And the page should load without a full page refresh
     expect(await page.evaluate(() => window.__SB06_NAV_MARKER__ === true)).toBe(true);
@@ -274,7 +274,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
+    await page.goto('/forecast');
 
     // Then the sidebar should be visible
     await expect(page.getByTestId('app-sidebar')).toBeVisible();
@@ -286,7 +286,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.getByTestId('app-sidebar-menu-button').filter({ hasText: 'Home' }).click();
 
     // Then the browser URL should be "/home"
-    await expect(page).toHaveURL('http://localhost:3000/home');
+    await expect(page).toHaveURL('/home');
 
     // And the page should load without a full page refresh
     expect(await page.evaluate(() => window.__SB06_NAV_MARKER__ === true)).toBe(true);
@@ -302,7 +302,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the sidebar should not be visible
     await expect(page.getByTestId('app-sidebar')).toHaveCount(0);
@@ -322,7 +322,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And the sidebar is persistently visible
     await expect(page.getByTestId('app-sidebar')).toBeVisible();
@@ -345,7 +345,7 @@ test.describe('Feature: Sidebar Navigation', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I open the sidebar
     await page.getByTestId('app-sidebar-trigger').click();
@@ -376,6 +376,6 @@ test.describe('Feature: Sidebar Navigation', () => {
 
     // And I should be able to activate a focused link by pressing Enter
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL('http://localhost:3000/forecast');
+    await expect(page).toHaveURL('/forecast');
   });
 });

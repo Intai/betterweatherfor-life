@@ -40,7 +40,7 @@ test.describe('Feature: Add Location Modal', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // Then the add location (+) button should be visible in the location list header
     await expect(page.getByRole('button', { name: 'Add location' })).toBeVisible();
@@ -92,7 +92,7 @@ test.describe('Feature: Add Location Modal', () => {
       await page.setViewportSize({ width, height });
 
       // When I navigate to the "/auckland/home" page
-      await page.goto('http://localhost:3000/auckland/home');
+      await page.goto('/auckland/home');
 
       // And I tap the add location (+) button
       await page.getByTestId('add-location-button').click();
@@ -124,7 +124,7 @@ test.describe('Feature: Add Location Modal', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // And I tap the add location (+) button
     await page.getByTestId('add-location-button').click();
@@ -162,7 +162,7 @@ test.describe('Feature: Add Location Modal', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // And I tap the add location (+) button
     await page.getByTestId('add-location-button').click();
@@ -185,7 +185,7 @@ test.describe('Feature: Add Location Modal', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // And I tap the add location (+) button
     await page.getByTestId('add-location-button').click();
@@ -205,7 +205,7 @@ test.describe('Feature: Add Location Modal', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // And I tap the add location (+) button
     await page.getByTestId('add-location-button').click();
@@ -268,7 +268,7 @@ test.describe('Feature: Add Location Modal', () => {
     await page.setViewportSize({ width: 667, height: 375 });
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // And I tap the add location (+) button
     await page.getByTestId('add-location-button').click();
@@ -297,7 +297,7 @@ test.describe('Feature: Add Location Modal', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // And I tap the add location (+) button
     await page.getByTestId('add-location-button').click();
@@ -379,7 +379,7 @@ test.describe('Feature: Add Location Modal', () => {
     await setupLocalStorageWithPihaBeach(context);
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then a Scheduled Location Card should be displayed for "Piha Beach"
     await expect(page.getByTestId('scheduled-location-card').filter({ hasText: 'Piha Beach' })).toBeVisible();
@@ -403,7 +403,7 @@ test.describe('Feature: Add Location Modal', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // And I tap the add location (+) button
     await page.getByTestId('add-location-button').click();
@@ -446,7 +446,7 @@ test.describe('Feature: Add Location Modal', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // And I tap the add location (+) button
     await page.getByTestId('add-location-button').click();
@@ -467,7 +467,7 @@ test.describe('Feature: Add Location Modal', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // And I focus on the add location (+) button
     await page.getByTestId('add-location-button').focus();
@@ -514,7 +514,7 @@ test.describe('Feature: Add Location Modal', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/auckland/home" page
-    await page.goto('http://localhost:3000/auckland/home');
+    await page.goto('/auckland/home');
 
     // And I press Enter on the add location (+) button
     await page.getByTestId('add-location-button').focus();
@@ -541,7 +541,7 @@ test.describe('Feature: Add Location Modal', () => {
     await setupLocalStorageWithPihaBeach(context);
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Wait for the scheduled card to appear
     await page.getByTestId('scheduled-location-card').filter({ hasText: 'Piha Beach' }).waitFor();

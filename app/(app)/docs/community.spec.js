@@ -10,7 +10,7 @@ test.describe('Feature: Community Links', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I open the sidebar
     await page.getByTestId('app-sidebar-trigger').click();
@@ -60,12 +60,12 @@ test.describe('Feature: Community Links', () => {
     expect(discordPage.url()).toContain('Ve3TeBqZQ7');
   });
 
-  test('CL-02: Community links are visible in the sidebar on desktop', async ({ page }) => {
+  test('CL-02: Community links are visible in the sidebar on desktop @prod @smoke', async ({ page }) => {
     // Given the browser viewport is 1280px
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the sidebar should be visible
     await expect(page.getByTestId('app-sidebar')).toBeVisible();
@@ -113,7 +113,7 @@ test.describe('Feature: Community Links', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I open the sidebar
     await page.getByTestId('app-sidebar-trigger').click();

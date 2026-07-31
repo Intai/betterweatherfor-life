@@ -1,7 +1,7 @@
 -include .env
 export
 
-.PHONY: help dev dev-bg dev-stop prod prod-stop vrt vrt-bg vrt-stop vrt-creds vrt-reset db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean k8s-forecast-suspend tf-plan tf-apply
+.PHONY: help dev dev-bg dev-stop prod prod-bg prod-stop vrt vrt-bg vrt-stop vrt-creds vrt-reset dev-e2e dev-smoke prod-e2e k8s-prod-e2e db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean k8s-forecast-suspend tf-plan tf-apply
 .DEFAULT_GOAL := help
 
 help: ## Show available commands
@@ -16,11 +16,25 @@ dev-bg: ## Start development environment in background
 dev-stop: ## Stop development environment
 	docker compose down
 
+dev-e2e: dev-bg ## Run all Playwright e2e tests against development environment
+	npm run test:e2e
+
+dev-smoke: dev-bg ## Run @smoke e2e tests against development environment
+	npm run test:e2e -- --grep @smoke
+
 prod: ## Start production environment
 	NODE_ENV=production NODE_CONFIG_ENV=production docker compose --profile prod up
 
+# Rebuilds because the production stage bakes .next at build time, so compose reusing an
+# existing image would serve a build from before the latest source change.
+prod-bg: ## Start production environment in background
+	NODE_ENV=production NODE_CONFIG_ENV=production docker compose --profile prod up -d --build
+
 prod-stop: ## Stop production environment
 	docker compose --profile prod down
+
+prod-e2e: prod-bg ## Run @prod e2e tests against production environment
+	BASE_URL=http://localhost PLAYWRIGHT_WEB_SERVER="make prod-bg" npm run test:e2e -- --grep @prod
 
 vrt: ## Start visual regression tracker on port 8080
 	docker compose -f docker-compose.vrt.yml up
@@ -65,6 +79,10 @@ endif
 k8s-prod-stop: ## Stop production Kubernetes deployment
 	kubectl delete -k k8s/production
 	-kubectl delete -f k8s/docker/do-block-storage-sc.yaml
+
+k8s-prod-e2e: ## Run @prod e2e tests against the deployed production site
+	BASE_URL=https://betterweatherfor.life PLAYWRIGHT_WEB_SERVER= \
+		npm run test:e2e -- --grep @prod --grep-invert @purge-data
 
 k8s-db: ## Port-forward K8s database to localhost:5432
 	kubectl port-forward -n betterweather svc/db 5432:5432

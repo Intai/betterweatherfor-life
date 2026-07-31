@@ -26,6 +26,7 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
 - `make dev-bg` to start development environment in background.
 - `make dev-stop` to stop development environment.
 - `make prod` to start production environment.
+- `make prod-bg` to start production environment in background.
 - `make prod-stop` to stop production environment.
 - `make vrt-bg` to start visual regression tracker on port 8080 in background.
 - `make vrt-stop` to stop visual regression tracker.

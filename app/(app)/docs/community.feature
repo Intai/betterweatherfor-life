@@ -26,6 +26,7 @@ Feature: Community Links
     Then the sidebar should remain visible
     And "https://discord.gg/Ve3TeBqZQ7" should be opened in a new browser tab
 
+  @prod @smoke
   Scenario: CL-02: Community links are visible in the sidebar on desktop
     Given the browser viewport is 1280px
     When I navigate to the "/home" page

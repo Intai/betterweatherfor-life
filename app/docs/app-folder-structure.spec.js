@@ -5,7 +5,7 @@ import { execSync } from 'child_process';
 // Helper Functions
 // ============================================================
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 // ============================================================
 // Test Suite

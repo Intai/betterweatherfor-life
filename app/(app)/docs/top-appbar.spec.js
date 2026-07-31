@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 // ============================================================
 
 // Background: Given the application is running
-// (no special setup needed - app runs at localhost:3000)
+// (no special setup needed - navigations resolve against use.baseURL)
 
 // ============================================================
 // Test Suite
@@ -21,7 +21,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the mobile home top appbar should be visible
     await expect(page.getByTestId('top-appbar-mobile-home')).toBeVisible();
@@ -50,7 +50,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 768, height: 1024 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the mobile home top appbar should be visible
     await expect(page.getByTestId('top-appbar-mobile-home')).toBeVisible();
@@ -79,7 +79,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 1024, height: 768 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the mobile home top appbar should be visible
     await expect(page.getByTestId('top-appbar-mobile-home')).toBeVisible();
@@ -112,7 +112,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
+    await page.goto('/forecast');
 
     // Then the mobile sub-page top appbar should be visible
     await expect(page.getByTestId('top-appbar-mobile-sub')).toBeVisible();
@@ -140,7 +140,7 @@ test.describe('Feature: Top Appbar', () => {
     await backButton.click();
 
     // Then the browser URL should be "/home"
-    await expect(page).toHaveURL('http://localhost:3000/home');
+    await expect(page).toHaveURL('/home');
 
     // And the page should load without a full page refresh
     expect(await page.evaluate(() => window.__TAB02_NAV_MARKER__ === true)).toBe(true);
@@ -151,7 +151,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 768, height: 1024 });
 
     // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
+    await page.goto('/forecast');
 
     // Then the mobile sub-page top appbar should be visible
     await expect(page.getByTestId('top-appbar-mobile-sub')).toBeVisible();
@@ -179,7 +179,7 @@ test.describe('Feature: Top Appbar', () => {
     await backButton.click();
 
     // Then the browser URL should be "/home"
-    await expect(page).toHaveURL('http://localhost:3000/home');
+    await expect(page).toHaveURL('/home');
 
     // And the page should load without a full page refresh
     expect(await page.evaluate(() => window.__TAB02_NAV_MARKER__ === true)).toBe(true);
@@ -190,7 +190,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 1024, height: 768 });
 
     // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
+    await page.goto('/forecast');
 
     // Then the mobile sub-page top appbar should be visible
     await expect(page.getByTestId('top-appbar-mobile-sub')).toBeVisible();
@@ -218,7 +218,7 @@ test.describe('Feature: Top Appbar', () => {
     await backButton.click();
 
     // Then the browser URL should be "/home"
-    await expect(page).toHaveURL('http://localhost:3000/home');
+    await expect(page).toHaveURL('/home');
 
     // And the page should load without a full page refresh
     expect(await page.evaluate(() => window.__TAB02_NAV_MARKER__ === true)).toBe(true);
@@ -233,7 +233,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the desktop top appbar should be visible
     await expect(page.getByTestId('top-appbar-desktop')).toBeVisible();
@@ -264,7 +264,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
+    await page.goto('/forecast');
 
     // Then the desktop top appbar should be visible
     await expect(page.getByTestId('top-appbar-desktop')).toBeVisible();
@@ -299,7 +299,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the top appbar should display the app logo
     await expect(page.getByTestId('top-appbar-mobile-home').getByTestId('app-logo')).toBeVisible();
@@ -334,7 +334,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 1024, height: 768 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the top appbar should display the app logo
     await expect(page.getByTestId('top-appbar-mobile-home').getByTestId('app-logo')).toBeVisible();
@@ -369,7 +369,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // Then the top appbar should not display the app logo
     await expect(page.getByTestId('top-appbar-mobile-home').getByTestId('app-logo')).toBeHidden();
@@ -404,7 +404,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
+    await page.goto('/forecast');
 
     // Then the top appbar should not display the app logo
     await expect(page.getByTestId('app-logo')).toBeHidden();
@@ -439,7 +439,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 1024, height: 768 });
 
     // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
+    await page.goto('/forecast');
 
     // Then the top appbar should not display the app logo
     await expect(page.getByTestId('app-logo')).toBeHidden();
@@ -474,7 +474,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
     // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
+    await page.goto('/forecast');
 
     // Then the top appbar should not display the app logo
     await expect(page.getByTestId('top-appbar-desktop').getByTestId('app-logo')).toHaveCount(0);
@@ -513,7 +513,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/home" page
-    await page.goto('http://localhost:3000/home');
+    await page.goto('/home');
 
     // And I use Tab to navigate to the hamburger menu button
     await page.keyboard.press('Tab');
@@ -533,7 +533,7 @@ test.describe('Feature: Top Appbar', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     // When I navigate to the "/forecast" page
-    await page.goto('http://localhost:3000/forecast');
+    await page.goto('/forecast');
 
     // And I use Tab to navigate to the back button
     await page.keyboard.press('Tab');
@@ -545,6 +545,6 @@ test.describe('Feature: Top Appbar', () => {
     await page.keyboard.press('Enter');
 
     // Then the browser URL should be "/home"
-    await expect(page).toHaveURL('http://localhost:3000/home');
+    await expect(page).toHaveURL('/home');
   });
 });
