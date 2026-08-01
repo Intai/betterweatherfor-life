@@ -1,12 +1,12 @@
 from unittest.mock import patch
 
 from langraph.nodes.fetch_nodes import (
-    fetch_water_quality,
-    fetch_tides,
-    fetch_swell,
-    fetch_weather,
     fetch_sea_temp,
     fetch_sun_times,
+    fetch_swell,
+    fetch_tides,
+    fetch_water_quality,
+    fetch_weather,
 )
 
 

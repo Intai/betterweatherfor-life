@@ -1,11 +1,39 @@
 -include .env
 export
 
-.PHONY: help dev dev-bg dev-stop prod prod-bg prod-stop vrt vrt-bg vrt-stop vrt-creds vrt-reset dev-e2e dev-smoke prod-e2e k8s-prod-e2e db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean k8s-forecast-suspend tf-plan tf-apply
+.PHONY: help venv lint test coverage dev dev-bg dev-stop prod prod-bg prod-stop vrt vrt-bg vrt-stop vrt-creds vrt-reset dev-e2e dev-smoke prod-e2e k8s-prod-e2e db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean k8s-forecast-suspend tf-plan tf-apply
 .DEFAULT_GOAL := help
+
+PYTHON ?= python3
+VENV := .venv
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z0-9_-]+:.*## .*$$' Makefile | sed 's/:.*## /	/' | awk -F'\t' '{printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+venv: ## Create Python virtualenv, e.g. make venv PYTHON=python3.13
+	$(PYTHON) -m venv $(VENV)
+	$(VENV)/bin/pip install -e "langraph[dev]"
+
+# Turn a missing venv into an actionable message instead of "No such file or directory".
+check-py-cmd = test -x $(VENV)/bin/$(1) || \
+	{ echo "$(1) not found - run 'make venv'"; exit 1; }
+
+lint: ## Lint all files
+	@$(call check-py-cmd,ruff)
+	npm run lint
+	$(VENV)/bin/ruff check langraph
+
+test: ## Run all unit tests
+	@$(call check-py-cmd,pytest)
+	npm test -- --silent
+	$(VENV)/bin/pytest langraph/tests/
+
+coverage: ## Run all unit tests with coverage
+	@$(call check-py-cmd,pytest)
+	npm run test:coverage -- --silent
+	$(VENV)/bin/pytest langraph/tests/ --cov \
+		--cov-config=langraph/pyproject.toml \
+		--cov-report=term-missing --cov-report=html
 
 dev: ## Start development environment
 	docker compose up

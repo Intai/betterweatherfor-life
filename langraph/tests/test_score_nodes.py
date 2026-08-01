@@ -1,12 +1,12 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from langraph.nodes.score_nodes import (
     _build_fetched_data,
     _score_activity,
-    score_sup,
+    score_cycling,
     score_kayaking,
     score_snorkelling,
-    score_cycling,
+    score_sup,
 )
 
 

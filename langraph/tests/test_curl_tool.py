@@ -1,5 +1,5 @@
 import subprocess
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from langraph.tools.curl_tool import curl
 
@@ -10,7 +10,7 @@ def test_get_request():
         result = curl.invoke({"url": "http://example.com"})
         mock_run.assert_called_once_with(
             ["curl", "-s", "-f", "-X", "GET", "http://example.com"],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True, text=True, timeout=30, check=False,
         )
         assert result == "response data"
 

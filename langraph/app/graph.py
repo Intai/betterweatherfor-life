@@ -1,21 +1,20 @@
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import END, START, StateGraph
 
 from langraph.app.state import ForecastState
 from langraph.nodes.fetch_nodes import (
-    fetch_water_quality,
-    fetch_tides,
-    fetch_swell,
-    fetch_weather,
     fetch_sea_temp,
     fetch_sun_times,
+    fetch_swell,
+    fetch_tides,
+    fetch_water_quality,
+    fetch_weather,
 )
 from langraph.nodes.score_nodes import (
-    score_sup,
+    score_cycling,
     score_kayaking,
     score_snorkelling,
-    score_cycling,
+    score_sup,
 )
-
 
 FETCH_NODES = {
     "water_quality": ("fetch_water_quality", fetch_water_quality),

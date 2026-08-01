@@ -1,4 +1,4 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from langraph.agents.fetch_agent import run_fetch_agent
 

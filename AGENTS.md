@@ -42,8 +42,11 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
   - `npm run test:e2e -- --grep "matching string"` to run specific Playwright tests.
 - `npm run test:vr` to run visual regression tests against the tracker on port 8080.
   - `npm run test:vr -- --grep "(?=.*@screenshots)(?=.*matching string)" "file.spec.js"` to run specific visual regression tests.
-- `pytest langraph/tests/ --cov --cov-config=langraph/pyproject.toml --cov-report=term-missing` to run all LangGraph unit tests with coverage.
-  - `pytest "langraph/tests/test_file.py" -k "matching_string"` to run specific LangGraph unit tests in a test file.
+- `.venv/bin/ruff check langraph` to lint all Python files.
+  - `.venv/bin/ruff check "langraph/path/to/file.py"` to lint a specific file.
+- `.venv/bin/pytest langraph/tests/ --cov --cov-config=langraph/pyproject.toml --cov-report=term-missing` to run all LangGraph unit tests with coverage.
+  - `.venv/bin/pytest "langraph/tests/test_file.py" -k "matching_string"` to run specific LangGraph unit tests in a test file.
+  - Drop the `.venv/bin/` prefix when the venv is already activated.
 
 ## Convention
 

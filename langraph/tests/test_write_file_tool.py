@@ -1,4 +1,4 @@
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
 from langraph.tools.write_file_tool import write_file
 
@@ -13,9 +13,9 @@ def test_successful_write():
 
 
 def test_io_error():
-    with patch("builtins.open", side_effect=IOError("permission denied")):
+    with patch("builtins.open", side_effect=OSError("permission denied")):
         try:
             write_file.invoke({"file_path": "/root/test.json", "content": "data"})
             assert False, "Should have raised"
-        except IOError:
+        except OSError:
             pass

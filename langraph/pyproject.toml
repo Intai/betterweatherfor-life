@@ -12,10 +12,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["langgraph-cli[inmem]", "pytest", "pytest-cov"]
+dev = ["langgraph-cli[inmem]", "pytest", "pytest-cov", "ruff"]
 
 [tool.setuptools.packages.find]
 exclude = ["tests*"]
+
+[tool.ruff]
+target-version = "py313"
 
 [tool.coverage.run]
 source = ["langraph/agents", "langraph/app", "langraph/models", "langraph/nodes", "langraph/prompts", "langraph/tools"]

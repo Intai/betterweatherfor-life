@@ -1,6 +1,6 @@
 import pytest
 
-from langraph.app.graph import build_fetch_graph, build_graph, FETCH_NODES
+from langraph.app.graph import FETCH_NODES, build_fetch_graph, build_graph
 
 
 def test_fetch_nodes_has_six_entries():

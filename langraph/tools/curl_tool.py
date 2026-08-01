@@ -4,7 +4,9 @@ from langchain_core.tools import tool
 
 
 @tool
-def curl(url: str, method: str = "GET", headers: dict = None, data: str = None) -> str:
+def curl(
+    url: str, method: str = "GET", headers: dict | None = None, data: str | None = None
+) -> str:
     """Fetch data from a URL using curl.
 
     Args:
@@ -19,5 +21,7 @@ def curl(url: str, method: str = "GET", headers: dict = None, data: str = None) 
     if data:
         args.extend(["-d", data])
     args.append(url)
-    result = subprocess.run(args, capture_output=True, text=True, timeout=30)
+    result = subprocess.run(
+        args, capture_output=True, text=True, timeout=30, check=False
+    )
     return result.stdout or result.stderr
