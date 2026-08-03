@@ -2,7 +2,11 @@ import os
 
 provider = os.environ.get("LANGGRAPH_LLM_PROVIDER", "openrouter")
 
-if provider == "xai":
+if provider == "claude-cli":
+    from langraph.models.claude_cli import ClaudeCLIModelWithTools
+
+    fetch_llm = ClaudeCLIModelWithTools(model="sonnet")
+elif provider == "xai":
     from langchain_xai import ChatXAI
 
     fetch_llm = ChatXAI(model="grok-4-1-fast-reasoning", temperature=0)

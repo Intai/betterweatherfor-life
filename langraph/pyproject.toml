@@ -3,6 +3,7 @@ name = "langraph"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
+    "claude-agent-sdk",
     "langchain-google-genai",
     "langchain-openai",
     "langchain-xai",

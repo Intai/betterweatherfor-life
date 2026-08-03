@@ -11,6 +11,12 @@ node_modules
 coverage
 playwright-report
 test-results
+htmlcov
+
+# python
+*.egg-info
+__pycache__
+.venv
 
 # environment files
 .env

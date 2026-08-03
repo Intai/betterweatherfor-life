@@ -30,6 +30,12 @@ spec:
                 - configMapRef:
                     name: web-config
               env:
+                - name: FORECAST_ENGINE
+                  value: langgraph
+                - name: LANGGRAPH_LLM_PROVIDER
+                  value: claude-cli
+                - name: LANGSMITH_TRACING
+                  value: "false"
                 - name: DATABASE_URL
                   valueFrom:
                     secretKeyRef:

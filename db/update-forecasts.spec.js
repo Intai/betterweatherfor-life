@@ -13,7 +13,8 @@ const mockReadFileSync = jest.fn()
 
 jest.mock('@/app/utils/logger', () => ({ info: jest.fn(), error: jest.fn() }))
 
-const mockConfigGet = jest.fn(() => 'claude')
+const mockConfigEngine = engine => key => (key === 'forecast.python' ? 'python3' : engine)
+const mockConfigGet = jest.fn(mockConfigEngine('claude'))
 jest.mock('config', () => ({
   __esModule: true,
   default: { get: mockConfigGet },
@@ -279,11 +280,11 @@ describe('db/update-forecasts', () => {
 
     describe('with langgraph engine', () => {
       beforeEach(() => {
-        mockConfigGet.mockReturnValue('langgraph')
+        mockConfigGet.mockImplementation(mockConfigEngine('langgraph'))
       })
 
       afterEach(() => {
-        mockConfigGet.mockReturnValue('claude')
+        mockConfigGet.mockImplementation(mockConfigEngine('claude'))
       })
 
       it('should run langgraph with correct args for a single location', async () => {
@@ -298,13 +299,13 @@ describe('db/update-forecasts', () => {
         })
 
         expect(mockExecSync).toHaveBeenCalledTimes(1)
-        const command = mockExecSync.mock.calls[0][0]
-        expect(command).toContain('python3.13 -m langraph.app.update_forecasts')
-        expect(command).toContain('--lat "-36.8547"')
-        expect(command).toContain('--lng "174.8317"')
-        expect(command).toContain('--date "2026-02-14"')
-        expect(command).toContain('--timezone "Pacific/Auckland"')
-        expect(command).toContain('--slug "mission-bay"')
+        // Assert the whole command: separate toContain checks pass even when
+        // adjacent arguments run together without a separating space.
+        expect(mockExecSync.mock.calls[0][0]).toBe(
+          'python3 -m langraph.app.update_forecasts '
+          + '--lat "-36.8547" --lng "174.8317" --date "2026-02-14" '
+          + '--timezone "Pacific/Auckland" --slug "mission-bay"',
+        )
         expect(mockExecSync.mock.calls[0][1]).not.toHaveProperty('input')
       })
 
@@ -327,12 +328,14 @@ describe('db/update-forecasts', () => {
         })
 
         expect(mockExecSync).toHaveBeenCalledTimes(2)
-        const command1 = mockExecSync.mock.calls[0][0]
-        expect(command1).toContain('--lat "-36.8547"')
-        expect(command1).toContain('--slug "mission-bay"')
-        const command2 = mockExecSync.mock.calls[1][0]
-        expect(command2).toContain('--lat "-36.7840"')
-        expect(command2).toContain('--slug "takapuna-beach"')
+        expect(mockExecSync.mock.calls[0][0]).toContain(
+          '--lat "-36.8547" --lng "174.8317" --date "2026-02-14" '
+          + '--timezone "Pacific/Auckland" --slug "mission-bay"',
+        )
+        expect(mockExecSync.mock.calls[1][0]).toContain(
+          '--lat "-36.7840" --lng "174.7740" --date "2026-02-14" '
+          + '--timezone "Pacific/Auckland" --slug "takapuna-beach"',
+        )
       })
     })
 

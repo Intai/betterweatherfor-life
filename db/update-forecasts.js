@@ -71,12 +71,12 @@ const runClaude = prompt => {
 const runLangGraph = location => {
   info('Running LangGraph forecast')
   const stdout = execSync(
-    `python3.13 -m langraph.app.update_forecasts `
+    `${config.get('forecast.python')} -m langraph.app.update_forecasts `
     + `--lat "${location.latitude}" `
     + `--lng "${location.longitude}" `
     + `--date "${formatISODate(dateNow(location.timeZone))}" `
-    + `--timezone "${location.timeZone}"`
-    + `--slug "${slugify(location.name)}" `,
+    + `--timezone "${location.timeZone}" `
+    + `--slug "${slugify(location.name)}"`,
     { cwd: resolve(currentDir, '..') },
   )
   info(stdout.toString())
