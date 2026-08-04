@@ -31,17 +31,23 @@ def main():
         "location_slug": args.slug,
     }
 
+    # Every node spawns its own `claude` CLI subprocess, so an uncapped fan-out
+    # starves a small node and the CLI misses its 60s initialize handshake.
+    config = {
+        "max_concurrency": int(os.environ.get("LANGGRAPH_MAX_CONCURRENCY", "2")),
+    }
+
     if args.fetch:
         from langraph.app.graph import build_fetch_graph
 
         graph = build_fetch_graph(args.fetch)
-        result = graph.invoke(state)
+        result = graph.invoke(state, config)
         print(result.get(args.fetch, ""))
     else:
         from langraph.app.graph import build_graph
 
         graph = build_graph()
-        result = graph.invoke(state)
+        result = graph.invoke(state, config)
         print(f"Forecast complete for {args.slug}")
 
 
