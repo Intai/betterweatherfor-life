@@ -6,6 +6,8 @@ Score the activity `{activity}` using the fetched data and criteria below. Write
 
 ## Data Granularity
 
+Each source is a `{{"fields": [...], "rows": [[...], ...]}}` object: `fields` names the columns and each entry in `rows` holds those values in the same order. Hourly sources only carry the hours from 06:00 to 22:00 local time, which is all the time windows below need.
+
 All data sources currently provide hourly or sub-daily granularity. Each field may vary across time windows:
 - Wind speed, wind gust, wind direction (hourly)
 - Temperature, feels-like temperature (hourly)
@@ -179,7 +181,9 @@ All `summary` fields must explain how conditions affect the specific activity â€
 - Bad: "28% chance of rain"
 - Bad: "Water quality is green"
 
-The `tide.swell` field must be a string with the wave height in meters (e.g. `'0.5m'`), extracted from `wavesHeight` in the swell data. Never pass the raw swell object.
+The `tide.swell` field must be a string with the wave height in meters (e.g. `'0.5m'`), extracted from `waveHeightM` in the marine data. Never pass the raw marine object.
+
+The marine model runs out before the end of the 10-day range, so its final day is all nulls. Set `tide.swell` to `null` for any window whose `waveHeightM` values are all null, and omit `temp.water` for any window whose `seaTempC` values are all null.
 
 The `analysis` field is a multi-paragraph AI analysis for the detail page. Use `\n\n` to separate paragraphs. Keep it to two or three short paragraphs â€” cover the factors that decide the score and the best window, and stop.
 

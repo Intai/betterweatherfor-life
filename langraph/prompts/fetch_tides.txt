@@ -1,5 +1,9 @@
 When are the tide turning times according to https://api.niwa.co.nz/tides/data.csv?lat={latitude}&long={longitude}&startDate={date}&numberOfDays=10&datum=LAT
 
-Respond with raw JSON only. Do not wrap in markdown code fences or backticks.
+Respond with raw JSON only. Do not wrap in markdown code fences or backticks. Use exactly this shape, one row per turning point:
+
+{{"fields":["time","type","heightM"],"rows":[["2026-08-04T04:12","Low",0.42],["2026-08-04T10:30","High",3.18]]}}
+
+Include every turning point across all 10 days, including those outside daylight hours — interpolating tide height needs the turning points on both sides of a time window. Every row must have exactly three values in the order given. `type` must be strictly High or Low.
 
 Use the curl tool with header `"accept": "text/csv"` and referrer `https://tides.niwa.co.nz/`.

@@ -1,23 +1,42 @@
 from langraph.agents.score_agent import run_score_agent
 from langraph.prompts.loader import load_prompt
 
+SECTIONS = (
+    ("water_quality", "Water Quality"),
+    ("tides", "Tides"),
+    ("weather", "Weather"),
+    ("marine", "Sea Surface Temperature and Swell"),
+    ("sun_times", "Sunrise/Sunset"),
+)
 
-def _build_fetched_data(state):
-    """Combine all fetched data into a single string for the scoring prompt."""
-    sections = []
-    if state.get("water_quality"):
-        sections.append(f"### Water Quality\n```json\n{state['water_quality']}\n```")
-    if state.get("tides"):
-        sections.append(f"### Tides\n```json\n{state['tides']}\n```")
-    if state.get("swell"):
-        sections.append(f"### Swell\n```json\n{state['swell']}\n```")
-    if state.get("weather"):
-        sections.append(f"### Weather\n```json\n{state['weather']}\n```")
-    if state.get("sea_temp"):
-        sections.append(f"### Sea Surface Temperature\n```json\n{state['sea_temp']}\n```")
-    if state.get("sun_times"):
-        sections.append(f"### Sunrise/Sunset\n```json\n{state['sun_times']}\n```")
-    return "\n\n".join(sections)
+WATER_SOURCES = ("water_quality", "tides", "weather", "marine", "sun_times")
+
+# Cycling nulls out tide, water quality, sea temperature and visibility in the scored
+# output, so passing those sources would only inflate the prompt it re-sends each turn.
+ACTIVITY_SOURCES = {
+    "sup": WATER_SOURCES,
+    "kayaking": WATER_SOURCES,
+    "snorkelling": WATER_SOURCES,
+    "cycling": ("weather", "sun_times"),
+}
+
+
+def _build_fetched_data(state, activity):
+    """Combine the fetched data an activity can actually use into a single string.
+
+    Args:
+        state: The forecast state holding each fetched source.
+        activity: The activity being scored, keying into ACTIVITY_SOURCES.
+
+    Returns:
+        The markdown sections for that activity's sources, newline separated.
+    """
+    sources = ACTIVITY_SOURCES[activity]
+    return "\n\n".join(
+        f"### {title}\n```json\n{state[key]}\n```"
+        for key, title in SECTIONS
+        if key in sources and state.get(key)
+    )
 
 
 def _score_activity(state, activity):
@@ -29,7 +48,7 @@ def _score_activity(state, activity):
         longitude=state["longitude"],
         activity=activity,
         date=state["date"],
-        fetched_data=_build_fetched_data(state),
+        fetched_data=_build_fetched_data(state, activity),
         file_path=file_path,
     )
     return run_score_agent(prompt)

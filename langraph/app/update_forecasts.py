@@ -18,7 +18,7 @@ def main():
     parser.add_argument("--slug", required=True, help="Location slug")
     parser.add_argument(
         "--fetch",
-        choices=["water_quality", "tides", "swell", "weather", "sea_temp", "sun_times"],
+        choices=["water_quality", "tides", "weather", "marine", "sun_times"],
         help="Run a single fetch node for testing",
     )
     args = parser.parse_args()

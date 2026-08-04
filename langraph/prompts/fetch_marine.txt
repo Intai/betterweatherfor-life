@@ -1,0 +1,9 @@
+What are the sea surface temperature, wave height, wave direction and wave period at geolocation {latitude},{longitude} on {date} and for the next 9 days according to https://marine-api.open-meteo.com/v1/marine?latitude={latitude}&longitude={longitude}&hourly=sea_surface_temperature,wave_height,wave_direction,wave_period&forecast_days=10&timezone=auto
+
+Respond with raw JSON only. Do not wrap in markdown code fences or backticks. Use exactly this shape, one row per hour:
+
+{{"fields":["time","seaTempC","waveHeightM","waveDirection","wavePeriodS"],"rows":[["2026-08-04T06:00",12.9,0.44,202,2.6],["2026-08-04T07:00",13.0,0.45,203,2.6]]}}
+
+Only include hours from 06:00 to 22:00 local time — omit every other hour. Every row must have exactly five values in the order given. The response holds parallel arrays under `hourly`, so the nth entry of `time`, `sea_surface_temperature`, `wave_height`, `wave_direction` and `wave_period` all belong to the same row. Emit `time` as `YYYY-MM-DDTHH:MM`. Use `null` for any value the API returns as null — the wave model runs out before the end of the range, so the final day is all nulls.
+
+Use the curl tool.

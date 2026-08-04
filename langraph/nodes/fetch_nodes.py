@@ -26,17 +26,6 @@ def fetch_tides(state):
     return {"tides": run_fetch_agent(prompt)}
 
 
-def fetch_swell(state):
-    """Fetch swell data from Windy.app."""
-    prompt = load_prompt(
-        "fetch_swell",
-        latitude=state["latitude"],
-        longitude=state["longitude"],
-        date=state["date"],
-    )
-    return {"swell": run_fetch_agent(prompt)}
-
-
 def fetch_weather(state):
     """Fetch weather data from Google Weather API."""
     prompt = load_prompt(
@@ -49,15 +38,15 @@ def fetch_weather(state):
     return {"weather": run_fetch_agent(prompt)}
 
 
-def fetch_sea_temp(state):
-    """Fetch sea surface temperature from Open-Meteo."""
+def fetch_marine(state):
+    """Fetch sea surface temperature and swell from Open-Meteo."""
     prompt = load_prompt(
-        "fetch_sea_temp",
+        "fetch_marine",
         latitude=state["latitude"],
         longitude=state["longitude"],
         date=state["date"],
     )
-    return {"sea_temp": run_fetch_agent(prompt)}
+    return {"marine": run_fetch_agent(prompt)}
 
 
 def fetch_sun_times(state):

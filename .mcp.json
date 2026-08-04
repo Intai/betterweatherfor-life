@@ -3,6 +3,10 @@
     "shadcn": {
       "command": "npx",
       "args": ["shadcn@latest", "mcp"]
+    },
+    "langsmith": {
+      "type": "http",
+      "url": "https://api.smith.langchain.com/mcp"
     }
   }
 }

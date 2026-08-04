@@ -11,9 +11,8 @@ class ForecastState(TypedDict):
     location_slug: str
     water_quality: NotRequired[str]
     tides: NotRequired[str]
-    swell: NotRequired[str]
     weather: NotRequired[str]
-    sea_temp: NotRequired[str]
+    marine: NotRequired[str]
     sun_times: NotRequired[str]
     sup_forecast: NotRequired[list]
     kayaking_forecast: NotRequired[list]

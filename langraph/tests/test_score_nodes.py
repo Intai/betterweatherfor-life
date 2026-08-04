@@ -1,6 +1,9 @@
 from unittest.mock import patch
 
+import pytest
+
 from langraph.nodes.score_nodes import (
+    SECTIONS,
     _build_fetched_data,
     _score_activity,
     score_cycling,
@@ -11,31 +14,50 @@ from langraph.nodes.score_nodes import (
 
 
 def test_build_fetched_data_full(sample_state):
-    result = _build_fetched_data(sample_state)
+    result = _build_fetched_data(sample_state, "sup")
     assert "### Water Quality" in result
     assert "### Tides" in result
-    assert "### Swell" in result
     assert "### Weather" in result
-    assert "### Sea Surface Temperature" in result
+    assert "### Sea Surface Temperature and Swell" in result
     assert "### Sunrise/Sunset" in result
     assert '```json' in result
 
 
 def test_build_fetched_data_empty(minimal_state):
-    result = _build_fetched_data(minimal_state)
+    result = _build_fetched_data(minimal_state, "sup")
     assert result == ""
 
 
 def test_build_fetched_data_partial(minimal_state):
     minimal_state["tides"] = '{"nextHigh": "10:30"}'
     minimal_state["weather"] = '{"temp": 22}'
-    result = _build_fetched_data(minimal_state)
+    result = _build_fetched_data(minimal_state, "sup")
     expected = (
         '### Tides\n```json\n{"nextHigh": "10:30"}\n```'
         "\n\n"
         '### Weather\n```json\n{"temp": 22}\n```'
     )
     assert result == expected
+
+
+def test_build_fetched_data_cycling_omits_water_sources(sample_state):
+    result = _build_fetched_data(sample_state, "cycling")
+    assert "### Weather" in result
+    assert "### Sunrise/Sunset" in result
+    assert "### Water Quality" not in result
+    assert "### Tides" not in result
+    assert "### Sea Surface Temperature and Swell" not in result
+
+
+@pytest.mark.parametrize("activity", ["sup", "kayaking", "snorkelling"])
+def test_build_fetched_data_water_activities_get_every_source(sample_state, activity):
+    result = _build_fetched_data(sample_state, activity)
+    assert result.count("```json") == len(SECTIONS)
+
+
+def test_build_fetched_data_unknown_activity(sample_state):
+    with pytest.raises(KeyError):
+        _build_fetched_data(sample_state, "skateboarding")
 
 
 @patch("langraph.nodes.score_nodes.run_score_agent", return_value=["msg1"])

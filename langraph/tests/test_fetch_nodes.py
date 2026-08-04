@@ -1,9 +1,8 @@
 from unittest.mock import patch
 
 from langraph.nodes.fetch_nodes import (
-    fetch_sea_temp,
+    fetch_marine,
     fetch_sun_times,
-    fetch_swell,
     fetch_tides,
     fetch_water_quality,
     fetch_weather,
@@ -37,19 +36,6 @@ def test_fetch_tides(mock_load, mock_agent, minimal_state):
     assert result == {"tides": "tide_data"}
 
 
-@patch("langraph.nodes.fetch_nodes.run_fetch_agent", return_value="swell_data")
-@patch("langraph.nodes.fetch_nodes.load_prompt", return_value="prompt")
-def test_fetch_swell(mock_load, mock_agent, minimal_state):
-    result = fetch_swell(minimal_state)
-    mock_load.assert_called_once_with(
-        "fetch_swell",
-        latitude="-36.8485",
-        longitude="174.7633",
-        date="2026-03-24",
-    )
-    assert result == {"swell": "swell_data"}
-
-
 @patch("langraph.nodes.fetch_nodes.run_fetch_agent", return_value="weather_data")
 @patch("langraph.nodes.fetch_nodes.load_prompt", return_value="prompt")
 def test_fetch_weather(mock_load, mock_agent, minimal_state, monkeypatch):
@@ -80,17 +66,17 @@ def test_fetch_weather_no_api_key(mock_load, mock_agent, minimal_state, monkeypa
     assert result == {"weather": "weather_data"}
 
 
-@patch("langraph.nodes.fetch_nodes.run_fetch_agent", return_value="temp_data")
+@patch("langraph.nodes.fetch_nodes.run_fetch_agent", return_value="marine_data")
 @patch("langraph.nodes.fetch_nodes.load_prompt", return_value="prompt")
-def test_fetch_sea_temp(mock_load, mock_agent, minimal_state):
-    result = fetch_sea_temp(minimal_state)
+def test_fetch_marine(mock_load, mock_agent, minimal_state):
+    result = fetch_marine(minimal_state)
     mock_load.assert_called_once_with(
-        "fetch_sea_temp",
+        "fetch_marine",
         latitude="-36.8485",
         longitude="174.7633",
         date="2026-03-24",
     )
-    assert result == {"sea_temp": "temp_data"}
+    assert result == {"marine": "marine_data"}
 
 
 @patch("langraph.nodes.fetch_nodes.run_fetch_agent", return_value="sun_data")

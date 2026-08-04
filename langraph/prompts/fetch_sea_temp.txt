@@ -1,5 +1,0 @@
-What is the sea surface temperature at geolocation {latitude},{longitude} on {date} and for the next 9 days according to https://marine-api.open-meteo.com/v1/marine?latitude={latitude}&longitude={longitude}&hourly=sea_surface_temperature&forecast_days=9
-
-Respond with raw JSON only. Do not wrap in markdown code fences or backticks.
-
-Use the curl tool.

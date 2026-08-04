@@ -19,9 +19,8 @@ def sample_state():
         "location_slug": "mission-bay",
         "water_quality": '{"quality": "Green"}',
         "tides": '{"nextHigh": "10:30"}',
-        "swell": '{"height": "0.5m"}',
         "weather": '{"temp": 22}',
-        "sea_temp": '{"temp": 20}',
+        "marine": '{"seaTempC": 20, "waveHeightM": 0.5}',
         "sun_times": '{"sunrise": "07:15", "sunset": "19:30"}',
     }
 
