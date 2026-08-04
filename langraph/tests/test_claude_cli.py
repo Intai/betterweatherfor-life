@@ -224,7 +224,29 @@ def test_render_messages_builds_a_transcript_for_multi_turn():
 
     assert "## User\nweather?" in prompt
     assert "Called tool `sample_tool`" in prompt
+    assert "'city': 'Tokyo'" in prompt
     assert '## Result of tool `sample_tool`\n{"temp": 21}' in prompt
+
+
+def test_render_messages_omits_oversized_tool_args():
+    """Bulky args (the forecast JSON) must not be replayed into later prompts."""
+    content = "x" * 5000
+    _, prompt = _render_messages([
+        HumanMessage("score it"),
+        AIMessage(
+            content="",
+            tool_calls=[{"name": "write_file",
+                         "args": {"file_path": "out.json", "content": content},
+                         "id": "t1", "type": "tool_call"}],
+        ),
+        ToolMessage(content="Written to out.json", tool_call_id="t1", name="write_file"),
+    ])
+
+    assert content not in prompt
+    assert "<5000 chars omitted>" in prompt
+    # Small args stay readable, and the tool result is untouched.
+    assert "'file_path': 'out.json'" in prompt
+    assert "## Result of tool `write_file`\nWritten to out.json" in prompt
 
 
 @pytest.mark.parametrize(

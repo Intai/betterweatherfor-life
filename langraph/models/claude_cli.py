@@ -38,6 +38,11 @@ from langchain_core.utils.function_calling import convert_to_openai_tool
 MCP_SERVER_NAME = "langchain"
 TOOL_PREFIX = f"mcp__{MCP_SERVER_NAME}__"
 
+# Tool call args are replayed into every later turn's prompt, so a bulky argument
+# (the forecast JSON handed to write_file) gets billed again as input. Anything
+# longer than this is summarised instead; the tool's own result is unaffected.
+MAX_ARG_CHARS = 500
+
 # Denies execution and ends the turn, so the tool call reaches the caller intact.
 _DENY_AND_STOP = {
     "hookSpecificOutput": {
@@ -63,6 +68,16 @@ def _block_text(content):
                 parts.append(block["text"])
         return "\n".join(parts)
     return str(content)
+
+
+def _omit_large_args(args):
+    """Replace oversized string values in tool call args with a length marker."""
+    return {
+        key: f"<{len(value)} chars omitted>"
+        if isinstance(value, str) and len(value) > MAX_ARG_CHARS
+        else value
+        for key, value in (args or {}).items()
+    }
 
 
 def _render_messages(messages):
@@ -98,7 +113,8 @@ def _render_messages(messages):
             lines.append(f"## User\n{text}")
         elif isinstance(message, AIMessage):
             calls = [
-                f"Called tool `{call['name']}` with input {call['args']!r}"
+                f"Called tool `{call['name']}` with input "
+                f"{_omit_large_args(call['args'])!r}"
                 for call in (message.tool_calls or [])
             ]
             body = "\n".join(filter(None, [text, *calls]))

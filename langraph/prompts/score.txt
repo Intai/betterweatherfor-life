@@ -181,7 +181,9 @@ All `summary` fields must explain how conditions affect the specific activity �
 
 The `tide.swell` field must be a string with the wave height in meters (e.g. `'0.5m'`), extracted from `wavesHeight` in the swell data. Never pass the raw swell object.
 
-The `analysis` field is a multi-paragraph AI analysis for the detail page. Use `\n\n` to separate paragraphs.
+The `analysis` field is a multi-paragraph AI analysis for the detail page. Use `\n\n` to separate paragraphs. Keep it to two or three short paragraphs — cover the factors that decide the score and the best window, and stop.
+
+`analysis` and `summary` appear on different screens, so `analysis` must stand on its own — but never open it by restating `summary` word for word. Lead on what the summary leaves out.
 
 The `hourly` array contains hourly scores for the hours within that time range. Each entry has `time` (HH:MM), `score`, and `condition`. When a factor only has daily data, hourly scores for that factor will be identical. Variation in hourly scores should come only from factors with real hourly data (e.g. tide position, water quality, daylight).
 
@@ -206,7 +208,7 @@ Output in the following JSON format:
     humidity: null,
     visibility: null,
     summary: 'Light onshore breeze, excellent for paddling this morning.',
-    analysis: 'Mission Bay offers excellent conditions for SUP this morning.\n\nThe northeast wind at 8 km/h creates a gentle onshore breeze that will help push you back to shore if you tire.\n\nThe incoming tide means water depth at the launch area will be good.\n\nRecommended window: 7am - 10am before sea breeze strengthens.',
+    analysis: 'Mission Bay offers excellent conditions for SUP this morning.\n\nThe 8km/h northeast breeze is gentle and onshore, so it will help push you back if you tire, and the incoming tide keeps water depth good at the launch area.\n\nRecommended window: 7am - 10am, before the sea breeze strengthens.',
     hourly: [
       {{ time: '06:00', score: 82, condition: 'ideal' }},
       {{ time: '07:00', score: 85, condition: 'ideal' }},
@@ -231,7 +233,7 @@ Output in the following JSON format:
     humidity: {{ percentage: '65%', condition: 'ideal', summary: 'Comfortable humidity for riding.' }},
     visibility: null,
     summary: 'Light 12km/h tailwind with clear skies, great riding conditions.',
-    analysis: 'Light 12km/h tailwind with clear skies, great riding conditions.\n\nModerate UV — apply sunscreen for rides longer than an hour.',
+    analysis: 'A good morning to ride at Mission Bay.\n\nThe 12km/h southerly sits behind you along the Tamaki Drive stretch, and clear skies keep visibility high.\n\nModerate UV — apply sunscreen for rides longer than an hour.',
     hourly: [
       {{ time: '06:00', score: 88, condition: 'ideal' }},
       {{ time: '07:00', score: 90, condition: 'ideal' }},
@@ -257,7 +259,7 @@ Output in the following JSON format:
     humidity: null,
     visibility: {{ estimate: '6m', condition: 'acceptable', summary: 'Light swell slightly reduces clarity. Expect 5-8m visibility — good for reef fish spotting.' }},
     summary: 'Calm 6km/h wind with acceptable underwater visibility around 6m.',
-    analysis: 'Good snorkelling conditions this morning.\n\nCalm 6km/h winds keep surface chop low, and the incoming tide brings cleaner water over the reef.\n\nUnderwater visibility is estimated at 6m — enough to enjoy reef fish and rocky features, though not crystal clear.\n\nBest window: 8am-10am as the tide rises toward high.',
+    analysis: 'Good snorkelling conditions this morning.\n\nCalm 6km/h winds keep surface chop low and the incoming tide brings cleaner water over the reef, giving an estimated 6m of visibility — enough for reef fish and rocky features, though not crystal clear.\n\nBest window: 8am-10am as the tide rises toward high.',
     hourly: [
       {{ time: '06:00', score: 72, condition: 'acceptable' }},
       {{ time: '07:00', score: 75, condition: 'acceptable' }},
