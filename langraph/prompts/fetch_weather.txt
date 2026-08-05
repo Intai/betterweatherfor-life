@@ -1,4 +1,4 @@
-What are the temperature, feels-like temperature, UV index, precipitation probability, precipitation quantity, wind cardinal direction (e.g. NE, SW WSW, ENE), wind speed, wind gust and humidity at geolocation {latitude},{longitude} on {date} and for the next 9 days according to https://weather.googleapis.com/v1/forecast/hours:lookup?key={google_weather_api_key}&location.latitude={latitude}&location.longitude={longitude}&hours=240&pageSize=24
+What are the temperature, feels-like temperature, UV index, precipitation probability, precipitation quantity, wind cardinal direction (e.g. NE, SW WSW, ENE), wind speed, wind gust and humidity at geolocation {latitude},{longitude} on {date} and for the next 9 days according to https://weather.googleapis.com/v1/forecast/hours:lookup?key={google_weather_api_key}&location.latitude={latitude}&location.longitude={longitude}&hours=240&pageSize=24&fields=nextPageToken,forecastHours(interval.startTime,temperature.degrees,feelsLikeTemperature.degrees,uvIndex,precipitation(probability.percent,qpf.quantity),wind(direction.cardinal,speed.value,gust.value),relativeHumidity)
 
 Respond with raw JSON only. Do not wrap in markdown code fences or backticks. Use exactly this shape, one row per hour:
 
@@ -6,4 +6,4 @@ Respond with raw JSON only. Do not wrap in markdown code fences or backticks. Us
 
 Only include hours from 06:00 to 22:00 local time — omit every other hour. Every row must have exactly ten values in the order given. Use `null` for any value the API does not return.
 
-Use the curl tool. Pass the nextPageToken value into the pageToken to fetch all 10 days.
+Use the curl tool, one page at a time. Each response holds 24 hours plus a `nextPageToken`; append it as `&pageToken=<token>` to fetch the next 24 hours. A page token exists only in the response before it, so never request two pages in the same step — wait for each response before making the next call. Repeat until a response has no `nextPageToken`. That takes 10 calls to cover 10 days.

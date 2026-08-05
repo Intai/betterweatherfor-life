@@ -1,42 +1,70 @@
+import json
+
 import pytest
 
-from langraph.agents.utils import compact_columnar, extract_fetch_text
+from langraph.agents.utils import (
+    FORECAST_WINDOWS,
+    compact_columnar,
+    extract_message_text,
+    parse_forecast,
+)
+
+LATITUDE = "-36.8547"
+LONGITUDE = "174.8317"
+START_DATE = "2026-08-05"
+
+
+def build_forecast(activity="sup", days=10, entry=None):
+    """Build a full set of scored entries, as `parse_forecast` expects them."""
+    from datetime import date, timedelta
+
+    start = date.fromisoformat(START_DATE)
+    return {
+        f"{activity};{start + timedelta(days=day)};{window};{LATITUDE},{LONGITUDE}":
+            entry if entry is not None else {"score": 80}
+        for day in range(days)
+        for window in FORECAST_WINDOWS
+    }
+
+
+def parse(data, activity="sup"):
+    return parse_forecast(json.dumps(data), activity, START_DATE, LATITUDE, LONGITUDE)
 
 
 def test_string_input():
-    assert extract_fetch_text("hello") == "hello"
+    assert extract_message_text("hello") == "hello"
 
 
 def test_list_of_strings():
-    assert extract_fetch_text(["a", "b"]) == "a\nb"
+    assert extract_message_text(["a", "b"]) == "a\nb"
 
 
 def test_list_of_dicts_with_text():
     content = [{"text": "first"}, {"text": "second"}]
-    assert extract_fetch_text(content) == "first\nsecond"
+    assert extract_message_text(content) == "first\nsecond"
 
 
 def test_mixed_list():
     content = ["plain", {"text": "from dict"}]
-    assert extract_fetch_text(content) == "plain\nfrom dict"
+    assert extract_message_text(content) == "plain\nfrom dict"
 
 
 def test_dict_missing_text_key():
     content = [{"type": "image", "url": "img.png"}]
-    assert extract_fetch_text(content) == ""
+    assert extract_message_text(content) == ""
 
 
 def test_empty_list():
-    assert extract_fetch_text([]) == ""
+    assert extract_message_text([]) == ""
 
 
 def test_non_string_non_list():
-    assert extract_fetch_text(42) == "42"
+    assert extract_message_text(42) == "42"
 
 
 def test_dict_with_empty_text():
     content = [{"text": ""}]
-    assert extract_fetch_text(content) == ""
+    assert extract_message_text(content) == ""
 
 
 def test_compact_columnar_strips_whitespace():
@@ -98,3 +126,63 @@ def test_compact_columnar_rejects_non_list_row():
     content = '{"fields": ["time"], "rows": [{"time": "06:00"}]}'
     with pytest.raises(ValueError, match="`rows` to be a list of lists"):
         compact_columnar(content)
+
+
+def test_parse_forecast_returns_a_full_set_of_entries():
+    data = build_forecast()
+    assert parse(data) == data
+    assert len(data) == 40
+
+
+def test_parse_forecast_allows_null_factors():
+    # Days beyond the weather range come back null, and must still parse.
+    data = build_forecast(entry={"score": None, "wind": None})
+    assert parse(data) == data
+
+
+def test_parse_forecast_rejects_invalid_json():
+    with pytest.raises(ValueError, match="not valid JSON"):
+        parse_forecast('{"sup;2026-08-05', "sup", START_DATE, LATITUDE, LONGITUDE)
+
+
+def test_parse_forecast_rejects_non_object():
+    with pytest.raises(ValueError, match="object of forecast entries"):
+        parse_forecast("[]", "sup", START_DATE, LATITUDE, LONGITUDE)
+
+
+def test_parse_forecast_rejects_a_short_answer():
+    # One trace wrote 5 of 40 entries and still reported success.
+    data = dict(list(build_forecast().items())[:5])
+    with pytest.raises(ValueError, match="has 5 entries, expected 40"):
+        parse(data)
+
+
+def test_parse_forecast_rejects_a_missing_day():
+    data = build_forecast(days=9)
+    with pytest.raises(ValueError, match=r"missing \['sup;2026-08-14"):
+        parse(data)
+
+
+def test_parse_forecast_rejects_a_missing_window():
+    data = build_forecast()
+    del data[f"sup;{START_DATE};evening;{LATITUDE},{LONGITUDE}"]
+    with pytest.raises(ValueError, match="has 39 entries, expected 40"):
+        parse(data)
+
+
+def test_parse_forecast_rejects_an_unexpected_entry():
+    data = build_forecast()
+    data[f"sup;2026-09-01;morning;{LATITUDE},{LONGITUDE}"] = {"score": 80}
+    with pytest.raises(ValueError, match="unexpected entries"):
+        parse(data)
+
+
+def test_parse_forecast_rejects_the_wrong_activity():
+    with pytest.raises(ValueError, match="expected 40"):
+        parse(build_forecast(activity="kayaking"), activity="sup")
+
+
+def test_parse_forecast_rejects_the_wrong_geolocation():
+    data = build_forecast()
+    with pytest.raises(ValueError, match="expected 40"):
+        parse_forecast(json.dumps(data), "sup", START_DATE, "-41.2", "174.7")

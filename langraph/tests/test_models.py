@@ -13,7 +13,7 @@ def test_fetch_llm_default_gemini():
         # Imported for its side effect: the module instantiates the LLM on import.
         import langraph.models.fetch_llm  # noqa: F401
         mock_cls.assert_called_once()
-        assert mock_cls.call_args[1]["model"] == "gemini-3-flash-preview"
+        assert mock_cls.call_args[1]["model"] == "gemini-3.5-flash-lite"
         assert mock_cls.call_args[1]["max_output_tokens"] == 24000
         assert mock_cls.call_args[1]["temperature"] == 0
     sys.modules["langraph.models.fetch_llm"] = MagicMock(fetch_llm=MagicMock())
@@ -90,7 +90,7 @@ def test_score_llm_default_gemini():
         # Imported for its side effect: the module instantiates the LLM on import.
         import langraph.models.score_llm  # noqa: F401
         mock_cls.assert_called_once()
-        assert mock_cls.call_args[1]["model"] == "gemini-3.1-pro-preview"
+        assert mock_cls.call_args[1]["model"] == "gemini-3.6-flash"
         assert mock_cls.call_args[1]["max_output_tokens"] == 32000
         assert mock_cls.call_args[1]["temperature"] == 0
     sys.modules["langraph.models.score_llm"] = MagicMock(score_llm=MagicMock())

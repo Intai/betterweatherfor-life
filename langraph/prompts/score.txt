@@ -1,4 +1,4 @@
-Score the activity `{activity}` using the fetched data and criteria below. Write the result to `{file_path}` using the write_file tool.
+Score the activity `{activity}` using the fetched data and criteria below.
 
 ## Fetched Data
 
@@ -276,4 +276,4 @@ Output in the following JSON format:
 }}
 ```
 
-Write the complete JSON to `{file_path}` using the write_file tool.
+Respond with the complete JSON for every date and time window listed above. Raw JSON only — no code fences, no commentary before or after.

@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch
 
 import pytest
@@ -60,19 +61,56 @@ def test_build_fetched_data_unknown_activity(sample_state):
         _build_fetched_data(sample_state, "skateboarding")
 
 
-@patch("langraph.nodes.score_nodes.run_score_agent", return_value=["msg1"])
+@patch("langraph.nodes.score_nodes.parse_forecast", return_value={"sup;2026-03-24": {}})
+@patch("langraph.nodes.score_nodes.run_score", return_value='{"sup;2026-03-24": {}}')
 @patch("langraph.nodes.score_nodes.load_prompt", return_value="score prompt")
-def test_score_activity(mock_load, mock_agent, sample_state):
+def test_score_activity(mock_load, mock_score, mock_parse, sample_state, tmp_path,
+                        monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
     result = _score_activity(sample_state, "sup")
+
     mock_load.assert_called_once()
     call_kwargs = mock_load.call_args[1]
     assert call_kwargs["activity"] == "sup"
-    assert call_kwargs["file_path"] == "mission-bay-sup.json"
     assert call_kwargs["latitude"] == "-36.8485"
     assert call_kwargs["longitude"] == "174.7633"
     assert call_kwargs["date"] == "2026-03-24"
-    mock_agent.assert_called_once_with("score prompt")
-    assert result == ["msg1"]
+    # The prompt no longer names a file; the node owns the write.
+    assert "file_path" not in call_kwargs
+
+    mock_score.assert_called_once_with("score prompt")
+    mock_parse.assert_called_once_with(
+        '{"sup;2026-03-24": {}}', "sup", "2026-03-24", "-36.8485", "174.7633"
+    )
+    assert result == {"sup;2026-03-24": {}}
+
+
+@patch("langraph.nodes.score_nodes.parse_forecast", return_value={"sup;2026-03-24": {}})
+@patch("langraph.nodes.score_nodes.run_score", return_value="{}")
+@patch("langraph.nodes.score_nodes.load_prompt", return_value="score prompt")
+def test_score_activity_writes_the_forecast_file(mock_load, mock_score, mock_parse,
+                                                 sample_state, tmp_path, monkeypatch):
+    # Relative to the working directory, which db/update-forecasts.js reads back.
+    monkeypatch.chdir(tmp_path)
+
+    _score_activity(sample_state, "sup")
+
+    written = tmp_path / "mission-bay-sup.json"
+    assert json.loads(written.read_text()) == {"sup;2026-03-24": {}}
+
+
+@patch("langraph.nodes.score_nodes.run_score", return_value="not json")
+@patch("langraph.nodes.score_nodes.load_prompt", return_value="score prompt")
+def test_score_activity_writes_nothing_when_validation_fails(mock_load, mock_score,
+                                                             sample_state, tmp_path,
+                                                             monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(ValueError, match="not valid JSON"):
+        _score_activity(sample_state, "sup")
+
+    assert not (tmp_path / "mission-bay-sup.json").exists()
 
 
 @patch("langraph.nodes.score_nodes._score_activity", return_value=["sup_msgs"])

@@ -14,7 +14,7 @@ elif provider == "gemini":
     from langchain_google_genai import ChatGoogleGenerativeAI
 
     score_llm = ChatGoogleGenerativeAI(
-        model="gemini-3.1-pro-preview",
+        model="gemini-3.6-flash",
         temperature=0,
         max_output_tokens=32000,
         google_api_key=os.environ.get("GOOGLE_GEMINI_API_KEY"),

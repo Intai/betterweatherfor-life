@@ -1,4 +1,8 @@
-from langraph.agents.score_agent import run_score_agent
+import json
+from pathlib import Path
+
+from langraph.agents.score_agent import run_score
+from langraph.agents.utils import parse_forecast
 from langraph.prompts.loader import load_prompt
 
 SECTIONS = (
@@ -40,8 +44,11 @@ def _build_fetched_data(state, activity):
 
 
 def _score_activity(state, activity):
-    """Score a single activity using the fetched data."""
-    file_path = f"{state['location_slug']}-{activity}.json"
+    """Score a single activity and write the result beside the other forecasts.
+
+    The path stays relative to the working directory, which `db/update-forecasts.js`
+    sets to the repo root before reading the files back.
+    """
     prompt = load_prompt(
         "score",
         latitude=state["latitude"],
@@ -49,9 +56,17 @@ def _score_activity(state, activity):
         activity=activity,
         date=state["date"],
         fetched_data=_build_fetched_data(state, activity),
-        file_path=file_path,
     )
-    return run_score_agent(prompt)
+    forecast = parse_forecast(
+        run_score(prompt),
+        activity,
+        state["date"],
+        state["latitude"],
+        state["longitude"],
+    )
+    file_path = f"{state['location_slug']}-{activity}.json"
+    Path(file_path).write_text(json.dumps(forecast, indent=2))
+    return forecast
 
 
 def score_sup(state):

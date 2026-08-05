@@ -1,6 +1,6 @@
 from langgraph.prebuilt import create_react_agent
 
-from langraph.agents.utils import compact_columnar, extract_fetch_text
+from langraph.agents.utils import compact_columnar, extract_message_text
 from langraph.models.fetch_llm import fetch_llm
 from langraph.tools.curl_tool import curl
 
@@ -23,4 +23,4 @@ def run_fetch_agent(prompt):
         {"messages": [{"role": "user", "content": prompt}]},
         {"recursion_limit": RECURSION_LIMIT},
     )
-    return compact_columnar(extract_fetch_text(result["messages"][-1].content))
+    return compact_columnar(extract_message_text(result["messages"][-1].content))
