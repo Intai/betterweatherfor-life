@@ -57,9 +57,9 @@ elif provider == "gemini":
     # Gemini 3 deprecated `thinking_budget` in favour of `reasoning_effort`, which
     # takes the same low/medium/high vocabulary.
     score_llm = ChatGoogleGenerativeAI(
-        model=model or "gemini-3.6-flash",
+        model=model or "gemini-3.1-pro-preview",
         temperature=0,
-        max_output_tokens=32000,
+        max_output_tokens=64000,
         reasoning_effort=effort,
         google_api_key=os.environ.get("GOOGLE_GEMINI_API_KEY"),
     )
@@ -73,6 +73,6 @@ else:
         api_key=os.environ.get("OPENROUTER_API_KEY"),
         model=model or "nvidia/nemotron-3-super-120b-a12b:free",
         temperature=0,
-        max_tokens=32000,
+        max_tokens=48000,
         reasoning_effort=effort,
     )

@@ -46,9 +46,8 @@ elif provider == "gemini":
     # takes the same low/medium/high vocabulary.
     fetch_llm = ChatGoogleGenerativeAI(
         model=model or "gemini-3.5-flash-lite",
-        temperature=0,
         max_output_tokens=24000,
-        reasoning_effort=effort,
+        reasoning_effort=effort or "low",
         google_api_key=os.environ.get("GOOGLE_GEMINI_API_KEY"),
     )
 else:

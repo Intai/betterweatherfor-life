@@ -15,7 +15,8 @@ def test_fetch_llm_default_gemini():
         mock_cls.assert_called_once()
         assert mock_cls.call_args[1]["model"] == "gemini-3.5-flash-lite"
         assert mock_cls.call_args[1]["max_output_tokens"] == 24000
-        assert mock_cls.call_args[1]["temperature"] == 0
+        assert mock_cls.call_args[1]["reasoning_effort"] == "low"
+        assert "temperature" not in mock_cls.call_args[1]
     sys.modules["langraph.models.fetch_llm"] = MagicMock(fetch_llm=MagicMock())
 
 
@@ -92,8 +93,8 @@ def test_score_llm_default_gemini():
         # Imported for its side effect: the module instantiates the LLM on import.
         import langraph.models.score_llm  # noqa: F401
         mock_cls.assert_called_once()
-        assert mock_cls.call_args[1]["model"] == "gemini-3.6-flash"
-        assert mock_cls.call_args[1]["max_output_tokens"] == 32000
+        assert mock_cls.call_args[1]["model"] == "gemini-3.1-pro-preview"
+        assert mock_cls.call_args[1]["max_output_tokens"] == 64000
         assert mock_cls.call_args[1]["temperature"] == 0
     sys.modules["langraph.models.score_llm"] = MagicMock(score_llm=MagicMock())
 
@@ -125,7 +126,7 @@ def test_score_llm_openrouter():
         assert mock_cls.call_count >= 1
         assert mock_cls.call_args[1]["model"] == "nvidia/nemotron-3-super-120b-a12b:free"
         assert mock_cls.call_args[1]["temperature"] == 0
-        assert mock_cls.call_args[1]["max_tokens"] == 32000
+        assert mock_cls.call_args[1]["max_tokens"] == 48000
     sys.modules["langraph.models.score_llm"] = MagicMock(score_llm=MagicMock())
 
 
