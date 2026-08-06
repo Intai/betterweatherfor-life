@@ -107,7 +107,7 @@ def test_score_llm_xai():
         importlib.reload(langraph.models.score_llm)
         assert mock_cls.call_count >= 1
         assert mock_cls.call_args[1]["model"] == "grok-4.20-reasoning"
-        assert mock_cls.call_args[1]["max_tokens"] == 32000
+        assert mock_cls.call_args[1]["max_tokens"] == 48000
     sys.modules["langraph.models.score_llm"] = MagicMock(score_llm=MagicMock())
 
 

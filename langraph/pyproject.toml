@@ -22,5 +22,5 @@ exclude = ["tests*"]
 target-version = "py313"
 
 [tool.coverage.run]
-source = ["langraph/agents", "langraph/app", "langraph/models", "langraph/nodes", "langraph/prompts", "langraph/tools"]
+source = ["langraph/agents", "langraph/app", "langraph/models", "langraph/nodes", "langraph/prompts", "langraph/sources", "langraph/tools", "langraph/utils"]
 omit = ["*/__init__.py"]

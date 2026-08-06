@@ -1,11 +1,12 @@
 from langgraph.prebuilt import create_react_agent
 
-from langraph.agents.utils import compact_columnar, extract_message_text
 from langraph.models.fetch_llm import fetch_llm
 from langraph.tools.curl_tool import curl
+from langraph.utils.columnar import compact_columnar
+from langraph.utils.messages import extract_message_text
 
-# `fetch_weather` legitimately pages ~10 times through nextPageToken, and LangGraph
-# counts supersteps rather than turns, so this sits just above the default of 25.
+# `fetch_sun_times` fans out a curl per day, and LangGraph counts supersteps rather
+# than turns, so this sits just above the default of 25.
 RECURSION_LIMIT = 30
 
 

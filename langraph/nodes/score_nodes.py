@@ -2,8 +2,12 @@ import json
 from pathlib import Path
 
 from langraph.agents.score_agent import run_score
-from langraph.agents.utils import parse_forecast
 from langraph.prompts.loader import load_prompt
+from langraph.utils.score_parser import (
+    FORECAST_WINDOWS,
+    forecast_dates,
+    parse_forecast,
+)
 
 SECTIONS = (
     ("water_quality", "Water Quality"),
@@ -49,21 +53,37 @@ def _score_activity(state, activity):
     The path stays relative to the working directory, which `db/update-forecasts.js`
     sets to the repo root before reading the files back.
     """
+    dates = forecast_dates(state["date"])
+    entry_count = len(dates) * len(FORECAST_WINDOWS)
     prompt = load_prompt(
         "score",
         latitude=state["latitude"],
         longitude=state["longitude"],
         activity=activity,
-        date=state["date"],
+        date=dates[0],
+        dates=", ".join(dates),
+        entry_count=entry_count,
         fetched_data=_build_fetched_data(state, activity),
     )
-    forecast = parse_forecast(
+    forecast, problems = parse_forecast(
         run_score(prompt),
+        dates,
         activity,
-        state["date"],
         state["latitude"],
         state["longitude"],
     )
+
+    # A short answer is fine — `db/update-forecasts.js` upserts what it finds and
+    # deletes nothing. An answer with no scores at all is not: it upserts nothing,
+    # so the activity would quietly serve yesterday's forecast while the run
+    # reported success.
+    if not any(entry["score"] is not None for entry in forecast.values()):
+        detail = f"; first problem: {problems[0]}" if problems else ""
+        raise ValueError(
+            f"Score response for `{activity}` has no scored entries out of "
+            f"{entry_count} expected{detail}"
+        )
+
     file_path = f"{state['location_slug']}-{activity}.json"
     Path(file_path).write_text(json.dumps(forecast, indent=2))
     return forecast

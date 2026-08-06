@@ -5,7 +5,7 @@ from langraph.prompts.loader import load_prompt
 
 def test_load_prompt_with_kwargs():
     result = load_prompt(
-        "fetch_water_quality",
+        "fetch_tides",
         latitude="-36.8",
         longitude="174.7",
         date="2026-03-24",
@@ -22,4 +22,4 @@ def test_load_prompt_missing_file():
 
 def test_load_prompt_missing_kwarg():
     with pytest.raises(KeyError):
-        load_prompt("fetch_water_quality")
+        load_prompt("fetch_tides")

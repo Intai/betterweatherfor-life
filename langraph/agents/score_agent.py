@@ -1,7 +1,31 @@
 from langchain_core.messages import HumanMessage
 
-from langraph.agents.utils import extract_message_text
 from langraph.models.score_llm import score_llm
+from langraph.utils.messages import extract_message_text
+
+# A completion the provider stopped at the token cap and one the model chose to
+# end look identical downstream: both break mid-object, and `json.loads` reports
+# the same "Expecting ',' delimiter" either way. Checking the finish reason is
+# what tells the two apart — one snorkelling answer stopped at 18,966 output
+# tokens against a 48,000 cap, which the JSON error alone could not explain.
+#
+# Each provider `score_llm` can be pointed at spells that reason differently, and
+# `length` alone is the OpenAI vocabulary that only two of them speak: OpenRouter
+# and xAI say `finish_reason: length`, Gemini writes its own enum name into the
+# same key as `MAX_TOKENS`, and the Claude CLI reports Anthropic's `stop_reason:
+# max_tokens` instead. Lower-casing collapses the last two onto one word.
+TRUNCATED = frozenset({"length", "max_tokens"})
+REASON_KEYS = ("finish_reason", "stop_reason")
+
+
+def _truncated_at(response):
+    """Name the reason the provider gave for stopping at its cap, if it did."""
+    metadata = response.response_metadata or {}
+    for key in REASON_KEYS:
+        reason = metadata.get(key)
+        if reason and str(reason).lower() in TRUNCATED:
+            return str(reason)
+    return None
 
 
 def run_score(prompt):
@@ -19,6 +43,21 @@ def run_score(prompt):
 
     Returns:
         The response text, expected to be the forecast JSON.
+
+    Raises:
+        ValueError: If the provider cut the answer off at the token cap, under
+            whichever finish or stop reason it reports that with, which is worth
+            saying plainly rather than leaving to a JSON error halfway through
+            the text.
     """
     response = score_llm.invoke([HumanMessage(content=prompt)])
+
+    reason = _truncated_at(response)
+    if reason:
+        usage = response.usage_metadata or {}
+        raise ValueError(
+            f"Score response was cut short at the token cap ({reason}) after "
+            f"{usage.get('output_tokens')} output tokens"
+        )
+
     return extract_message_text(response.content)

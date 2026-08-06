@@ -1,24 +1,19 @@
-Score the activity `{activity}` using the fetched data and criteria below.
+Score an outdoor activity at a single location using the criteria below.
 
-## Fetched Data
-
-{fetched_data}
+The criteria and output format are the same for every activity and location. The activity being scored, its fetched data, and the dates to cover all appear at the end of this prompt.
 
 ## Data Granularity
 
 Each source is a `{{"fields": [...], "rows": [[...], ...]}}` object: `fields` names the columns and each entry in `rows` holds those values in the same order. Hourly sources only carry the hours from 06:00 to 22:00 local time, which is all the time windows below need.
 
-All data sources currently provide hourly or sub-daily granularity. Each field may vary across time windows:
-- Wind speed, wind gust, wind direction (hourly)
-- Temperature, feels-like temperature (hourly)
-- UV index (hourly)
-- Precipitation amount, precipitation chance (hourly)
-- Humidity (hourly)
-- Water quality (hourly)
-- Swell height (hourly)
-- Sea surface temperature (hourly)
-- Tide position (interpolated from turning times)
-- Daylight (calculated from sunrise/sunset)
+Every column is named for the field it feeds, so `humidityPercentage` in the fetched data becomes `humidity.percentage` in the answer. The units are not in the names:
+
+- `windSpeed`, `windGust` — km/h. `windDirection` — a cardinal point.
+- `tempAir`, `tempFeelsLike`, `tempWater` — °C.
+- `precipitationAmount` — mm/hr. `precipitationChance`, `humidityPercentage` — a percentage.
+- `tideSwell` — metres. `uvIndex` — an index with no unit.
+
+All data sources provide hourly or sub-daily granularity, and every field may vary across the time windows below. Tide position is interpolated from the turning times, and daylight is calculated from sunrise and sunset.
 
 ## Scoring Criteria
 
@@ -75,7 +70,7 @@ Rain beyond a drizzle degrades all activities significantly. Wet conditions redu
 | Marginal | Low tide, strong flow | Low tide, strong flow | Low tide |
 | Unsuitable | Peak ebb flow | Peak ebb flow | Strong currents |
 
-Cycling: Not affected by tide, set the `tide` field to `null` in the output.
+Cycling: Not affected by tide, omit the `tide` object entirely.
 
 ### Water quality
 
@@ -86,20 +81,24 @@ Cycling: Not affected by tide, set the `tide` field to `null` in the output.
 | Red | Unsuitable | Unsuitable | Marginal |
 | Black | Unsuitable | Unsuitable | Unsuitable |
 
-Cycling: Not affected by water quality, always set the `water` field to `null` in the output.
+Cycling: Not affected by water quality, always omit the `water` object entirely.
 
-Water activities: Set the `water` field to `null` for dates beyond the 3-day data range (the start date + next 2 days).
+Water activities: Omit the `water` object for dates beyond the 3-day data range (the start date + next 2 days).
 
 ### Temperature (°C)
+
+Use the best-case air temperature in the window — the warmest hour, the one closest to the ideal range. Never the average, and never the coldest hour.
 
 | Condition | SUP | Kayaking | Snorkelling | Cycling |
 |---|---|---|---|---|
 | Ideal | 20-28 | 18-26 | — | 15-22 |
 | Acceptable | 15-30 | 15-30 | — | 10-28 |
-| Marginal | — | — | — | 5-10 or 28-33 |
-| Unsuitable | Extreme | Extreme | — | <5 or >33 |
+| Marginal | 12-15 or 30-33 | 10-15 or 30-33 | — | 5-10 or 28-33 |
+| Unsuitable | <12 or >33 | <10 or >33 | — | <5 or >33 |
 
-Cycling prefers cooler temps (body heat from pedaling). SUP needs warmer air (wind chill + water immersion). Snorkelling not a primary factor (wetsuit assumed).
+Cycling prefers cooler temps (body heat from pedaling). SUP needs warmer air than kayaking — standing exposes you to wind chill and a fall means full immersion, where a seated paddler mostly stays dry.
+
+Snorkelling: air temperature is not a limiting factor because a wetsuit is assumed. Set `temp.condition` to `acceptable` for snorkelling and never let temperature decide its overall score. Still report `temp.air`, `temp.feelsLike` and `temp.water` as measured.
 
 ### Daylight
 
@@ -136,7 +135,7 @@ UV affects all outdoor activities. Water activities have additional exposure fro
 | Marginal | 75-85% |
 | Unsuitable | >85% or <20% |
 
-High humidity impairs sweat evaporation during sustained cycling effort. Other activities: set `humidity` to `null`.
+High humidity impairs sweat evaporation during sustained cycling effort. Other activities: omit the `humidity` object entirely.
 
 ### Underwater visibility
 
@@ -149,11 +148,11 @@ Derived composite factor — not directly measured. Estimate from wind speed, sw
 | Marginal | 2-5m — moderate wind/swell or recent rain |
 | Unsuitable | <2m — high wind/swell, heavy rain, or poor water quality |
 
-Poor visibility reduces the snorkelling experience and can mask hazards like rocks, currents, or marine life. Other activities: set `visibility` to `null`.
+Poor visibility reduces the snorkelling experience and can mask hazards like rocks, currents, or marine life. Other activities: omit the `visibility` object entirely.
 
-## JSON Output
+## Scoring Each Window
 
-Produce a JSON object with entries for each time window (`all-day`, `morning`, `afternoon`, `evening`) on {date} and for the next 9 days.
+Produce one entry for each time window (`all-day`, `morning`, `afternoon`, `evening`) on every date listed at the end of this prompt.
 
 Time windows:
 - Morning: 6am-12pm
@@ -165,7 +164,7 @@ When a time window spans multiple hours, aggregate each factor as follows (these
 - Wind speed/gust: use the worst-case (highest) value.
 - Wind direction: use the predominant direction (most frequent across hours). If tied, use the direction at the hour with the highest wind speed.
 - Precipitation: use the worst-case (highest amount, highest chance).
-- Tide: use the best condition within the window — users can adjust their trip to the optimal tidal window. The overall score should also use this best tidal condition. `nextHigh` = first high tide turning time within the time window in `HH:MM` format e.g. `'10:30'` (`null` if none). `nextLow` = first low tide turning time within the time window in `HH:MM` format e.g. `'16:15'` (`null` if none). `tide.state` = tide state at the best condition hour within the window, must be strictly `Rising` or `Falling`. Rising when tide is moving toward high, Falling when moving toward low. `tide.percentage` = tide height at the best condition hour as a proportion between low and high tide. 0% = low tide, 100% = high tide. Must be between 0 and 100. Interpolate linearly between the nearest low and high tide turning times from the NIWA data.
+- Tide: use the best condition within the window — users can adjust their trip to the optimal tidal window. The overall score should also use this best tidal condition. `tide.nextHigh` = first high tide turning time within the time window in `HH:MM` format e.g. `'10:30'` (`null` if none). `tide.nextLow` = first low tide turning time within the time window in `HH:MM` format e.g. `'16:15'` (`null` if none). `tide.state` = tide state at the best condition hour within the window, must be strictly `Rising` or `Falling`. Rising when tide is moving toward high, Falling when moving toward low. `tide.percentage` = tide height at the best condition hour as a proportion between low and high tide. 0% = low tide, 100% = high tide. Must be between 0 and 100. Interpolate linearly between the nearest low and high tide turning times from the NIWA data.
 - Water quality: use the worst-case.
 - Temperature/feels-like: use the best-case (closest to ideal range) — users can time their activity to the most comfortable part of the window.
 - Daylight: use the percentage of the window that falls within usable-light hours.
@@ -181,99 +180,65 @@ All `summary` fields must explain how conditions affect the specific activity �
 - Bad: "28% chance of rain"
 - Bad: "Water quality is green"
 
-The `tide.swell` field must be a string with the wave height in meters (e.g. `'0.5m'`), extracted from `waveHeightM` in the marine data. Never pass the raw marine object.
+`tide.swell` must be a string with the wave height in meters (e.g. `'0.5m'`), extracted from `tideSwell` in the marine data.
 
-The marine model runs out before the end of the 10-day range, so its final day is all nulls. Set `tide.swell` to `null` for any window whose `waveHeightM` values are all null, and omit `temp.water` for any window whose `seaTempC` values are all null.
+The marine model runs out before the end of the 10-day range, so its final day is all nulls. Omit `tide.swell` for any window whose `tideSwell` values are all null, and `temp.water` for any window whose `tempWater` values are all null.
 
 The `analysis` field is a multi-paragraph AI analysis for the detail page. Use `\n\n` to separate paragraphs. Keep it to two or three short paragraphs — cover the factors that decide the score and the best window, and stop.
 
 `analysis` and `summary` appear on different screens, so `analysis` must stand on its own — but never open it by restating `summary` word for word. Lead on what the summary leaves out.
 
-The `hourly` array contains hourly scores for the hours within that time range. Each entry has `time` (HH:MM), `score`, and `condition`. When a factor only has daily data, hourly scores for that factor will be identical. Variation in hourly scores should come only from factors with real hourly data (e.g. tide position, water quality, daylight).
+When a time window has no weather data at all (e.g. hours already passed), leave its entry nearly empty rather than writing "N/A" or "no-data" values — omit every factor you cannot fill.
 
-When weather data is not available for a time window (e.g. hours already passed), set factor fields (`score`, `condition`, `wind`, `precipitation`, `temp`, `uv`, `daylight`, `hourly`) to `null` instead of objects with "N/A" or "no-data" values.
+## Output
 
-Output in the following JSON format:
+Answer with a single JSON object holding `hourly` first and then `entries`, minified — no line breaks or indentation between values. Write `hourly` first: an answer that gets cut off then loses only its last few entries instead of everything.
+
+Each key in `entries` is `date;timeRange` and nothing more. Never write the activity or the coordinates: they are known already.
+
+**Leave out anything you have no value for.** Omit a whole factor the activity cannot use — cycling has no `tide`, `water` or `visibility`, the water activities have no `humidity` — and omit an individual field with nothing to report. Do not write `null` to fill a gap. A window whose hours have already passed can be `{{}}` with only what is known.
+
 ```json
-{{
-  'sup;{date};all-day;{latitude},{longitude}': {{
-    activity: 'sup',
-    date: '{date}',
-    timeRange: 'all-day',
-    score: 85,
-    condition: 'ideal',
-    wind: {{ speed: '8km/h', gust: '12km/h', direction: 'NE', condition: 'ideal', summary: 'Light 8km/h NE breeze, easy paddling conditions.' }},
-    precipitation: {{ amount: '0mm', chance: '5%', condition: 'ideal', summary: 'Dry conditions expected through the morning window.' }},
-    tide: {{ state: 'Rising', percentage: 70, nextHigh: '10:30', nextLow: '16:15', swell: '0.5m', condition: 'ideal', summary: 'Rising tide with gentle flow. Good water depth at launch. Low 0.5m swell.' }},
-    water: {{ quality: 'Green', condition: 'ideal', summary: 'No contamination risk detected. Safe for swimming and paddling.' }},
-    temp: {{ air: '22°C', feelsLike: '24°C', water: '20°C', condition: 'ideal', summary: 'Comfortable conditions. Light layers recommended for early morning start.' }},
-    daylight: {{ sunset: '20:22', condition: 'ideal' }},
-    uv: {{ index: 4, condition: 'ideal', summary: 'Low UV. Sun protection still recommended on the water due to surface reflection.' }},
-    humidity: null,
-    visibility: null,
-    summary: 'Light onshore breeze, excellent for paddling this morning.',
-    analysis: 'Mission Bay offers excellent conditions for SUP this morning.\n\nThe 8km/h northeast breeze is gentle and onshore, so it will help push you back if you tire, and the incoming tide keeps water depth good at the launch area.\n\nRecommended window: 7am - 10am, before the sea breeze strengthens.',
-    hourly: [
-      {{ time: '06:00', score: 82, condition: 'ideal' }},
-      {{ time: '07:00', score: 85, condition: 'ideal' }},
-      {{ time: '08:00', score: 87, condition: 'ideal' }},
-      {{ time: '09:00', score: 85, condition: 'ideal' }},
-      {{ time: '10:00', score: 78, condition: 'acceptable' }},
-    ],
-  }},
-  'cycling;{date};morning;{latitude},{longitude}': {{
-    activity: 'cycling',
-    date: '{date}',
-    timeRange: 'morning',
-    score: 90,
-    condition: 'ideal',
-    wind: {{ speed: '12km/h', gust: '18km/h', direction: 'S', condition: 'ideal', summary: 'Light tailwind, great riding conditions.' }},
-    precipitation: {{ amount: '0mm', chance: '5%', condition: 'ideal', summary: 'Clear skies through the morning.' }},
-    tide: null,
-    water: null,
-    temp: {{ air: '19°C', feelsLike: '17°C', condition: 'ideal', summary: 'Cool morning air, comfortable for riding.' }},
-    daylight: {{ civilTwilightEnd: '20:50', condition: 'ideal' }},
-    uv: {{ index: 6, condition: 'acceptable', summary: 'Moderate UV. Sunscreen recommended for extended rides.' }},
-    humidity: {{ percentage: '65%', condition: 'ideal', summary: 'Comfortable humidity for riding.' }},
-    visibility: null,
-    summary: 'Light 12km/h tailwind with clear skies, great riding conditions.',
-    analysis: 'A good morning to ride at Mission Bay.\n\nThe 12km/h southerly sits behind you along the Tamaki Drive stretch, and clear skies keep visibility high.\n\nModerate UV — apply sunscreen for rides longer than an hour.',
-    hourly: [
-      {{ time: '06:00', score: 88, condition: 'ideal' }},
-      {{ time: '07:00', score: 90, condition: 'ideal' }},
-      {{ time: '08:00', score: 90, condition: 'ideal' }},
-      {{ time: '09:00', score: 88, condition: 'ideal' }},
-      {{ time: '10:00', score: 85, condition: 'ideal' }},
-      {{ time: '11:00', score: 80, condition: 'ideal' }},
-    ],
-  }},
-  'snorkelling;{date};morning;{latitude},{longitude}': {{
-    activity: 'snorkelling',
-    date: '{date}',
-    timeRange: 'morning',
-    score: 78,
-    condition: 'acceptable',
-    wind: {{ speed: '6km/h', gust: '10km/h', direction: 'NE', condition: 'ideal', summary: 'Calm winds, minimal surface chop.' }},
-    precipitation: {{ amount: '0mm', chance: '10%', condition: 'ideal', summary: 'Dry conditions expected.' }},
-    tide: {{ state: 'Rising', percentage: 60, nextHigh: '10:30', nextLow: '16:15', swell: '0.3m', condition: 'ideal', summary: 'Incoming tide about 2hr before high. Ideal timing — best visibility as clean water pushes in.' }},
-    water: {{ quality: 'Green', condition: 'ideal', summary: 'No contamination risk. Safe for full immersion.' }},
-    temp: {{ air: '23°C', feelsLike: '24°C', water: '21°C', condition: 'ideal', summary: 'Warm water, comfortable without a thick wetsuit.' }},
-    daylight: {{ sunset: '20:22', condition: 'ideal' }},
-    uv: {{ index: 6, condition: 'acceptable', summary: 'Moderate UV. Reef-safe sunscreen recommended — water reflection increases exposure.' }},
-    humidity: null,
-    visibility: {{ estimate: '6m', condition: 'acceptable', summary: 'Light swell slightly reduces clarity. Expect 5-8m visibility — good for reef fish spotting.' }},
-    summary: 'Calm 6km/h wind with acceptable underwater visibility around 6m.',
-    analysis: 'Good snorkelling conditions this morning.\n\nCalm 6km/h winds keep surface chop low and the incoming tide brings cleaner water over the reef, giving an estimated 6m of visibility — enough for reef fish and rocky features, though not crystal clear.\n\nBest window: 8am-10am as the tide rises toward high.',
-    hourly: [
-      {{ time: '06:00', score: 72, condition: 'acceptable' }},
-      {{ time: '07:00', score: 75, condition: 'acceptable' }},
-      {{ time: '08:00', score: 78, condition: 'acceptable' }},
-      {{ time: '09:00', score: 80, condition: 'ideal' }},
-      {{ time: '10:00', score: 76, condition: 'acceptable' }},
-      {{ time: '11:00', score: 73, condition: 'acceptable' }},
-    ],
-  }},
-}}
+{{"hourly":{{"2026-02-13":{{"from":"06:00","scores":[82,85,87,85,78,74,70,68,66,64,60,58,55,50,44,40,36]}}}},"entries":{{"2026-02-13;all-day":{{"score":85,"wind":{{"speed":"8km/h","gust":"12km/h","direction":"NE","condition":"ideal","summary":"Light 8km/h NE breeze, easy paddling conditions."}},"precipitation":{{"amount":"0mm","chance":"5%","condition":"ideal","summary":"Dry through the day."}},"tide":{{"state":"Rising","percentage":70,"nextHigh":"10:30","nextLow":"16:15","swell":"0.5m","condition":"ideal","summary":"Rising tide with gentle flow. Good depth at launch."}},"water":{{"quality":"Green","condition":"ideal","summary":"No contamination risk detected."}},"temp":{{"air":"22°C","feelsLike":"24°C","water":"20°C","condition":"ideal","summary":"Comfortable, light layers for an early start."}},"daylight":{{"sunset":"20:22","condition":"ideal"}},"uv":{{"index":4,"condition":"ideal","summary":"Low UV, but reflection off the water still burns."}},"summary":"Light onshore breeze, excellent for paddling.","analysis":"Mission Bay offers excellent conditions for SUP today.\n\nThe 8km/h northeast breeze is gentle and onshore, so it will help push you back if you tire.\n\nRecommended window: 7am - 10am."}},"2026-02-13;morning":{{"score":87,"wind":{{"speed":"7km/h","gust":"11km/h","direction":"NE","condition":"ideal","summary":"Light 7km/h NE breeze."}},"precipitation":{{"amount":"0mm","chance":"5%","condition":"ideal","summary":"Dry through the morning."}},"tide":{{"state":"Rising","percentage":65,"nextHigh":"10:30","swell":"0.5m","condition":"ideal","summary":"Incoming tide through the morning."}},"water":{{"quality":"Green","condition":"ideal","summary":"No contamination risk detected."}},"temp":{{"air":"21°C","feelsLike":"23°C","water":"20°C","condition":"ideal","summary":"Comfortable morning air."}},"daylight":{{"sunset":"20:22","condition":"ideal"}},"uv":{{"index":3,"condition":"ideal","summary":"Low morning UV."}},"summary":"Calm morning breeze, the best window of the day.","analysis":"The morning is the pick of the day for SUP.\n\nWinds stay under 10km/h until late and the tide is filling.\n\nGet on the water before 10am."}}}}}}
 ```
 
-Respond with the complete JSON for every date and time window listed above. Raw JSON only — no code fences, no commentary before or after.
+The example shows two entries for one date. A real answer carries all four windows for every date listed at the end.
+
+Every field each factor may carry, and no others. Leave out any you have no value for:
+
+- `wind` — `speed`, `gust`, `direction`, `condition`, `summary`
+- `precipitation` — `amount`, `chance`, `condition`, `summary`
+- `tide` — `state`, `percentage`, `nextHigh`, `nextLow`, `swell`, `condition`, `summary`
+- `water` — `quality`, `condition`, `summary`
+- `temp` — `air`, `feelsLike`, `water`, `condition`, `summary`
+- `daylight` — `sunset` or `civilTwilightEnd`, `condition`, `summary`
+- `uv` — `index`, `condition`, `summary`
+- `humidity` — `percentage`, `condition`, `summary`
+- `visibility` — `estimate`, `condition`, `summary`
+
+Spell them exactly as written, in full — never a shorthand. The example above shows a water
+activity, which uses neither `humidity` nor `visibility`; cycling carries `humidity` and no
+`tide`, `water` or `visibility`, and snorkelling is the only activity carrying `visibility`.
+
+Field notes:
+
+- `score` — an integer 0-100. There is no `condition` on the entry: it is derived from the score using the bands above, so the score alone decides it. Never write one.
+- Every factor's `condition` — strictly `ideal`, `acceptable`, `marginal` or `unsuitable`.
+- `daylight` — `sunset` for the water activities, `civilTwilightEnd` for cycling, never both. `HH:MM`.
+- `tide.state` — strictly `Rising` or `Falling`. `tide.percentage` — an integer 0-100.
+- `score`, `uv.index`, `tide.percentage` and every entry in `scores` are bare integers, never quoted strings. Write a real `null` if you must write one at all, never the string `"null"`.
+- `tide.nextHigh`, `tide.nextLow` — `HH:MM`.
+
+`hourly` comes before `entries`, with one entry per date. `from` is the first hour scored that day in `HH:MM`. `scores` is one integer per hour from `from` through 22:00 — 17 for a full day, fewer only on a first day whose early hours have already passed. The morning, afternoon and evening scores are sliced out of this one array, so never repeat them inside an entry.
+
+## Fetched Data
+
+{fetched_data}
+
+## Task
+
+Score the activity `{activity}` using the fetched data and criteria above.
+
+Produce rows for exactly these dates: {dates}
+
+That is {entry_count} entries in total — the 4 time windows above for each of those dates, and nothing for any other date. Do not stop after the first date. Respond with raw JSON only, no code fences and no commentary before or after.

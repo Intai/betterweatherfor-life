@@ -1,9 +1,0 @@
-What is the water quality at geolocation {latitude},{longitude} on {date} and for the next 2 days according to https://safeswim.org.nz/api/locations/{{slug}}, where the `WATER_QUALITY` array is every hour from now?
-
-Respond with raw JSON only. Do not wrap in markdown code fences or backticks. Use exactly this shape, one row per hour:
-
-{{"fields":["time","waterQuality"],"rows":[["2026-08-04T06:00","Green"],["2026-08-04T07:00","Green"]]}}
-
-Only include hours from 06:00 to 22:00 local time — omit every other hour. Every row must have exactly two values in the order given. `waterQuality` must be strictly Green, Orange, Red or Black.
-
-Use the curl tool. Find the closest location slug by first fetching https://safeswim.org.nz/api/locations.

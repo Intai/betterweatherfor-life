@@ -2,6 +2,10 @@ import os
 
 provider = os.environ.get("LANGGRAPH_LLM_PROVIDER", "openrouter")
 
+# Routes every fetch request to the same xAI server so they can share a prefix
+# cache. Stable by design — see the ChatXAI branch below.
+CACHE_ROUTING_ID = "betterweather-fetch"
+
 if provider == "claude-cli":
     from langraph.models.claude_cli import ClaudeCLIModelWithTools
 
@@ -9,7 +13,17 @@ if provider == "claude-cli":
 elif provider == "xai":
     from langchain_xai import ChatXAI
 
-    fetch_llm = ChatXAI(model="grok-4.3-latest", temperature=0, max_tokens=24000)
+    # Each fetch is a ReAct loop that replays its own history every turn, which is
+    # exactly what a prefix cache is for — but xAI caches per server and load
+    # balances, so a turn only hits if it lands back on the same box. Pinning the
+    # routing is what makes the replay reliably cheap rather than luck: one water
+    # quality turn re-sent 17,754 tokens and got 3,136 of them back from cache.
+    fetch_llm = ChatXAI(
+        model="grok-4.3-latest",
+        temperature=0,
+        max_tokens=24000,
+        default_headers={"x-grok-conv-id": CACHE_ROUTING_ID},
+    )
 elif provider == "gemini":
     from langchain_google_genai import ChatGoogleGenerativeAI
 

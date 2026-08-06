@@ -2,6 +2,10 @@ import os
 
 provider = os.environ.get("LANGGRAPH_LLM_PROVIDER", "openrouter")
 
+# Routes every scoring request to the same xAI server so they can share a prefix
+# cache. Stable by design — see the ChatXAI branch below.
+CACHE_ROUTING_ID = "betterweather-score"
+
 if provider == "claude-cli":
     from langraph.models.claude_cli import ClaudeCLIModelWithTools
 
@@ -9,7 +13,22 @@ if provider == "claude-cli":
 elif provider == "xai":
     from langchain_xai import ChatXAI
 
-    score_llm = ChatXAI(model="grok-4.20-reasoning", temperature=0, max_tokens=32000)
+    # A full 10 days of hourly weather pushed a legitimate answer to 32,080 tokens,
+    # which truncated it mid-JSON at the old 32k cap. The API accepts up to 131k;
+    # this leaves ~50% headroom while still failing a runaway loop well short of it.
+    #
+    # xAI's prefix cache is per-server and requests are load balanced, so a hit only
+    # lands if the request reaches the box holding the prefix. `x-grok-conv-id` pins
+    # the routing. Without it the four scorers read 128 cached tokens out of ~16k
+    # each, even once `score.txt` led with the criteria block they all share and the
+    # graph ran one scorer to completion first. A constant, rather than a per-run id,
+    # so that block stays warm across activities, locations and days.
+    score_llm = ChatXAI(
+        model="grok-4.20-reasoning",
+        temperature=0,
+        max_tokens=48000,
+        default_headers={"x-grok-conv-id": CACHE_ROUTING_ID},
+    )
 elif provider == "gemini":
     from langchain_google_genai import ChatGoogleGenerativeAI
 
