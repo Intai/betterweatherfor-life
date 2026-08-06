@@ -81,11 +81,35 @@ def test_generate_returns_text_and_usage():
         "input_tokens": 3,
         "output_tokens": 4,
         "total_tokens": 7,
+        "input_token_details": {"cache_read": 0, "cache_creation": 0},
     }
     assert message.response_metadata["stop_reason"] == "end_turn"
     assert message.response_metadata["total_cost_usd"] == 0.01
     # Built-in tools are disabled so only bound tools are ever reachable.
     assert captured["options"].tools == []
+
+
+def test_cached_input_counts_towards_input_tokens():
+    # Anthropic leaves only the uncached remainder in `input_tokens`, so counting that
+    # alone reported a 16k-token prompt as 2 and made LangSmith's cost data useless.
+    query, _ = fake_query([
+        AssistantMessage(content=[TextBlock(text="PONG")], model="opus"),
+        make_result(usage={
+            "input_tokens": 2,
+            "cache_read_input_tokens": 15000,
+            "cache_creation_input_tokens": 1200,
+            "output_tokens": 40602,
+        }),
+    ])
+    with patch("langraph.models.claude_cli.query", query):
+        message = ClaudeCLIModelWithTools().invoke([HumanMessage("ping")])
+
+    assert message.usage_metadata == {
+        "input_tokens": 16202,
+        "output_tokens": 40602,
+        "total_tokens": 56804,
+        "input_token_details": {"cache_read": 15000, "cache_creation": 1200},
+    }
 
 
 def test_generate_returns_tool_calls_with_prefix_stripped():

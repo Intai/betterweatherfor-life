@@ -160,12 +160,22 @@ def _usage_metadata(usage):
     """Map the SDK's usage dict onto LangChain's usage_metadata shape."""
     if not usage:
         return None
-    input_tokens = usage.get("input_tokens") or 0
+    # Anthropic reports only the uncached remainder in `input_tokens` and puts the rest
+    # in the cache counters, so a fully cached 16k prompt reads as 2. LangChain wants
+    # `input_tokens` to be the sum of every input type, with the split in the details.
+    cache_read = usage.get("cache_read_input_tokens") or 0
+    # The flat count, not the nested `cache_creation` breakdown by cache lifetime.
+    cache_creation = usage.get("cache_creation_input_tokens") or 0
+    input_tokens = (usage.get("input_tokens") or 0) + cache_read + cache_creation
     output_tokens = usage.get("output_tokens") or 0
     return {
         "input_tokens": input_tokens,
         "output_tokens": output_tokens,
         "total_tokens": input_tokens + output_tokens,
+        "input_token_details": {
+            "cache_read": cache_read,
+            "cache_creation": cache_creation,
+        },
     }
 
 

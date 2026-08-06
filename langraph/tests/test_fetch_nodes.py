@@ -27,6 +27,7 @@ def test_fetch_tides(mock_load, mock_agent, minimal_state):
         latitude="-36.8485",
         longitude="174.7633",
         date="2026-03-24",
+        timezone="Pacific/Auckland",
     )
     assert result == {"tides": "tide_data"}
 

@@ -30,6 +30,7 @@ def fetch_tides(state):
         latitude=state["latitude"],
         longitude=state["longitude"],
         date=state["date"],
+        timezone=state["timezone"],
     )
     return {"tides": run_fetch_agent(prompt)}
 

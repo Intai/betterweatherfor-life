@@ -9,10 +9,12 @@ def test_load_prompt_with_kwargs():
         latitude="-36.8",
         longitude="174.7",
         date="2026-03-24",
+        timezone="Pacific/Auckland",
     )
     assert "-36.8" in result
     assert "174.7" in result
     assert "2026-03-24" in result
+    assert "Pacific/Auckland" in result
 
 
 def test_load_prompt_missing_file():

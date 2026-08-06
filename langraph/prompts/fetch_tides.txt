@@ -4,6 +4,8 @@ Respond with raw JSON only. Do not wrap in markdown code fences or backticks. Us
 
 {{"fields":["time","type","heightM"],"rows":[["2026-08-04T04:12","Low",0.42],["2026-08-04T10:30","High",3.18]]}}
 
+NIWA reports in UTC. Convert every time to the local timezone of the geolocation ({timezone}) and emit it as `YYYY-MM-DDTHH:MM` — no seconds, no `Z`, no offset. Scoring interpolates tide height against local hourly data, so an unconverted time shifts every tide by the whole UTC offset without looking wrong.
+
 Include every turning point across all 10 days, including those outside daylight hours — interpolating tide height needs the turning points on both sides of a time window. Every row must have exactly three values in the order given. `type` must be strictly High or Low.
 
 Use the curl tool with header `"accept": "text/csv"` and referrer `https://tides.niwa.co.nz/`.
