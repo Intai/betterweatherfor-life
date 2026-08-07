@@ -18,7 +18,7 @@ TRUNCATED = frozenset({"length", "max_tokens"})
 REASON_KEYS = ("finish_reason", "stop_reason")
 
 
-def _truncated_at(response):
+def truncated_at(response):
     """Name the reason the provider gave for stopping at its cap, if it did."""
     metadata = response.response_metadata or {}
     for key in REASON_KEYS:
@@ -26,6 +26,33 @@ def _truncated_at(response):
         if reason and str(reason).lower() in TRUNCATED:
             return str(reason)
     return None
+
+
+def invoke_score(prompt, llm=None):
+    """Ask the LLM to score an activity and return its whole reply.
+
+    The message rather than its text, because a caller judging the answer wants
+    the token counts and the stop reason that came back with it. `run_score`
+    below is the same call for a caller that only wants the JSON.
+
+    Args:
+        prompt: The scoring instructions with fetched data and criteria.
+        llm: A chat model to use instead of the module singleton, so one process
+            can score against several models.
+
+    Returns:
+        The provider's reply message.
+    """
+    return (llm or score_llm).invoke([HumanMessage(content=prompt)])
+
+
+def truncation_error(response):
+    """Word the failure for an answer the provider cut off at its token cap."""
+    usage = response.usage_metadata or {}
+    return ValueError(
+        f"Score response was cut short at the token cap ({truncated_at(response)}) "
+        f"after {usage.get('output_tokens')} output tokens"
+    )
 
 
 def run_score(prompt):
@@ -50,14 +77,9 @@ def run_score(prompt):
             saying plainly rather than leaving to a JSON error halfway through
             the text.
     """
-    response = score_llm.invoke([HumanMessage(content=prompt)])
+    response = invoke_score(prompt)
 
-    reason = _truncated_at(response)
-    if reason:
-        usage = response.usage_metadata or {}
-        raise ValueError(
-            f"Score response was cut short at the token cap ({reason}) after "
-            f"{usage.get('output_tokens')} output tokens"
-        )
+    if truncated_at(response):
+        raise truncation_error(response)
 
     return extract_message_text(response.content)

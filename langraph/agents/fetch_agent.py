@@ -10,16 +10,17 @@ from langraph.utils.messages import extract_message_text
 RECURSION_LIMIT = 30
 
 
-def run_fetch_agent(prompt):
+def run_fetch_agent(prompt, llm=None):
     """Run a ReAct agent that fetches data from an API using the curl tool.
 
     Args:
         prompt: The fetch instructions for this data source.
+        llm: A chat model to use instead of the module singleton.
 
     Returns:
         The columnar data string from the agent's final response.
     """
-    agent = create_react_agent(fetch_llm, [curl])
+    agent = create_react_agent(llm or fetch_llm, [curl])
     result = agent.invoke(
         {"messages": [{"role": "user", "content": prompt}]},
         {"recursion_limit": RECURSION_LIMIT},

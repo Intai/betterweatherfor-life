@@ -31,10 +31,24 @@ SCORE_NODES = {
 }
 
 
-def build_fetch_graph(fetch_name):
-    """Build a minimal graph with a single fetch node for testing."""
+def build_fetch_graph(fetch_name, llm=None):
+    """Build a minimal graph with a single fetch node for testing.
+
+    Args:
+        fetch_name: A key of FETCH_NODES.
+        llm: A chat model for the node to use instead of the module singleton, so
+            one process can compare several. The two sources fetched without an
+            agent accept it and ignore it.
+
+    Returns:
+        A compiled graph running that one node.
+
+    Raises:
+        KeyError: If `fetch_name` is not a fetch node.
+    """
+    node = FETCH_NODES[fetch_name]
     builder = StateGraph(ForecastState)
-    builder.add_node(fetch_name, FETCH_NODES[fetch_name])
+    builder.add_node(fetch_name, (lambda state: node(state, llm=llm)) if llm else node)
     builder.add_edge(START, fetch_name)
     builder.add_edge(fetch_name, END)
     return builder.compile()

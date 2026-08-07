@@ -1,0 +1,173 @@
+# LangSmith evaluations
+
+Model and prompt choices used to be decided by setting `LANGGRAPH_SCORE_MODEL`,
+running the graph once and reading one trace by hand. The findings survived only
+as comments in `models/score_llm.py`. This turns those readings into experiments
+that can be re-run, compared side by side and regression-checked.
+
+## Seeds, datasets and experiments
+
+Three different things:
+
+- **Seed** — a JSON file in `seeds/`, committed to git. The reviewable source of
+  truth, holding one location's fetch phase already fetched.
+- **Dataset** — the LangSmith-hosted copy. Each row is an *example*:
+  `{inputs, reference_outputs?, metadata}`. `evaluate()` reads examples, not
+  files.
+- **Experiment** — one `evaluate()` run over a dataset, one result row per
+  example with the evaluator scores attached.
+
+Two layers rather than feeding seed files straight into `evaluate()`, because two
+experiments can only be compared row by row when they ran over the same example
+ids. That is what shows *which* location regressed rather than only that the
+average moved.
+
+Capture is rare and hand-reviewed; push is a sync; experiments read the datasets
+constantly.
+
+```
+seeds/mission-bay-2026-03-24.json
+├── inputs {lat, lng, date, timezone, slug}   ← tiny; every suite needs this
+└── fetch  {water_quality, tides, weather, marine, sun_times}
+             ├──> bw-score            as example INPUTS
+             ├──> bw-fetch-tides      as reference_outputs (golden)
+             ├──> bw-fetch-sun-times  as reference_outputs (golden)
+             └──  bw-fetch-marine, bw-source-*, bw-forecast-e2e
+                  unused — those targets fetch live
+```
+
+Only `bw-score` uses the frozen fetch block as *input*. That is the point of
+freezing it: without it, comparing two scorers would also be comparing two
+different weather forecasts.
+
+## Suites
+
+| Suite | Target | LLM calls | Inputs | Sweeps models | Purpose |
+|---|---|---|---|---|---|
+| `fetch --source weather\|water_quality` | the source function | none | live | n/a | upstream API drift |
+| `fetch --source tides\|marine\|sun_times` | `build_fetch_graph(source)` | ReAct + curl | live | yes | agent correctness |
+| `score` | `score_activity` | 1 per example | frozen seeds | yes | model and prompt choices |
+| `e2e` | `build_graph()` | ~9 per run | live | no | integration regression |
+
+The end-to-end suite deliberately takes no `--models`: it would pay for the whole
+fetch phase once per model, and the live data drifting underneath would confound
+the comparison anyway. Compare models per node, where the inputs hold still.
+
+## Running
+
+```sh
+make langraph-capture EVAL_ARGS="--slug mission-bay --lat -36.8485 --lng 174.7633 \
+    --date 2026-03-24 --timezone Pacific/Auckland"   # then review and commit the seed
+make langraph-push
+make langraph-score EVAL_ARGS="--activity sup --limit 1"
+make langraph-fetch EVAL_ARGS="--source tides"
+make langraph-e2e
+```
+
+## Comparing models
+
+`--models` runs one experiment per spec over the same examples, so LangSmith lines
+them up row by row. It works the same on both suites:
+
+```sh
+make langraph-score EVAL_ARGS="--models xai=low,gemini=medium --activity sup"
+make langraph-fetch EVAL_ARGS="--source marine --models xai=low,gemini=medium"
+```
+
+A spec is `provider:model=effort` and any part may be omitted, so `gemini=medium`
+means that provider's default model at medium effort and `xai` means its defaults
+throughout. Separate several with commas or repeat `--models`; both sweep.
+
+Effort is separated by `=` rather than a third colon because model names carry
+colons of their own — the OpenRouter default here is
+`nvidia/nemotron-3-ultra-550b-a55b:free`, and splitting a spec on colons would drop
+the `:free` suffix and read it as the effort. So the full form is
+`openrouter:nvidia/nemotron-3-ultra-550b-a55b:free=low`.
+
+Each model is built once and handed to the target rather than read from the
+environment mid-run, which is what stops a sweep measuring one model and labelling
+the results with another.
+
+Needs `LANGSMITH_API_KEY` in `.env`. The Makefile exports it; the CLI also calls
+`load_dotenv()` before importing anything that builds a model.
+
+## Judging
+
+Two of the score metrics are graded by a model rather than a rule. They are
+opt-in, because they roughly double the cost of an experiment and are the least
+reliable signal in it. `--judge` turns them on, and takes the same
+`provider:model=effort` spec as `--models` to say who grades:
+
+```sh
+make langraph-score EVAL_ARGS="--activity sup --judge"          # default examiner
+make langraph-score EVAL_ARGS="--judge claude-cli:opus=medium --models gemini=low"
+```
+
+Any part left out falls back to the default examiner,
+`openai:gpt-5.6-terra=medium` — a reasoning model at a real effort rather than
+the cheapest thing that answers, because `analysis_quality` asks for taste no
+rule supplies. `score_plausibility` only applies the stated bands, where
+capability buys little beyond fewer arithmetic slips.
+
+The second example is the case worth remembering: the default judge is an OpenAI
+model, so a sweep of OpenAI models — which reach the scorer through OpenRouter —
+would be close to self-grading. A model of the same family marks it generously,
+and that skews a comparison more than a weak judge does — a weak judge is at
+least weak uniformly across every column. For the same reason, move the judge
+between sweeps rather than within one; the experiment metadata records which
+examiner graded each run.
+
+## Reading the results
+
+Nothing here decides pass or fail. Each evaluator reports a number, LangSmith
+stores it as feedback, and you read the columns — so it matters what kind of
+number each one is:
+
+| Family | Metrics | Reading |
+|---|---|---|
+| 0–1 ratio | coverage, discipline, consistency, `golden_match`, the judges | higher is better |
+| Boolean | `succeeded`, `completed`, `rows_ordered`, `columnar_parseable`, `fields_exact` | True is better |
+| Magnitude | `parse_problems`, `seconds`, `output_tokens` | lower is better, unbounded |
+| Informational | `thinking_share` | no good direction; compare between experiments |
+| About the seed | `seed_sources_given` | a low value means your capture is incomplete, not that the model did badly |
+
+Every score and boolean points the same way, so `1.0` is always the good end.
+
+Read `succeeded` and `completed` first. Targets report their failures rather than
+raising, so every row in LangSmith looks successful — a strong `band_consistency`
+over the 40% of examples that returned is worse than a middling one over all of
+them. `usable_run_rate` is the gate.
+
+There are deliberately no thresholds. Choosing minimums for a dozen quality
+metrics before any experiment has run would mean guessing what a normal
+`band_consistency` even looks like for the model you ship. Run the evals first,
+learn the ranges, then gate on whichever metrics turn out to matter.
+
+`temperature=0` is not determinism for a reasoning model. Use `--repetitions 3`
+for anything you would act on, prefer three seeds three times over nine seeds
+once, compare the medians the summary evaluators report, and treat a gap under
+about 0.05 as indistinguishable. Binary metrics are the exception: one truncation
+is a production incident even at n=3.
+
+Do not sweep on a `:free` OpenRouter model — shared capacity and per-minute caps
+mean you would be measuring queue depth.
+
+## Where the rules live
+
+`evaluators/score.py` mirrors `prompts/score.txt`: which factors each activity
+carries, that the worst factor decides the entry, that snorkelling's temperature
+never does. Change that prompt and these have to follow, or they will keep
+reporting confident numbers against a contract nobody is asking for. The
+thresholds themselves are derived from `utils/score_parser.py` rather than
+restated, and `tests/test_eval_evaluators.py` covers the rest.
+
+Every experiment records `score_prompt_sha` in its metadata, so a metric that
+moved can be attributed to the model or to the prompt.
+
+## Why this is not under `tests/`
+
+`langraph/tests/conftest.py` replaces the model modules with `MagicMock`s at
+import time. Anything pytest collected alongside it would score a mock and report
+a perfect result, so nothing here is named `test_*.py` and the harness runs only
+through `python -m langraph.evals.cli`. The evaluators' own unit tests live in
+`langraph/tests/` and import pure functions only.

@@ -48,6 +48,19 @@ A website that helps outdoor enthusiasts quickly find the best places to go by r
   - `.venv/bin/pytest "langraph/tests/test_file.py" -k "matching_string"` to run specific LangGraph unit tests in a test file.
   - Drop the `.venv/bin/` prefix when the venv is already activated.
 
+### LangSmith evaluations
+
+Not part of `make test` — they spend real tokens and hit the network.
+
+- `make langraph-seeds` to list the captured fetch seeds.
+- `make langraph-capture EVAL_ARGS="--slug ... --lat ... --lng ... --date ... --timezone ..."` to record a fetch phase into a seed.
+- `make langraph-push` to upsert the seeds into the LangSmith datasets.
+- `make langraph-fetch EVAL_ARGS="--source tides"` to evaluate one fetch node.
+- `make langraph-score EVAL_ARGS="--activity sup --limit 1"` to evaluate the scorers against frozen fetch data.
+- `make langraph-e2e` to evaluate the whole graph end to end.
+- Add `--models xai=low,gemini=medium` to either `langraph-fetch` or `langraph-score` to run one experiment per model and compare them side by side. A spec is `provider:model=effort`; effort uses `=` because model names contain colons.
+- Add `--judge` to `langraph-score` to also run the LLM judges, roughly doubling the cost. It takes an optional spec in the same form naming the examiner, e.g. `--judge claude-cli:opus=medium`.
+
 ## Convention
 
 - Our own file names are in hyphenated lower case.

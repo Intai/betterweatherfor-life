@@ -6,13 +6,16 @@ from langraph.sources.water_quality import fetch_water_quality_rows
 from langraph.sources.weather import fetch_weather_rows
 
 
-def fetch_water_quality(state):
+def fetch_water_quality(state, llm=None):
     """Fetch water quality from SafeSwim.
 
     Fetched without an agent: choosing the nearest beach is a nearest-neighbour
     search over 315 entries, and the grade array has no timestamps for a model to
     reason about — it begins at the next whole hour, which the agent used to
     guess wrongly, inventing the hours already gone.
+
+    `llm` is accepted and ignored, so every entry in `FETCH_NODES` is callable
+    the same way and `build_fetch_graph` needs no list of which take a model.
     """
     return {
         "water_quality": fetch_water_quality_rows(
@@ -23,8 +26,14 @@ def fetch_water_quality(state):
     }
 
 
-def fetch_tides(state):
-    """Fetch tide turning times from NIWA API."""
+def fetch_tides(state, llm=None):
+    """Fetch tide turning times from NIWA API.
+
+    Args:
+        state: The forecast state naming the location and date.
+        llm: A chat model for the agent to use instead of the module singleton,
+            so one process can compare several.
+    """
     prompt = load_prompt(
         "fetch_tides",
         latitude=state["latitude"],
@@ -32,10 +41,10 @@ def fetch_tides(state):
         date=state["date"],
         timezone=state["timezone"],
     )
-    return {"tides": run_fetch_agent(prompt)}
+    return {"tides": run_fetch_agent(prompt, llm=llm)}
 
 
-def fetch_weather(state):
+def fetch_weather(state, llm=None):
     """Fetch weather data from the Google Weather API.
 
     The only source fetched without an agent: its ten pages are sequential and
@@ -51,19 +60,29 @@ def fetch_weather(state):
     }
 
 
-def fetch_marine(state):
-    """Fetch sea surface temperature and swell from Open-Meteo."""
+def fetch_marine(state, llm=None):
+    """Fetch sea surface temperature and swell from Open-Meteo.
+
+    Args:
+        state: The forecast state naming the location and date.
+        llm: A chat model for the agent to use instead of the module singleton.
+    """
     prompt = load_prompt(
         "fetch_marine",
         latitude=state["latitude"],
         longitude=state["longitude"],
         date=state["date"],
     )
-    return {"marine": run_fetch_agent(prompt)}
+    return {"marine": run_fetch_agent(prompt, llm=llm)}
 
 
-def fetch_sun_times(state):
-    """Fetch sunrise/sunset times from sunrise-sunset.org."""
+def fetch_sun_times(state, llm=None):
+    """Fetch sunrise/sunset times from sunrise-sunset.org.
+
+    Args:
+        state: The forecast state naming the location and date.
+        llm: A chat model for the agent to use instead of the module singleton.
+    """
     prompt = load_prompt(
         "fetch_sun_times",
         latitude=state["latitude"],
@@ -71,4 +90,4 @@ def fetch_sun_times(state):
         date=state["date"],
         timezone=state["timezone"],
     )
-    return {"sun_times": run_fetch_agent(prompt)}
+    return {"sun_times": run_fetch_agent(prompt, llm=llm)}

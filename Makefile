@@ -1,7 +1,7 @@
 -include .env
 export
 
-.PHONY: help venv lint test coverage dev dev-bg dev-stop prod prod-bg prod-stop vrt vrt-bg vrt-stop vrt-creds vrt-reset dev-e2e dev-smoke prod-e2e k8s-prod-e2e db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean k8s-forecast-suspend tf-plan tf-apply
+.PHONY: help venv lint test coverage dev dev-bg dev-stop prod prod-bg prod-stop vrt vrt-bg vrt-stop vrt-creds vrt-reset dev-e2e dev-smoke prod-e2e k8s-prod-e2e db-migrate db-seed db-forecast db-studio reseed k8s-dev k8s-local k8s-local-stop k8s-push k8s-prod k8s-prod-stop k8s-db k8s-forecast-login k8s-forecast k8s-forecast-clean k8s-forecast-suspend tf-plan tf-apply langraph-capture langraph-seeds langraph-push langraph-fetch langraph-score langraph-e2e
 .DEFAULT_GOAL := help
 
 PYTHON ?= python3
@@ -78,6 +78,35 @@ vrt-creds: ## Show the seeded visual regression tracker credentials
 
 vrt-reset: ## Delete visual regression tracker data including baselines
 	docker compose -f docker-compose.vrt.yml down -v
+
+# Deliberately not part of `make test`: these spend real tokens and hit the network.
+EVAL := $(VENV)/bin/python -m langraph.evals.cli
+EVAL_ARGS ?=
+
+langraph-capture: ## Record a fetch phase into a seed, e.g. make langraph-capture EVAL_ARGS="--slug piha --lat -36.95 --lng 174.47 --date 2026-08-07 --timezone Pacific/Auckland"
+	@$(call check-py-cmd,python)
+	$(EVAL) capture $(EVAL_ARGS)
+
+langraph-seeds: ## Show the captured seeds
+	@$(call check-py-cmd,python)
+	$(EVAL) list $(EVAL_ARGS)
+
+langraph-push: ## Upsert the seed files into the LangSmith datasets
+	@$(call check-py-cmd,python)
+	$(EVAL) push $(EVAL_ARGS)
+
+# Both take --models to compare several side by side, e.g. EVAL_ARGS="--source marine --models xai=low,gemini=medium"
+langraph-fetch: ## Evaluate one fetch node, e.g. make langraph-fetch EVAL_ARGS="--source tides"
+	@$(call check-py-cmd,python)
+	$(EVAL) fetch $(EVAL_ARGS)
+
+langraph-score: ## Evaluate the scorers against frozen fetch data, e.g. make langraph-score EVAL_ARGS="--activity sup --limit 1"
+	@$(call check-py-cmd,python)
+	$(EVAL) score $(EVAL_ARGS)
+
+langraph-e2e: ## Evaluate the whole graph end to end against live data
+	@$(call check-py-cmd,python)
+	$(EVAL) e2e $(EVAL_ARGS)
 
 k8s-dev: ## Start local Kubernetes dev environment with file sync
 	skaffold dev --cache-artifacts --auto-build=false

@@ -1,4 +1,6 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from langraph.nodes.fetch_nodes import (
     fetch_marine,
@@ -77,3 +79,34 @@ def test_fetch_sun_times(mock_load, mock_agent, minimal_state):
         timezone="Pacific/Auckland",
     )
     assert result == {"sun_times": "sun_data"}
+
+
+@pytest.mark.parametrize("node", [fetch_tides, fetch_marine, fetch_sun_times])
+@patch("langraph.nodes.fetch_nodes.run_fetch_agent", return_value="data")
+@patch("langraph.nodes.fetch_nodes.load_prompt", return_value="prompt")
+def test_agent_sources_fetch_with_the_model_they_are_given(mock_load, mock_agent,
+                                                           minimal_state, node):
+    # A sweep holds several models in one process, so the model cannot be read
+    # from the environment at the point of the call.
+    other = MagicMock()
+
+    node(minimal_state, llm=other)
+
+    assert mock_agent.call_args[1]["llm"] is other
+
+
+@pytest.mark.parametrize("node", [fetch_tides, fetch_marine, fetch_sun_times])
+@patch("langraph.nodes.fetch_nodes.run_fetch_agent", return_value="data")
+@patch("langraph.nodes.fetch_nodes.load_prompt", return_value="prompt")
+def test_agent_sources_default_to_the_singleton(mock_load, mock_agent, minimal_state,
+                                                node):
+    node(minimal_state)
+    assert mock_agent.call_args[1]["llm"] is None
+
+
+@pytest.mark.parametrize("node", [fetch_water_quality, fetch_weather])
+def test_pure_sources_accept_a_model_and_ignore_it(node, minimal_state):
+    # Uniform signatures across FETCH_NODES are what let `build_fetch_graph` bind
+    # a model without knowing which sources use one.
+    with patch(f"langraph.nodes.fetch_nodes.{node.__name__}_rows", return_value="data"):
+        assert node(minimal_state, llm=MagicMock()) == {node.__name__[6:]: "data"}

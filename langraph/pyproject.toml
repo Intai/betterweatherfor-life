@@ -16,7 +16,9 @@ dependencies = [
 dev = ["langgraph-cli[inmem]", "pytest", "pytest-cov", "ruff"]
 
 [tool.setuptools.packages.find]
-exclude = ["tests*"]
+# The eval harness and its captured seeds are development-only, so they stay out
+# of the forecast image the cronjob runs.
+exclude = ["tests*", "evals*"]
 
 [tool.ruff]
 target-version = "py313"
