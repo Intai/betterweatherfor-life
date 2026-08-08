@@ -121,7 +121,6 @@ def command_capture(args):
             existing=load_existing(args.slug, args.date),
         )
 
-    seed["captured_at"] = args.captured_at
     path = write_seed(seed)
     print(f"Wrote {path} — review it before committing.")
 
@@ -309,7 +308,6 @@ def build_parser():
     capture.add_argument("--source", action="append", choices=FETCH_SOURCES,
                          help="Capture only these sources into an existing seed")
     capture.add_argument("--from-run", help="Recover a seed from a past traced run")
-    capture.add_argument("--captured-at", help="Timestamp to record on the seed")
     capture.set_defaults(handler=command_capture)
 
     push = commands.add_parser("push", help="Upsert seeds into the LangSmith datasets")

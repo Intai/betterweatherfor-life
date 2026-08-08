@@ -68,7 +68,7 @@ def build_score_llm(provider=None, model=None, effort=None):
         # xAI wants `reasoning_effort` inside `extra_body` rather than as a field, and
         # several grok models reject it outright, so it is only sent when asked for.
         return ChatXAI(
-            model=model or "grok-4.20-reasoning",
+            model=model or "grok-4.5",
             temperature=0,
             max_tokens=48000,
             default_headers={"x-grok-conv-id": CACHE_ROUTING_ID},

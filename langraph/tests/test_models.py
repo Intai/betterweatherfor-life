@@ -13,7 +13,7 @@ def test_fetch_llm_default_gemini():
         # Imported for its side effect: the module instantiates the LLM on import.
         import langraph.models.fetch_llm  # noqa: F401
         mock_cls.assert_called_once()
-        assert mock_cls.call_args[1]["model"] == "gemini-3.5-flash-lite"
+        assert mock_cls.call_args[1]["model"] == "gemini-3.5-flash"
         assert mock_cls.call_args[1]["max_output_tokens"] == 24000
         assert mock_cls.call_args[1]["reasoning_effort"] == "low"
         assert "temperature" not in mock_cls.call_args[1]
@@ -31,7 +31,7 @@ def test_fetch_llm_xai():
         importlib.reload(langraph.models.fetch_llm)
         # Called once by import, once by reload
         assert mock_cls.call_count >= 1
-        assert mock_cls.call_args[1]["model"] == "grok-4.3-latest"
+        assert mock_cls.call_args[1]["model"] == "grok-4.5"
         assert mock_cls.call_args[1]["max_tokens"] == 24000
     sys.modules["langraph.models.fetch_llm"] = MagicMock(fetch_llm=MagicMock())
 
@@ -109,7 +109,7 @@ def test_score_llm_xai():
         import langraph.models.score_llm
         importlib.reload(langraph.models.score_llm)
         assert mock_cls.call_count >= 1
-        assert mock_cls.call_args[1]["model"] == "grok-4.20-reasoning"
+        assert mock_cls.call_args[1]["model"] == "grok-4.5"
         assert mock_cls.call_args[1]["max_tokens"] == 48000
     sys.modules["langraph.models.score_llm"] = MagicMock(score_llm=MagicMock())
 
@@ -150,6 +150,50 @@ def test_score_llm_openai():
     sys.modules["langraph.models.score_llm"] = MagicMock(score_llm=MagicMock())
 
 
+def test_fetch_llm_openai():
+    mock_cls = MagicMock()
+    sys.modules.pop("langraph.models.fetch_llm", None)
+    with (
+        patch.dict("os.environ", {"LANGGRAPH_LLM_PROVIDER": "openai"}, clear=False),
+        patch("langchain_openai.ChatOpenAI", mock_cls),
+    ):
+        import langraph.models.fetch_llm
+        importlib.reload(langraph.models.fetch_llm)
+        assert mock_cls.call_count >= 1
+        assert mock_cls.call_args[1]["model"] == "gpt-5.6-luna"
+        assert mock_cls.call_args[1]["max_tokens"] == 24000
+        # Luna returns wrong tide times with reasoning off, so the effort is part of the
+        # default rather than a knob — and an effort next to function tools only works
+        # on the responses API.
+        assert mock_cls.call_args[1]["reasoning_effort"] == "low"
+        assert mock_cls.call_args[1]["use_responses_api"] is True
+    sys.modules["langraph.models.fetch_llm"] = MagicMock(fetch_llm=MagicMock())
+
+
+def test_fetch_llm_openai_none_effort_returns_to_chat_completions():
+    mock_cls = MagicMock()
+    sys.modules.pop("langraph.models.fetch_llm", None)
+    with (
+        patch.dict("os.environ", {
+            "LANGGRAPH_LLM_PROVIDER": "openai",
+            "LANGGRAPH_FETCH_EFFORT": "none",
+        }, clear=False),
+        patch("langchain_openai.ChatOpenAI", mock_cls),
+    ):
+        import langraph.models.fetch_llm
+        importlib.reload(langraph.models.fetch_llm)
+        assert mock_cls.call_args[1]["reasoning_effort"] == "none"
+        # `none` is the one effort chat completions accepts next to function tools, and
+        # what terra wants — so it must not be dragged onto the responses API.
+        assert mock_cls.call_args[1]["use_responses_api"] is False
+        # Both branches build the same class, so the absence of a base URL is what
+        # says this one reached api.openai.com rather than the OpenRouter fallback.
+        assert "base_url" not in mock_cls.call_args[1]
+        # The GPT-5 family answers a 400 to any temperature but its own default.
+        assert "temperature" not in mock_cls.call_args[1]
+    sys.modules["langraph.models.fetch_llm"] = MagicMock(fetch_llm=MagicMock())
+
+
 def test_fetch_llm_env_overrides_gemini():
     mock_cls = MagicMock()
     sys.modules.pop("langraph.models.fetch_llm", None)
@@ -169,7 +213,7 @@ def test_fetch_llm_env_overrides_gemini():
     sys.modules["langraph.models.fetch_llm"] = MagicMock(fetch_llm=MagicMock())
 
 
-def test_fetch_llm_xai_only_sends_effort_when_asked():
+def test_fetch_llm_xai_always_sends_effort():
     mock_cls = MagicMock()
     sys.modules.pop("langraph.models.fetch_llm", None)
     with (
@@ -178,9 +222,9 @@ def test_fetch_llm_xai_only_sends_effort_when_asked():
     ):
         import langraph.models.fetch_llm
         importlib.reload(langraph.models.fetch_llm)
-        # Several grok models reject `reasoning_effort` outright, so an unset env
-        # must not put it on the request at all.
-        assert "extra_body" not in mock_cls.call_args[1]
+        # Low is grok-4.5's default here rather than an absent knob, so it rides on
+        # every request — a model override naming a grok that rejects the knob 400s.
+        assert mock_cls.call_args[1]["extra_body"] == {"reasoning_effort": "low"}
 
     with (
         patch.dict("os.environ", {

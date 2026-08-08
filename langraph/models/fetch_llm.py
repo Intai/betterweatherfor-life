@@ -17,8 +17,8 @@ def build_fetch_llm(provider=None, model=None, effort=None):
     it to the node, and `run_fetch_agent`, which hands it to `create_react_agent`.
 
     Args:
-        provider: `claude-cli`, `xai`, `gemini`, or anything else for OpenRouter.
-            Defaults to `LANGGRAPH_LLM_PROVIDER`.
+        provider: `claude-cli`, `xai`, `gemini`, `openai`, or anything else for
+            OpenRouter. Defaults to `LANGGRAPH_LLM_PROVIDER`.
         model: The provider's own model name, or None for that provider's default.
             Defaults to `LANGGRAPH_FETCH_MODEL`.
         effort: A reasoning effort the provider understands, or None to leave it
@@ -55,14 +55,15 @@ def build_fetch_llm(provider=None, model=None, effort=None):
         # routing is what makes the replay reliably cheap rather than luck: one water
         # quality turn re-sent 17,754 tokens and got 3,136 of them back from cache.
         #
-        # xAI wants `reasoning_effort` inside `extra_body` rather than as a field, and
-        # several grok models reject it outright, so it is only sent when asked for.
+        # xAI wants `reasoning_effort` inside `extra_body` rather than as a field. It is
+        # always sent now that it is always set — a `LANGGRAPH_FETCH_MODEL` naming one of
+        # the grok models that reject the knob outright will 400 with no way to unset it.
         return ChatXAI(
-            model=model or "grok-4.3-latest",
+            model=model or "grok-4.5",
             temperature=0,
             max_tokens=24000,
             default_headers={"x-grok-conv-id": CACHE_ROUTING_ID},
-            **({"extra_body": {"reasoning_effort": effort}} if effort else {}),
+            extra_body={"reasoning_effort": effort or "low"},
         )
 
     if provider == "gemini":
@@ -71,10 +72,29 @@ def build_fetch_llm(provider=None, model=None, effort=None):
         # Gemini 3 deprecated `thinking_budget` in favour of `reasoning_effort`, which
         # takes the same low/medium/high vocabulary.
         return ChatGoogleGenerativeAI(
-            model=model or "gemini-3.5-flash-lite",
+            model=model or "gemini-3.5-flash",
             max_output_tokens=24000,
             reasoning_effort=effort or "low",
             google_api_key=os.environ.get("GOOGLE_GEMINI_API_KEY"),
+        )
+
+    if provider == "openai":
+        from langchain_openai import ChatOpenAI
+
+        # No `temperature`, unlike every other branch here: the GPT-5 family rejects
+        # any value but its own default with a 400.
+        #
+        # The family answers a 400 to `reasoning_effort` alongside function tools on
+        # /v1/chat/completions, and every fetch binds the curl tool, so an effort has to
+        # go to /v1/responses instead. `none` is the way back to chat completions, and
+        # what terra wants.
+        reasoning = effort or "low"
+        return ChatOpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY"),
+            model=model or "gpt-5.6-luna",
+            max_tokens=24000,
+            reasoning_effort=reasoning,
+            use_responses_api=reasoning != "none",
         )
 
     from langchain_openai import ChatOpenAI

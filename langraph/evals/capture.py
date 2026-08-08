@@ -7,9 +7,29 @@ only the times themselves give it away.
 """
 
 import json
+from datetime import UTC, datetime
 
 from langraph.evals.config import FETCH_SOURCES, STATE_INPUTS
 from langraph.evals.seeds import read_seed, seed_path
+
+
+def _now():
+    """Stamp a capture, local so a seed reads in the timezone it was taken in."""
+    return datetime.now().astimezone().isoformat()
+
+
+def _run_time(run):
+    """Take when a traced run started, as an offset-aware ISO string.
+
+    LangSmith hands back naive UTC, which would compare wrong against the local
+    stamps `_now` writes, so an absent offset is filled in rather than dropped.
+    """
+    started = getattr(run, "start_time", None)
+    if started is None:
+        return None
+    if started.tzinfo is None:
+        started = started.replace(tzinfo=UTC)
+    return started.isoformat()
 
 
 def digest(columnar):
@@ -47,17 +67,26 @@ def fetch_source(state, source):
     return build_fetch_graph(source).invoke(state).get(source, "")
 
 
-def capture_seed(inputs, sources=FETCH_SOURCES, existing=None, report=print):
+def capture_seed(inputs, sources=FETCH_SOURCES, existing=None, report=print, now=_now):
     """Fetch each source in turn and build a seed record.
 
     Sequentially rather than through the graph's fan-out, so one flaky agent run
     does not take the other four with it and the trace stays readable.
+
+    `captured_at` records when we last went and got the data, so a re-capture
+    re-stamps even when it only re-ran one source — a partial re-capture is still
+    a capture. That leaves one scalar describing a seed of mixed ages, but no
+    scalar can do better, and carrying the older stamp forward would be worse: a
+    seed re-captured piecemeal over a year would keep its first stamp forever
+    while every source in it had since been refreshed. Per-source stamps are the
+    answer if the ages ever need telling apart.
 
     Args:
         inputs: The five location keys to capture for.
         sources: The fetch keys to run, for re-capturing one bad source.
         existing: A seed to merge into, keeping the sources not being re-run.
         report: Where to write each source's digest.
+        now: Where the timestamp comes from, injected so tests do not read a clock.
 
     Returns:
         A seed record, ready for `seeds.write_seed`.
@@ -83,7 +112,12 @@ def capture_seed(inputs, sources=FETCH_SOURCES, existing=None, report=print):
         ),
         "failures": failures or None,
     })
-    return {"inputs": state, "fetch": fetched, "provenance": provenance}
+    return {
+        "inputs": state,
+        "fetch": fetched,
+        "provenance": provenance,
+        "captured_at": now(),
+    }
 
 
 def _child_outputs(run, wanted):
@@ -103,6 +137,10 @@ def capture_from_run(run_id, sources=FETCH_SOURCES, report=print):
     Free and immediate, but it inherits whatever that day's fetch models got
     wrong and skips the review a fresh capture invites, so it is best used to
     find an interesting day and then re-capture it properly.
+
+    `captured_at` comes from the run rather than the clock: mining a trace is not
+    a fetch, and stamping it now would read as fresh on exactly the seeds most
+    likely to be stale.
 
     Args:
         run_id: The root run of a past forecast graph run.
@@ -131,6 +169,7 @@ def capture_from_run(run_id, sources=FETCH_SOURCES, report=print):
         "inputs": inputs,
         "fetch": fetched,
         "provenance": {"mined_from_run": str(run_id)},
+        "captured_at": _run_time(run),
     }
 
 
