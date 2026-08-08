@@ -14,6 +14,7 @@ from langraph.evals.evaluators.judges import (
     JUDGE_EFFORT,
     JUDGE_MODEL,
     JUDGE_PROVIDER,
+    JUDGE_SAMPLE,
     build_judge,
     judge_spec,
     make_analysis_quality_judge,
@@ -105,6 +106,20 @@ def test_analysis_quality_marks_each_question_it_asked():
 
     # Two of three questions answered yes, on both sampled entries.
     assert find(result, "analysis_quality")["score"] == pytest.approx(2 / 3)
+
+
+def test_both_judges_grade_the_same_number_of_entries_by_default():
+    # Which is what puts them on the same entries: `_sample` spaces its picks by
+    # `len(entries) // count`, so unequal counts read two different slices, and
+    # the entry one judge objects to is then usually one the other never saw.
+    plausibility, quality = fake_judge(PLAUSIBLE), fake_judge(POOR_PROSE)
+    outputs = outputs_for(forecast())
+
+    make_score_plausibility_judge(plausibility)(INPUTS, outputs)
+    make_analysis_quality_judge(quality)(INPUTS, outputs)
+
+    assert plausibility.invoke.call_count == JUDGE_SAMPLE
+    assert quality.invoke.call_count == JUDGE_SAMPLE
 
 
 @pytest.mark.parametrize(("make", "key"), [

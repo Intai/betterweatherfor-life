@@ -31,6 +31,11 @@ JUDGE_PROVIDER = "openai"
 JUDGE_MODEL = "gpt-5.6-terra"
 JUDGE_EFFORT = "medium"
 
+# How many entries each judge grades, and the same number for both on purpose:
+# Equal counts make the two metrics describe the same entries.
+# `--judge-sample` moves it.
+JUDGE_SAMPLE = 3
+
 PLAUSIBILITY_PROMPT = """\
 You are checking one entry of an outdoor activity forecast against the rules it \
 was scored under. Judge only what the rules say — not your own taste.
@@ -129,7 +134,7 @@ def _ask(judge, prompt):
         return {"_error": f"{type(error).__name__}: {error}"}
 
 
-def make_score_plausibility_judge(judge=None, sample=3):
+def make_score_plausibility_judge(judge=None, sample=JUDGE_SAMPLE):
     """Build an evaluator asking whether each sampled score follows from its factors.
 
     Args:
@@ -167,7 +172,7 @@ def make_score_plausibility_judge(judge=None, sample=3):
     return score_plausibility
 
 
-def make_analysis_quality_judge(judge=None, sample=2):
+def make_analysis_quality_judge(judge=None, sample=JUDGE_SAMPLE):
     """Build an evaluator grading the prose that `summary_discipline` cannot count.
 
     Args:

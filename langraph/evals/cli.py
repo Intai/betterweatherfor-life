@@ -84,6 +84,18 @@ def _each_model(specs, build):
         yield llm, label.replace("/", "-"), (provider, model, effort)
 
 
+def _sample_size(value):
+    """Read a judge sample size, rejecting the ones `_sample` cannot divide by.
+
+    `_sample` computes `len(entries) // count`, so a zero would raise mid-run —
+    after the models under test had already been paid for.
+    """
+    size = int(value)
+    if size < 1:
+        raise argparse.ArgumentTypeError("must be 1 or more")
+    return size
+
+
 def _confirm(calls, assume_yes):
     """Stop before an expensive run unless it was asked for explicitly."""
     if calls <= CONFIRM_ABOVE or assume_yes:
@@ -202,9 +214,10 @@ def command_score(args):
         return
 
     evaluators = score_evaluators()
-    judge_label = "none"
+    judge_label, judge_sample = "none", "none"
     if args.judge is not None:
         from langraph.evals.evaluators.judges import (
+            JUDGE_SAMPLE,
             build_judge,
             judge_spec,
             make_analysis_quality_judge,
@@ -220,8 +233,11 @@ def command_score(args):
         spec = judge_spec(*_parse_spec(args.judge))
         judge_label = "-".join(spec)
         judge = build_judge(*spec)
+        judge_sample = args.judge_sample or JUDGE_SAMPLE
+        judge_sample_args = {"sample": args.judge_sample} if args.judge_sample else {}
         evaluators += [
-            make_score_plausibility_judge(judge), make_analysis_quality_judge(judge)
+            make_score_plausibility_judge(judge, **judge_sample_args),
+            make_analysis_quality_judge(judge, **judge_sample_args),
         ]
 
     for llm, label, (provider, model, effort) in _each_model(specs, build_score_llm):
@@ -233,7 +249,8 @@ def command_score(args):
             experiment_prefix=f"score-{label}",
             metadata=experiment_metadata(provider, model, effort,
                                          activity=args.activity or "all",
-                                         judge=judge_label),
+                                         judge=judge_label,
+                                         judge_sample=judge_sample),
             num_repetitions=args.repetitions,
             max_concurrency=args.concurrency,
             client=client,
@@ -333,6 +350,14 @@ def build_parser():
                        help="Also run the LLM judges, roughly doubling the "
                             "cost. Optionally a provider:model=effort spec "
                             "naming the examiner, e.g. claude-cli:opus=medium")
+    # Widening sample is not simply better, because the stride can alias. Entries sort
+    # into a repeating cycle of four windows, so any `count` whose `len // count` is a
+    # multiple of four lands on the same window every time: `--judge-sample 8` over 39
+    # entries strides by 4 and spends six of its eight calls on `all-day`, never
+    # reading a morning or an evening. 3 (stride 13) and 5 (stride 7) stay varied.
+    score.add_argument("--judge-sample", type=_sample_size, metavar="N",
+                       help="Entries each judge grades, 3 by default. Cost "
+                            "scales with it. Does nothing without --judge")
     _add_run_arguments(score)
     score.set_defaults(handler=command_score)
 

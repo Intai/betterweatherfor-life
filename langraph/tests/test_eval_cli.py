@@ -110,6 +110,25 @@ def test_a_bare_judge_does_not_swallow_the_next_flag():
     assert args.activity == "sup"
 
 
+@pytest.mark.parametrize(("argv", "expected"), [
+    ([], None),
+    (["--judge", "--judge-sample", "8"], 8),
+    (["--judge-sample", "1"], 1),
+])
+def test_judge_sample_widens_what_the_judges_grade(argv, expected):
+    # None rather than 3, because the two judges default to different sizes and
+    # only the factories know which is which.
+    assert build_parser().parse_args(["score", *argv]).judge_sample == expected
+
+
+@pytest.mark.parametrize("size", ["0", "-1"])
+def test_a_judge_sample_below_one_is_refused_at_the_command_line(size):
+    # `_sample` divides by it, so a zero would raise after the run had been paid
+    # for rather than before it started.
+    with pytest.raises(SystemExit):
+        build_parser().parse_args(["score", "--judge", "--judge-sample", size])
+
+
 def test_a_judge_spec_parses_like_a_model_spec():
     # Deliberately the same grammar as `--models`, down to the `=` for effort.
     assert _parse_spec("claude-cli:opus=medium") == ("claude-cli", "opus", "medium")
