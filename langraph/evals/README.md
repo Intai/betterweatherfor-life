@@ -53,6 +53,12 @@ The end-to-end suite deliberately takes no `--models`: it would pay for the whol
 fetch phase once per model, and the live data drifting underneath would confound
 the comparison anyway. Compare models per node, where the inputs hold still.
 
+The corollary is the one thing to remember before running it: with no `--models` to
+pin, `e2e` uses whatever `LANGGRAPH_LLM_PROVIDER` in `.env` names. **Check that
+first.** The experiment records the provider it used, so it is recoverable
+afterwards — but reading an `e2e` result against `gates.py`, whose floors describe
+one model, is meaningless until you know which model actually ran.
+
 ## Running
 
 ```sh
@@ -119,29 +125,28 @@ examiner graded each run.
 
 ## Reading the results
 
-Nothing here decides pass or fail. Each evaluator reports a number, LangSmith
-stores it as feedback, and you read the columns — so it matters what kind of
-number each one is:
+By default nothing decides pass or fail: each evaluator reports a number,
+LangSmith stores it as feedback, and you read the columns. `--gate` is what turns
+some of those numbers into an exit code — see below. Either way it matters what
+kind of number each one is:
 
 | Family | Metrics | Reading |
 |---|---|---|
 | 0–1 ratio | coverage, discipline, consistency, `golden_match`, the judges | higher is better |
-| Boolean | `succeeded`, `completed`, `rows_ordered`, `columnar_parseable`, `fields_exact` | True is better |
+| Boolean | `succeeded`, `completed`, `parse_clean`, `rows_ordered`, `columnar_parseable`, `fields_exact` | True is better |
 | Magnitude | `parse_problems`, `seconds`, `output_tokens` | lower is better, unbounded |
 | Informational | `thinking_share` | no good direction; compare between experiments |
 | About the seed | `seed_sources_given` | a low value means your capture is incomplete, not that the model did badly |
 
-Every score and boolean points the same way, so `1.0` is always the good end.
+Every score and boolean points the same way, so `1.0` is always the good end. The
+magnitudes are the exception, and none of them is gated — `parse_problems` has
+`parse_clean` beside it precisely so no threshold table has to hold an entry that
+runs backwards.
 
 Read `succeeded` and `completed` first. Targets report their failures rather than
 raising, so every row in LangSmith looks successful — a strong `band_consistency`
 over the 40% of examples that returned is worse than a middling one over all of
 them. `usable_run_rate` is the gate.
-
-There are deliberately no thresholds. Choosing minimums for a dozen quality
-metrics before any experiment has run would mean guessing what a normal
-`band_consistency` even looks like for the model you ship. Run the evals first,
-learn the ranges, then gate on whichever metrics turn out to matter.
 
 `temperature=0` is not determinism for a reasoning model. Use `--repetitions 3`
 for anything you would act on, prefer three seeds three times over nine seeds
@@ -152,6 +157,41 @@ is a production incident even at n=3.
 Do not sweep on a `:free` OpenRouter model — shared capacity and per-minute caps
 mean you would be measuring queue depth.
 
+## Gating
+
+`--gate` makes an experiment exit non-zero. It is a switch, not a threshold:
+every criterion lives in `gates.py`, so there is no number on the command line to
+get backwards, and a tolerance can only change in a commit that says why.
+
+Three layers, in this order:
+
+1. **`usable_run_rate` must reach `USABLE_RUN_RATE_FLOOR`.** A precondition, not a
+   peer threshold. A score target that raised returns `forecast: {}` and
+   `problems: []`, which reads as `parse_clean` True and turns every ratio into
+   `None` — so both tables below pass a run that produced nothing at all.
+2. **`HARD` must be exact.** Schema, dataset integrity, and the two golden
+   comparisons. These values were knowable before any experiment ran.
+3. **`FLOORS` must be cleared.** Rule conformance over live model output, measured
+   rather than guessed — 12 usable claude-cli runs, four activities at
+   `--repetitions 3`.
+
+A floor sits *below* the worst healthy observation, never at the median: a gate
+level with the median fails half the time by construction. Most of these metrics
+divide by an entry count, so a single band-edge slip in forty entries reads as
+0.975, and three of them did exactly that — `band_consistency` on cycling and
+snorkelling, `hourly_entry_agreement` on cycling, `factor_completeness` on sup. Their
+floors sit one slip lower again.
+
+They are calibrated from the shipped model's headroom, not to separate it from a bad
+one — catching another model is a side effect, and a weak one. grok fails
+`band_consistency` decisively on frozen seeds (0.525-0.75) but scored 0.9444 on a live
+end-to-end run, clearing 0.95 by almost nothing. This is a regression gate, not a
+model classifier; that is what `--models` and the LangSmith columns are for.
+
+`FLOORS` was calibrated at one `score_prompt_sha`, recorded in
+`gates.CALIBRATED_PROMPT_SHA`. Run against a different prompt and the gate says so
+rather than blaming the model; a real prompt change means re-measuring.
+
 ## Where the rules live
 
 `evaluators/score.py` mirrors `prompts/score.txt`: which factors each activity
@@ -159,7 +199,9 @@ carries, that the worst factor decides the entry, that snorkelling's temperature
 never does. Change that prompt and these have to follow, or they will keep
 reporting confident numbers against a contract nobody is asking for. The
 thresholds themselves are derived from `utils/score_parser.py` rather than
-restated, and `tests/test_eval_evaluators.py` covers the rest.
+restated, and `tests/test_eval_score.py` covers the rest. The gate tables sit apart
+in `gates.py`, so the evaluators stay pure reporters — `tests/test_eval_gates.py`
+covers those.
 
 Every experiment records `score_prompt_sha` in its metadata, so a metric that
 moved can be attributed to the model or to the prompt.

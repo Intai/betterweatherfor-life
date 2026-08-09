@@ -18,7 +18,7 @@ def score_evaluators():
     """Assemble the evaluators every score experiment runs."""
     return [
         bind(score.entry_coverage, "entry_coverage"),
-        bind(score.problem_count, "parse_problems"),
+        bind(score.problem_count, "problem_count"),
         bind(score.factor_completeness, "factor_completeness"),
         bind(score.null_discipline, "null_discipline"),
         bind(score.band_consistency, "band_consistency"),

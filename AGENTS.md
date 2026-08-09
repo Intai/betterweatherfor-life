@@ -60,6 +60,7 @@ Not part of `make test` — they spend real tokens and hit the network.
 - `make langraph-e2e` to evaluate the whole graph end to end.
 - Add `--models xai=low,gemini=medium` to either `langraph-fetch` or `langraph-score` to run one experiment per model and compare them side by side. A spec is `provider:model=effort`; effort uses `=` because model names contain colons.
 - Add `--judge` to `langraph-score` to also run the LLM judges, roughly doubling the cost. It takes an optional spec in the same form naming the examiner, e.g. `--judge claude-cli:opus=medium`. The judges grade a fixed 3 entries each by default, not the whole forecast. `--judge-sample N` widens both, at a cost that scales with N.
+- Add `--gate` to make an experiment exit non-zero on an unusable run, a contract violation, or a regression below a calibrated floor. It is a switch, not a threshold — every criterion lives in `langraph/evals/gates.py`. Omit it when sweeping `--models`, since the floors describe one model.
 
 ## Convention
 

@@ -59,8 +59,17 @@ def test_entry_coverage_ignores_entries_with_no_score():
 def test_problem_count_names_the_first_few():
     outputs = {"problems": ["bad a", "bad b", "bad c", "bad d"]}
     result = problem_count(outputs)
-    assert result["score"] == 4
-    assert result["comment"] == "bad a; bad b; bad c"
+    assert find(result, "parse_problems")["score"] == 4
+    assert find(result, "parse_clean")["score"] is False
+    assert find(result, "parse_clean")["comment"] == "bad a; bad b; bad c"
+
+
+def test_problem_count_reads_clean_when_nothing_was_dropped():
+    # `parse_clean` exists so a gate never has to hold an inverted entry: 1.0 is
+    # the good end here as everywhere else, while the count stays for reading.
+    result = problem_count({"problems": []})
+    assert find(result, "parse_clean")["score"] is True
+    assert find(result, "parse_problems")["score"] == 0
 
 
 # --- factor and null discipline ---------------------------------------------

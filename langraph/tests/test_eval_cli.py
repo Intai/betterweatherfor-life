@@ -1,14 +1,24 @@
-"""Tests for the eval CLI's argument handling.
+"""Tests for the eval CLI's argument handling and exit code.
 
-Only the pure parsing helpers — every command defers its imports until after the
-environment is loaded, so nothing here reaches a model or LangSmith.
+Mostly the pure parsing helpers. The gating tests do call a command, but with
+`langsmith.Client` and `langsmith.evaluate` patched out and the model modules
+already mocked by `conftest.py`, so nothing here reaches a network or a model —
+which is the point: the non-zero exit path is proved for free rather than by
+spending tokens on a run engineered to fail.
 """
 
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
 
-from langraph.evals.cli import _each_model, _model_specs, _parse_spec, build_parser
+from langraph.evals.cli import (
+    _each_model,
+    _model_specs,
+    _parse_spec,
+    build_parser,
+    command_score,
+)
 
 
 @pytest.mark.parametrize(("spec", "expected"), [
@@ -140,3 +150,80 @@ def test_the_end_to_end_suite_takes_no_models():
     # drifting underneath would confound the comparison anyway.
     with pytest.raises(SystemExit):
         build_parser().parse_args(["e2e", "--models", "xai=low"])
+
+
+# --- gating ------------------------------------------------------------------
+
+@pytest.mark.parametrize(("command", "extra"), [
+    ("fetch", ["--source", "marine"]),
+    ("score", []),
+    ("e2e", []),
+])
+def test_every_evaluated_suite_can_be_gated(command, extra):
+    assert build_parser().parse_args([command, *extra]).gate is False
+    assert build_parser().parse_args([command, *extra, "--gate"]).gate is True
+
+
+def _one_row(**scores):
+    """An `ExperimentResultRow` whose run looks healthy."""
+    return {
+        "run": SimpleNamespace(outputs={"_meta": {}}),
+        "example": SimpleNamespace(id="example"),
+        "evaluation_results": {"results": [
+            SimpleNamespace(key=key, score=score) for key, score in scores.items()
+        ]},
+    }
+
+
+@pytest.fixture
+def evaluated(monkeypatch):
+    """Patch out LangSmith so a command can be run without a network or a model."""
+    def patch(*returns):
+        client = MagicMock()
+        client.list_examples.return_value = [SimpleNamespace(id="example")]
+        monkeypatch.setattr("langsmith.Client", MagicMock(return_value=client))
+        evaluate = MagicMock(side_effect=list(returns))
+        monkeypatch.setattr("langsmith.evaluate", evaluate)
+        return evaluate
+
+    return patch
+
+
+def test_an_ungated_run_still_exits_zero(evaluated):
+    # The default has to stay what it has always been: report, never fail.
+    evaluated([_one_row(columnar_parseable=0.0)])
+
+    args = build_parser().parse_args(["score", "--yes"])
+
+    assert command_score(args) is None
+
+
+def test_a_gated_run_returns_one_so_the_process_can_fail(evaluated):
+    evaluated([_one_row(columnar_parseable=0.0)])
+
+    args = build_parser().parse_args(["score", "--gate", "--yes"])
+
+    assert command_score(args) == 1
+
+
+def test_a_gated_run_passes_when_the_metrics_it_reported_are_clean(evaluated):
+    # Only one gated key arrives; the rest are absent, which is not a failure.
+    evaluated([_one_row(columnar_parseable=1.0)])
+
+    args = build_parser().parse_args(["score", "--gate", "--yes"])
+
+    assert command_score(args) is None
+
+
+def test_a_sweep_gates_every_model_rather_than_stopping_at_the_first(evaluated):
+    # Returning early would leave the later models' columns unreported, which is
+    # the whole reason to run a sweep.
+    evaluate = evaluated([_one_row(columnar_parseable=0.0)],
+                         [_one_row(columnar_parseable=1.0)])
+
+    args = build_parser().parse_args(
+        ["score", "--gate", "--yes", "--models", "xai=low,gemini=medium"]
+    )
+
+    assert command_score(args) == 1
+    assert evaluate.call_count == 2

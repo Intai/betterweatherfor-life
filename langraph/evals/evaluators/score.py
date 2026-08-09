@@ -116,10 +116,17 @@ def entry_coverage(inputs, outputs):
 
 
 def problem_count(outputs):
-    """Count the entries the parser had to drop, and name the first few."""
+    """Count the entries the parser had to drop, and name the first few.
+
+    Two metrics because they are read differently. `parse_clean` points the way
+    every other boolean here does, so a threshold table can hold it without one
+    entry running backwards; `parse_problems` is the unbounded count, which is
+    what you actually read when the boolean is False.
+    """
     problems = (outputs or {}).get("problems") or []
-    return metric(
-        "parse_problems", len(problems), "; ".join(problems[:3]) or None
+    return metrics(
+        metric("parse_clean", not problems, "; ".join(problems[:3]) or None),
+        metric("parse_problems", len(problems)),
     )
 
 

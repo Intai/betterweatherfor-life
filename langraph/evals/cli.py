@@ -111,6 +111,31 @@ def _examples(client, dataset, limit, splits=None):
     ))
 
 
+def _gate(args, results, label=None):
+    """Apply the gate to one experiment, or nothing if `--gate` was not asked for.
+
+    Deferred imports to match the rest of the file, though `gates.py` needs no key
+    of its own: it reaches only the summary evaluator, so an ungated run simply
+    never loads it.
+
+    Args:
+        args: The parsed arguments, read for `--gate`.
+        results: What `evaluate()` returned.
+        label: The sweep label, so a failing column can be told from a passing one.
+
+    Returns:
+        True when the experiment failed the gate.
+    """
+    if not args.gate:
+        return False
+
+    from langraph.evals.config import score_prompt_sha
+    from langraph.evals.gates import gate
+
+    print(f"Gate for {label}:" if label else "Gate:")
+    return gate(results, prompt_sha=score_prompt_sha())
+
+
 def command_capture(args):
     """Fetch a location's sources for real and write them into a committed seed."""
     from langraph.evals.capture import capture_from_run, capture_seed, load_existing
@@ -178,8 +203,9 @@ def command_fetch(args):
     if not _confirm(len(examples) * args.repetitions * len(specs), args.yes):
         return
 
+    failed = False
     for llm, label, (provider, model, effort) in _each_model(specs, build_fetch_llm):
-        evaluate(
+        results = evaluate(
             fetch_target(args.source, llm=llm),
             data=examples,
             evaluators=fetch_evaluators(args.source),
@@ -191,6 +217,9 @@ def command_fetch(args):
             max_concurrency=args.concurrency,
             client=client,
         )
+        failed |= _gate(args, results, label)
+
+    return 1 if failed else None
 
 
 def command_score(args):
@@ -240,8 +269,11 @@ def command_score(args):
             make_analysis_quality_judge(judge, **judge_sample_args),
         ]
 
+    # Every experiment is gated, not just up to the first failure: a sweep that
+    # stopped early would leave the later models' columns unreported.
+    failed = False
     for llm, label, (provider, model, effort) in _each_model(specs, build_score_llm):
-        evaluate(
+        results = evaluate(
             score_target(activity=args.activity, llm=llm),
             data=examples,
             evaluators=evaluators,
@@ -255,6 +287,9 @@ def command_score(args):
             max_concurrency=args.concurrency,
             client=client,
         )
+        failed |= _gate(args, results, label)
+
+    return 1 if failed else None
 
 
 def command_e2e(args):
@@ -272,7 +307,7 @@ def command_e2e(args):
     if not _confirm(len(examples) * args.repetitions * len(FETCH_SOURCES), args.yes):
         return
 
-    evaluate(
+    results = evaluate(
         graph_target(max_concurrency=args.concurrency),
         data=examples,
         evaluators=graph_evaluators(ACTIVITIES),
@@ -285,6 +320,10 @@ def command_e2e(args):
         max_concurrency=1,
         client=client,
     )
+
+    # A thin gate by design: `graph_evaluators` reports a fraction of the keys the
+    # per-node suites do, so most of the tables go unmeasured here.
+    return 1 if _gate(args, results) else None
 
 
 def _add_run_arguments(parser, concurrency=2, models=True):
@@ -301,6 +340,10 @@ def _add_run_arguments(parser, concurrency=2, models=True):
                         help="Examples in flight at once")
     parser.add_argument("--yes", action="store_true",
                         help="Skip the confirmation on an expensive run")
+    parser.add_argument("--gate", action="store_true",
+                        help="Exit non-zero on an unusable run, a contract "
+                             "violation, or a regression below the floors in "
+                             "gates.py. Omit it when sweeping models")
     if models:
         parser.add_argument("--models", action="append",
                             help="provider:model=effort specs, comma separated or "
@@ -369,10 +412,14 @@ def build_parser():
 
 
 def main(argv=None):
-    """Load the environment, then run one command."""
+    """Load the environment, then run one command.
+
+    Returns the process exit code, so a gated experiment can fail. Handlers that
+    have nothing to report return None, which `sys.exit` reads as success.
+    """
     setup_environment()
     args = build_parser().parse_args(argv)
-    args.handler(args)
+    return args.handler(args)
 
 
 if __name__ == "__main__":  # pragma: no cover

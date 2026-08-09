@@ -1,2 +1,6 @@
 npm run lint
 npm test -- --passWithNoTests
+
+test -x .venv/bin/ruff || { echo "ruff not found - run 'make venv'"; exit 1; }
+.venv/bin/ruff check langraph
+.venv/bin/pytest langraph/tests/ -q

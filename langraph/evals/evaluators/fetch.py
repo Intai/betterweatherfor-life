@@ -24,7 +24,7 @@ from langraph.sources.weather import FIELDS as WEATHER_FIELDS
 from langraph.utils.score_parser import forecast_dates
 
 # The three agent-fetched schemas live only in their prompt `.txt` files, so these
-# are a copy. `langraph/tests/test_eval_evaluators.py` asserts each prompt still
+# are a copy. `langraph/tests/test_eval_fetch.py` asserts each prompt still
 # contains its field names, which is what keeps the copy honest.
 EXPECTED_FIELDS = {
     "water_quality": list(WATER_QUALITY_FIELDS),

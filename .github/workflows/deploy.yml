@@ -38,6 +38,16 @@ jobs:
       - run: npm run lint
       - run: npm test -- --silent
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: langraph/pyproject.toml
+      - run: pip install -e "langraph[dev]"
+      - run: ruff check langraph
+      # From the repo root, so `langraph` resolves by cwd the way it does locally.
+      - run: pytest langraph/tests/
+
   build:
     needs: [detect-changes, test]
     if: needs.detect-changes.outputs.app_changed == 'true'
