@@ -99,20 +99,17 @@ def build_fetch_llm(provider=None, model=None, effort=None):
 
     from langchain_openai import ChatOpenAI
 
-    # Reshaping an API response into columnar rows is mechanical, and reasoning about
-    # it only crowds out the rows: one fetch spent 19k reasoning tokens narrating and
-    # then hit its output cap mid-answer. This model ignores both `reasoning_effort`
-    # and `reasoning.max_tokens`, so disabling reasoning outright is the only knob
-    # that takes effect on OpenRouter. `reasoning_effort` is still forwarded for the
-    # sake of whatever model an override names.
+    # Reasoning used to be disabled outright here, with `reasoning: {enabled: False}`:
+    # reshaping an API response into columnar rows is mechanical, thinking about it only
+    # crowds out the rows, and one fetch spent 19k reasoning tokens narrating and then
+    # hit its output cap mid-answer.
     return ChatOpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=os.environ.get("OPENROUTER_API_KEY"),
-        model=model or "nvidia/nemotron-3-super-120b-a12b:free",
+        model=model or "moonshotai/kimi-k3",
         temperature=0,
         max_tokens=24000,
-        reasoning_effort=effort,
-        extra_body={"reasoning": {"enabled": False}},
+        reasoning_effort=effort or "low",
     )
 
 

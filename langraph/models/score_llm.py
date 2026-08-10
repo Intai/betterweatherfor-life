@@ -107,10 +107,11 @@ def build_score_llm(provider=None, model=None, effort=None):
     return ChatOpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=os.environ.get("OPENROUTER_API_KEY"),
-        model=model or "nvidia/nemotron-3-ultra-550b-a55b:free",
+        model=model or "moonshotai/kimi-k3",
         temperature=0,
         max_tokens=48000,
-        reasoning_effort=effort,
+        reasoning_effort=effort or "medium",
+        extra_body={"response_format": {"type": "json_object"}},
     )
 
 

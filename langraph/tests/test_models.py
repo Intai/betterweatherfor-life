@@ -46,10 +46,32 @@ def test_fetch_llm_openrouter():
         import langraph.models.fetch_llm
         importlib.reload(langraph.models.fetch_llm)
         assert mock_cls.call_count >= 1
-        assert mock_cls.call_args[1]["model"] == "nvidia/nemotron-3-super-120b-a12b:free"
+        assert mock_cls.call_args[1]["model"] == "moonshotai/kimi-k3"
         assert mock_cls.call_args[1]["temperature"] == 0
         assert mock_cls.call_args[1]["max_tokens"] == 24000
-        assert mock_cls.call_args[1]["extra_body"] == {"reasoning": {"enabled": False}}
+        assert mock_cls.call_args[1]["reasoning_effort"] == "low"
+        # JSON mode belongs to the scorer alone: a fetch model told to answer in JSON
+        # fabricates its rows rather than calling the curl tool for them.
+        assert "extra_body" not in mock_cls.call_args[1]
+        assert "model_kwargs" not in mock_cls.call_args[1]
+    sys.modules["langraph.models.fetch_llm"] = MagicMock(fetch_llm=MagicMock())
+
+
+def test_fetch_llm_env_overrides_openrouter():
+    mock_cls = MagicMock()
+    sys.modules.pop("langraph.models.fetch_llm", None)
+    with (
+        patch.dict("os.environ", {
+            "LANGGRAPH_LLM_PROVIDER": "openrouter",
+            "LANGGRAPH_FETCH_MODEL": "some/other-model",
+            "LANGGRAPH_FETCH_EFFORT": "medium",
+        }, clear=False),
+        patch("langchain_openai.ChatOpenAI", mock_cls),
+    ):
+        import langraph.models.fetch_llm
+        importlib.reload(langraph.models.fetch_llm)
+        assert mock_cls.call_args[1]["model"] == "some/other-model"
+        assert mock_cls.call_args[1]["reasoning_effort"] == "medium"
     sys.modules["langraph.models.fetch_llm"] = MagicMock(fetch_llm=MagicMock())
 
 
@@ -124,9 +146,14 @@ def test_score_llm_openrouter():
         import langraph.models.score_llm
         importlib.reload(langraph.models.score_llm)
         assert mock_cls.call_count >= 1
-        assert mock_cls.call_args[1]["model"] == "nvidia/nemotron-3-ultra-550b-a55b:free"
+        assert mock_cls.call_args[1]["model"] == "moonshotai/kimi-k3"
         assert mock_cls.call_args[1]["temperature"] == 0
         assert mock_cls.call_args[1]["max_tokens"] == 48000
+        assert mock_cls.call_args[1]["reasoning_effort"] == "medium"
+        assert mock_cls.call_args[1]["extra_body"] == {
+            "response_format": {"type": "json_object"}
+        }
+        assert "model_kwargs" not in mock_cls.call_args[1]
     sys.modules["langraph.models.score_llm"] = MagicMock(score_llm=MagicMock())
 
 
