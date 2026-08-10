@@ -1,11 +1,12 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
+import ConditionSummary from '@/app/(app)/components/condition-summary'
 import {
   MARGINAL,
   UNSUITABLE,
 } from '@/app/(app)/constants'
-import { getConditionColor, isWarningCondition } from '@/app/(app)/utils/condition-colors'
+import { isWarningCondition } from '@/app/(app)/utils/condition-colors'
 import {
   Card,
   CardContent,
@@ -48,19 +49,10 @@ export default function LocationDetailFactorCard({
   const borderClass = getBorderClass(condition)
   const badgeClass = getBadgeClass(condition)
   const showBadge = isWarningCondition(condition)
-  const conditionColor = getConditionColor(condition)
   const hasColor = !!color
 
   const iconStyle = hasColor
     ? { color, backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)` }
-    : undefined
-
-  const summaryStyle = showBadge
-    ? { backgroundColor: `color-mix(in srgb, ${conditionColor} 10%, transparent)` }
-    : undefined
-
-  const summaryTextStyle = showBadge
-    ? { color: conditionColor }
     : undefined
 
   return (
@@ -105,18 +97,13 @@ export default function LocationDetailFactorCard({
         )}
 
         {summary && (
-          <div
-            className={summaryStyle ? 'rounded-lg px-3 py-2' : 'bg-secondary rounded-lg px-3 py-2'}
-            style={summaryStyle}
+          <ConditionSummary
+            condition={condition}
+            className="rounded-lg px-3 py-2"
             data-testid="factor-summary"
           >
-            <p
-              className={summaryTextStyle ? 'text-sm leading-relaxed' : 'text-sm text-muted-foreground leading-relaxed'}
-              style={summaryTextStyle}
-            >
-              {summary}
-            </p>
-          </div>
+            {summary}
+          </ConditionSummary>
         )}
       </CardContent>
     </Card>

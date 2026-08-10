@@ -203,13 +203,13 @@ Feature: Location Detail Page
   # Scenario Group: AI Analysis Section
   # =============================================================================
 
-  Scenario: LDP-06: AI analysis section displays multi-paragraph text in a tinted card
+  Scenario: LDP-06: AI analysis section displays multi-paragraph text in a card
     Given the browser viewport is 375px
     And the browser cookie "selectedActivity" is set to "sup" in context
     When I navigate to the "/location/mission-bay/-36.8547,174.8317" page
     Then the heading "AI Analysis" should be visible
     And the AI analysis card should be visible
-    And the AI analysis card should have a subtle tint of the "condition-ideal" colour as background
+    And the AI analysis card should use the neutral secondary background
     And the AI analysis card should display 2 paragraphs:
       | paragraph | text                                                                                                                                                        |
       | 1         | Flat water and light winds make Mission Bay one of the best spots for SUP today. The gentle northeast breeze will help keep you cool without creating chop. |
@@ -223,9 +223,7 @@ Feature: Location Detail Page
 
     Examples:
       | activity    | name           | url                                        | theme                |
-      | sup         | Mission Bay    | /location/mission-bay/-36.8547,174.8317    | condition-ideal      |
       | sup         | St Heliers Bay | /location/st-heliers-bay/-36.8508,174.8593 | condition-marginal   |
-      | snorkelling | Goat Island    | /location/goat-island/-36.2675,174.7936    | condition-acceptable |
       | cycling     | Piha Beach     | /location/piha-beach/-36.9553,174.4681     | condition-unsuitable |
 
   # =============================================================================

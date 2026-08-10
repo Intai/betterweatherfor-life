@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { Star } from 'lucide-react'
 import { prop } from 'ramda'
+import ConditionSummary from '@/app/(app)/components/condition-summary'
 import { PICK_DATE, UNSUITABLE } from '@/app/(app)/constants'
 import { useForecastStore } from '@/app/(app)/stores/forecast-store'
-import { getConditionBackgroundColor, getConditionColor, isWarningCondition } from '@/app/(app)/utils/condition-colors'
+import { getConditionBackgroundColor } from '@/app/(app)/utils/condition-colors'
 import { useLocale } from '@/app/components/locale-provider'
 import { dateIsToday, formatShortDateWithWeekday } from '@/app/utils/date'
 import { findBestWindow } from '@/app/utils/forecast'
@@ -95,30 +96,14 @@ function CardScore({ score, condition, hourly, isUnsuitable }) {
 }
 
 function CardSummary({ condition, summary }) {
-  const showWarning = isWarningCondition(condition)
-  const conditionColor = getConditionColor(condition)
-
-  const summaryStyle = showWarning
-    ? { backgroundColor: `color-mix(in srgb, ${conditionColor} 10%, transparent)` }
-    : undefined
-
-  const textStyle = showWarning
-    ? { color: conditionColor }
-    : undefined
-
   return !!summary && (
-    <div
-      className={summaryStyle ? 'rounded-xl px-3 py-2' : 'bg-secondary rounded-xl px-3 py-2'}
-      style={summaryStyle}
+    <ConditionSummary
+      condition={condition}
+      className="rounded-xl px-3 py-2"
       data-testid="day-summary"
     >
-      <p
-        className={textStyle ? 'text-sm leading-relaxed' : 'text-sm text-muted-foreground leading-relaxed'}
-        style={textStyle}
-      >
-        {summary}
-      </p>
-    </div>
+      {summary}
+    </ConditionSummary>
   )
 }
 

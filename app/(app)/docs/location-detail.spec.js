@@ -434,7 +434,7 @@ test.describe('Feature: Location Detail Page', () => {
     await expect(daylightGrid).toContainText('20:45');
   });
 
-  test('LDP-06: AI analysis section displays multi-paragraph text in a tinted card', async ({ page, context }) => {
+  test('LDP-06: AI analysis section displays multi-paragraph text in a card', async ({ page, context }) => {
     // Given the browser viewport is 375px
     await page.setViewportSize({ width: 375, height: 812 });
 
@@ -447,19 +447,19 @@ test.describe('Feature: Location Detail Page', () => {
     await page.goto('/location/mission-bay/-36.8547,174.8317');
 
     // Then the heading "AI Analysis" should be visible
-    await expect(page.getByTestId('location-detail-analysis').getByRole('heading', { name: 'AI Analysis' })).toBeVisible();
+    await expect(page.getByTestId('location-detail').getByTestId('location-detail-analysis').getByRole('heading', { name: 'AI Analysis' })).toBeVisible();
 
     // And the AI analysis card should be visible
-    await expect(page.getByTestId('location-detail-analysis').getByTestId('analysis-card')).toBeVisible();
+    const analysisCard = page.getByTestId('location-detail').getByTestId('location-detail-analysis').getByTestId('analysis-card');
+    await expect(analysisCard).toBeVisible();
 
-    // And the AI analysis card should have a subtle tint of the "condition-ideal" colour as background
-    const hasTint = await page.getByTestId('location-detail-analysis').getByTestId('analysis-card').evaluate((el) => {
-      return el.style.backgroundColor.includes('--condition-ideal');
-    });
-    expect(hasTint).toBe(true);
+    // And the AI analysis card should use the neutral secondary background
+    await expect(analysisCard).toHaveClass(/bg-secondary/);
+    // Neutral rather than tinted: the condition tint is applied as an inline background instead.
+    await expect(analysisCard).not.toHaveAttribute('style', /background-color/);
 
     // And the AI analysis card should display 2 paragraphs
-    const paragraphs = page.getByTestId('location-detail-analysis').getByTestId('analysis-card').locator('p');
+    const paragraphs = analysisCard.locator('p');
     await expect(paragraphs).toHaveCount(2);
 
     // Paragraph 1
@@ -474,9 +474,7 @@ test.describe('Feature: Location Detail Page', () => {
   });
 
   [
-    { activity: 'sup', name: 'Mission Bay', url: '/location/mission-bay/-36.8547,174.8317', theme: 'condition-ideal' },
     { activity: 'sup', name: 'St Heliers Bay', url: '/location/st-heliers-bay/-36.8508,174.8593', theme: 'condition-marginal' },
-    { activity: 'snorkelling', name: 'Goat Island', url: '/location/goat-island/-36.2675,174.7936', theme: 'condition-acceptable' },
     { activity: 'cycling', name: 'Piha Beach', url: '/location/piha-beach/-36.9553,174.4681', theme: 'condition-unsuitable' },
   ].forEach(({ activity, name, url, theme }) => {
     test(`LDP-07: AI analysis background tint changes with condition level for ${name}`, async ({ page, context }) => {
@@ -492,52 +490,31 @@ test.describe('Feature: Location Detail Page', () => {
       await page.goto(url);
 
       // Then the AI analysis card should have a subtle tint of the "<theme>" colour as background
-      const hasTint = await page.getByTestId('location-detail-analysis').getByTestId('analysis-card').evaluate(
-        (el, t) => el.style.backgroundColor.includes(`--${t}`),
-        theme,
-      );
-      expect(hasTint).toBe(true);
-    });
-  });
+      const analysisCard = page.getByTestId('location-detail').getByTestId('location-detail-analysis').getByTestId('analysis-card');
+      await expect(analysisCard).toBeVisible();
 
-  [
-    { breakpoint: 'tablet', width: 768, columnCount: 2 },
-    { breakpoint: 'large tablet', width: 1024, columnCount: 3 },
-    { breakpoint: 'desktop', width: 1280, columnCount: 3 },
-  ].forEach(({ breakpoint, width, columnCount }) => {
-    test(`LDP-09: Location detail page displays correctly at ${breakpoint} viewport`, async ({ page, context }) => {
-      // Given the browser viewport is <width>
-      await page.setViewportSize({ width, height: 1024 });
+      const tint = await analysisCard.evaluate((el, themeName) => {
+        // Resolve the theme variable through a probe so it comes back in the same colour
+        // notation as the computed background, making the two directly comparable.
+        const probe = document.createElement('div');
+        probe.style.backgroundColor = `rgb(from var(--${themeName}) r g b)`;
+        document.body.appendChild(probe);
+        const themeColor = window.getComputedStyle(probe).backgroundColor;
+        probe.remove();
 
-      // And the browser cookie "selectedActivity" is set to "sup" in context
-      await context.addCookies([
-        { name: 'selectedActivity', value: 'sup', domain: 'localhost', path: '/' },
-      ]);
+        const parse = (color) => color.match(/[\d.]+/g).map(Number);
+        const [r, g, b, alpha = 1] = parse(window.getComputedStyle(el).backgroundColor);
+        return { rgb: [r, g, b], alpha, themeRgb: parse(themeColor) };
+      }, theme);
 
-      // When I navigate to the "/location/takapuna-beach/-36.7878,174.7768" page
-      await page.goto('/location/takapuna-beach/-36.7878,174.7768');
+      // Same hue as the condition colour...
+      expect(tint.rgb).toEqual(tint.themeRgb);
+      // ...but a subtle wash rather than the solid colour.
+      expect(tint.alpha).toBeGreaterThan(0);
+      expect(tint.alpha).toBeLessThan(0.5);
 
-      // Then a share icon button should be visible in the top app bar
-      await expect(page.locator('[data-testid="top-appbar-share"]:visible')).toBeVisible();
-
-      // And the score circle should be visible with score "62"
-      await expect(page.getByTestId('score-circle')).toBeVisible();
-      await expect(page.getByTestId('score-circle')).toContainText('62');
-
-      // And the "Conditions" heading should be visible
-      await expect(page.getByTestId('conditions-section').getByRole('heading', { name: 'Conditions' })).toBeVisible();
-
-      // And the factor cards should be displayed in a <columnCount>-column grid layout
-      const gridColumns = await page.getByTestId('conditions-section').evaluate((section) => {
-        const heading = section.querySelector('h2');
-        const gridContainer = heading.nextElementSibling;
-        const style = window.getComputedStyle(gridContainer);
-        return style.gridTemplateColumns.split(' ').length;
-      });
-      expect(gridColumns).toBe(columnCount);
-
-      // And the forecast strip should be visible
-      await expect(page.getByTestId('location-detail').getByRole('heading', { name: 'Forecast' })).toBeVisible();
+      // Tinted rather than the neutral secondary that ideal and acceptable fall back to.
+      await expect(analysisCard).not.toHaveClass(/bg-secondary/);
     });
   });
 
@@ -626,6 +603,47 @@ test.describe('Feature: Location Detail Page', () => {
       return rect.left >= containerRect.left && rect.right <= containerRect.right;
     });
     expect(isNowVisible).toBe(true);
+  });
+
+  [
+    { breakpoint: 'tablet', width: 768, columnCount: 2 },
+    { breakpoint: 'large tablet', width: 1024, columnCount: 3 },
+    { breakpoint: 'desktop', width: 1280, columnCount: 3 },
+  ].forEach(({ breakpoint, width, columnCount }) => {
+    test(`LDP-09: Location detail page displays correctly at ${breakpoint} viewport`, async ({ page, context }) => {
+      // Given the browser viewport is <width>
+      await page.setViewportSize({ width, height: 1024 });
+
+      // And the browser cookie "selectedActivity" is set to "sup" in context
+      await context.addCookies([
+        { name: 'selectedActivity', value: 'sup', domain: 'localhost', path: '/' },
+      ]);
+
+      // When I navigate to the "/location/takapuna-beach/-36.7878,174.7768" page
+      await page.goto('/location/takapuna-beach/-36.7878,174.7768');
+
+      // Then a share icon button should be visible in the top app bar
+      await expect(page.locator('[data-testid="top-appbar-share"]:visible')).toBeVisible();
+
+      // And the score circle should be visible with score "62"
+      await expect(page.getByTestId('score-circle')).toBeVisible();
+      await expect(page.getByTestId('score-circle')).toContainText('62');
+
+      // And the "Conditions" heading should be visible
+      await expect(page.getByTestId('conditions-section').getByRole('heading', { name: 'Conditions' })).toBeVisible();
+
+      // And the factor cards should be displayed in a <columnCount>-column grid layout
+      const gridColumns = await page.getByTestId('conditions-section').evaluate((section) => {
+        const heading = section.querySelector('h2');
+        const gridContainer = heading.nextElementSibling;
+        const style = window.getComputedStyle(gridContainer);
+        return style.gridTemplateColumns.split(' ').length;
+      });
+      expect(gridColumns).toBe(columnCount);
+
+      // And the forecast strip should be visible
+      await expect(page.getByTestId('location-detail').getByRole('heading', { name: 'Forecast' })).toBeVisible();
+    });
   });
 
   test('LDP-10: Back button is keyboard accessible', async ({ page, context }) => {

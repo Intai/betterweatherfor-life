@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { prop } from 'ramda'
 import { useForecastStore } from '@/app/(app)/stores/forecast-store'
-import { getConditionColor, isWarningCondition } from '@/app/(app)/utils/condition-colors'
 import { Button } from '@/shadcn/components/ui/button'
 import {
   Card,
@@ -14,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shadcn/components/ui/card'
+import ConditionSummary from './condition-summary'
 import LocationCardScore from './location-card-score'
 import LocationCardTemp from './location-card-temp'
 import LocationCardTide from './location-card-tide'
@@ -34,22 +34,12 @@ export default function LocationCard({
 }) {
   const { t } = useTranslation()
   const removeForecast = useForecastStore(prop('removeForecast'))
-  const showWarning = isWarningCondition(condition)
-  const conditionColor = getConditionColor(condition)
 
   function handleRemove(e) {
     e.preventDefault()
     e.stopPropagation()
     removeForecast(forecastKey)
   }
-
-  const summaryStyle = showWarning
-    ? { backgroundColor: `color-mix(in srgb, ${conditionColor} 10%, transparent)` }
-    : undefined
-
-  const summaryTextStyle = showWarning
-    ? { color: conditionColor }
-    : undefined
 
   return (
     <Card
@@ -86,18 +76,13 @@ export default function LocationCard({
         </div>
 
         {/* AI Summary */}
-        <div
-          className={summaryStyle ? 'rounded-lg px-3 py-2' : 'bg-secondary rounded-lg px-3 py-2'}
-          style={summaryStyle}
+        <ConditionSummary
+          condition={condition}
+          className="rounded-lg px-3 py-2"
           data-testid="ai-summary"
         >
-          <p
-            className={summaryTextStyle ? 'text-sm leading-relaxed' : 'text-sm text-muted-foreground leading-relaxed'}
-            style={summaryTextStyle}
-          >
-            {summary}
-          </p>
-        </div>
+          {summary}
+        </ConditionSummary>
       </CardContent>
     </Card>
   )
