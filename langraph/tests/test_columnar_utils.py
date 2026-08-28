@@ -62,3 +62,29 @@ def test_compact_columnar_rejects_non_list_row():
     content = '{"fields": ["time"], "rows": [{"time": "06:00"}]}'
     with pytest.raises(ValueError, match="`rows` to be a list of lists"):
         compact_columnar(content)
+
+
+def test_compact_columnar_names_an_empty_response():
+    with pytest.raises(ValueError, match="Fetch response was empty"):
+        compact_columnar("")
+
+
+def test_compact_columnar_names_a_blank_response():
+    with pytest.raises(ValueError, match="Fetch response was empty"):
+        compact_columnar("  \n  ")
+
+
+def test_compact_columnar_names_a_missing_response():
+    with pytest.raises(ValueError, match="Fetch response was empty"):
+        compact_columnar(None)
+
+
+def test_compact_columnar_quotes_the_text_it_rejected():
+    with pytest.raises(ValueError, match="I could not reach the API"):
+        compact_columnar("I could not reach the API.")
+
+
+def test_compact_columnar_truncates_a_long_rejected_text():
+    content = "x" * 500
+    with pytest.raises(ValueError, match=r"x{200}\.\.\. \(500 chars\)"):
+        compact_columnar(content)

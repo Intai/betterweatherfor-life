@@ -169,6 +169,20 @@ def test_parse_forecast_rejects_invalid_json():
         parse_forecast('{"entries": {', DATES, "sup", LATITUDE, LONGITUDE)
 
 
+def test_parse_forecast_quotes_the_text_around_the_break():
+    # A complete object followed by a second one — the CronJob's actual failure,
+    # which `json` reports only as an offset.
+    with pytest.raises(ValueError, match=r"around: .*hourly"):
+        parse_forecast(
+            '{"entries":{}}{"hourly":{}}', DATES, "sup", LATITUDE, LONGITUDE
+        )
+
+
+def test_parse_forecast_reports_the_start_when_there_is_no_offset():
+    with pytest.raises(ValueError, match="not valid JSON"):
+        parse_forecast(None, DATES, "sup", LATITUDE, LONGITUDE)
+
+
 def test_parse_forecast_rejects_a_missing_entries_object():
     with pytest.raises(ValueError, match="non-empty `entries` object"):
         parse_forecast("[]", DATES, "sup", LATITUDE, LONGITUDE)

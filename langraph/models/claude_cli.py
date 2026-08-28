@@ -9,6 +9,8 @@ never run, and a PreToolUse hook denies execution and ends the turn, leaving the
 """
 
 import asyncio
+import logging
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
@@ -38,10 +40,39 @@ from langchain_core.utils.function_calling import convert_to_openai_tool
 MCP_SERVER_NAME = "langchain"
 TOOL_PREFIX = f"mcp__{MCP_SERVER_NAME}__"
 
+# Warnings go out through logging's handler of last resort, which is stderr —
+# the same stream the traceback already travels to reach the container log.
+logger = logging.getLogger(__name__)
+
 # Tool call args are replayed into every later turn's prompt, so a bulky argument
 # (the forecast JSON handed to write_file) gets billed again as input. Anything
 # longer than this is summarised instead; the tool's own result is unaffected.
 MAX_ARG_CHARS = 500
+
+# An expired login is answered as ordinary assistant text, so it travels as a
+# perfectly well-formed turn and only fails wherever the caller parses it. On the
+# forecast path that surfaced as `not valid JSON: line 1 column 1 (char 0)`, which
+# reads like a bad model rather than a session to renew.
+_AUTH_FAILURE_MARKERS = (
+    "failed to authenticate",
+    "oauth session expired",
+    "please run /login",
+    "invalid api key",
+    "authentication_error",
+)
+
+# These arrive as a single sentence; a real answer is orders of magnitude longer.
+# Bounding the check is what keeps a model *discussing* authentication from
+# tripping it.
+_AUTH_FAILURE_MAX_CHARS = 400
+
+
+def _authentication_failure(text):
+    """Report whether a turn's whole text is the CLI complaining it cannot log in."""
+    if not text or len(text) > _AUTH_FAILURE_MAX_CHARS:
+        return False
+    lowered = text.lower()
+    return any(marker in lowered for marker in _AUTH_FAILURE_MARKERS)
 
 # Denies execution and ends the turn, so the tool call reaches the caller intact.
 _DENY_AND_STOP = {
@@ -258,10 +289,15 @@ class ClaudeCLIModelWithTools(BaseChatModel):
             }
 
         texts, tool_calls, result = [], [], None
+        # Counted, not just the unhandled ones: an empty turn is only diagnosable
+        # from what the turn did contain, and `ThinkingBlock` alone means the model
+        # thought and then stopped rather than never having answered.
+        block_types = Counter()
         try:
             async for message in query(prompt=stream(), options=options):
                 if isinstance(message, AssistantMessage):
                     for block in message.content:
+                        block_types[type(block).__name__] += 1
                         if isinstance(block, ToolUseBlock):
                             tool_calls.append(
                                 {
@@ -289,14 +325,36 @@ class ClaudeCLIModelWithTools(BaseChatModel):
         if result is not None and result.is_error and not tool_calls and not texts:
             raise RuntimeError(f"Claude CLI returned an error result: {result.result}")
 
-        response_metadata = {"model": self.model}
+        text = "\n".join(texts)
+        if not tool_calls and _authentication_failure(text):
+            raise RuntimeError(
+                "The Claude CLI is not authenticated, so it answered with an error "
+                f"instead of a result: {text.strip()} — log in again to refresh the "
+                "stored OAuth session."
+            )
+
+        if not tool_calls and not texts:
+            # The SDK does not call this an error, so it leaves here as `content=""`
+            # and only fails downstream, where the message blames whoever parsed the
+            # empty string. Say here what the turn actually held.
+            logger.warning(
+                "Claude CLI returned no text and no tool calls (model=%s, "
+                "stop_reason=%s, num_turns=%s, is_error=%s, blocks=%s)",
+                self.model,
+                getattr(result, "stop_reason", None),
+                getattr(result, "num_turns", None),
+                getattr(result, "is_error", None),
+                dict(block_types) or "none",
+            )
+
+        response_metadata = {"model": self.model, "block_types": dict(block_types)}
         if result is not None:
             response_metadata["stop_reason"] = result.stop_reason
             response_metadata["total_cost_usd"] = result.total_cost_usd
             response_metadata["num_turns"] = result.num_turns
 
         message = AIMessage(
-            content="" if tool_calls else "\n".join(texts),
+            content="" if tool_calls else text,
             tool_calls=tool_calls,
             response_metadata=response_metadata,
             usage_metadata=_usage_metadata(result.usage if result else None),

@@ -41,3 +41,19 @@ def test_run_fetch_agent_rejects_truncated_response(mock_create):
     mock_create.return_value = _mock_agent('{"fields": ["time"], "rows": [["06:0')
     with pytest.raises(ValueError, match="not valid JSON"):
         run_fetch_agent("prompt")
+
+
+@patch("langraph.agents.fetch_agent.create_react_agent")
+def test_run_fetch_agent_rejects_an_empty_response(mock_create):
+    # A model that answered nothing reaches here as `""`, which used to fail as
+    # "not valid JSON" and sent the reader looking at the wrong end of the problem.
+    mock_create.return_value = _mock_agent("")
+    with pytest.raises(ValueError, match="Fetch response was empty"):
+        run_fetch_agent("prompt")
+
+
+@patch("langraph.agents.fetch_agent.create_react_agent")
+def test_run_fetch_agent_rejects_empty_content_blocks(mock_create):
+    mock_create.return_value = _mock_agent([])
+    with pytest.raises(ValueError, match="Fetch response was empty"):
+        run_fetch_agent("prompt")

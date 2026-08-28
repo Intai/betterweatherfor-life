@@ -127,12 +127,35 @@ _VALIDATORS = {
 }
 
 
+# Enough either side of the break to see what the model actually did there.
+_AROUND_CHARS = 120
+
+
+def _around(content, pos):
+    """Render the text either side of a parse failure, bounded in length."""
+    text = content if isinstance(content, str) else repr(content)
+    if pos is None:
+        return text[:_AROUND_CHARS]
+    start = max(0, pos - _AROUND_CHARS // 2)
+    return f"...{text[start:pos + _AROUND_CHARS]!r} ({len(text)} chars total)"
+
+
 def _read_response(content):
     """Parse the response into its `entries` object and per-date hourly scores."""
+    # Held outside the try so the handler can quote it even when `unfence` is what
+    # failed, on a response that is not a string at all.
+    text = content
     try:
-        data = json.loads(unfence(content))
+        text = unfence(content)
+        data = json.loads(text)
     except (TypeError, AttributeError, json.JSONDecodeError) as error:
-        raise ValueError(f"Score response is not valid JSON: {error}") from error
+        # Quote the text around the break. `json` reports only an offset, which
+        # cannot tell trailing commentary from a second object from a stray fence
+        # — and a 30k-token answer is far too big to print whole.
+        raise ValueError(
+            f"Score response is not valid JSON: {error} — around: "
+            f"{_around(text, getattr(error, 'pos', None))}"
+        ) from error
 
     entries = data.get("entries") if isinstance(data, dict) else None
     hourly = data.get("hourly") if isinstance(data, dict) else None

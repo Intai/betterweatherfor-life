@@ -7,6 +7,7 @@ from claude_agent_sdk import (
     CLINotFoundError,
     ResultMessage,
     TextBlock,
+    ThinkingBlock,
     ToolUseBlock,
 )
 from langchain_core.messages import (
@@ -21,6 +22,7 @@ from langchain_core.tools import tool
 from langraph.models.claude_cli import (
     TOOL_PREFIX,
     ClaudeCLIModelWithTools,
+    _authentication_failure,
     _block_text,
     _make_stub,
     _render_messages,
@@ -336,3 +338,113 @@ def test_tool_specs_converts_langchain_tools():
     assert name == "sample_tool"
     assert description == "Look up a city."
     assert schema["properties"]["city"]["type"] == "string"
+
+
+def test_a_turn_with_no_output_returns_empty_content_and_warns(caplog):
+    # Current behaviour, pinned deliberately: the SDK does not call this an error,
+    # so it leaves as `content=""` and only fails wherever that string is parsed.
+    # The warning is the only place the turn can still describe itself.
+    query, _ = fake_query([make_result()])
+    with patch("langraph.models.claude_cli.query", query), caplog.at_level("WARNING"):
+        message = ClaudeCLIModelWithTools().invoke("hi")
+
+    assert message.content == ""
+    assert message.tool_calls == []
+    assert "no text and no tool calls" in caplog.text
+    assert "stop_reason=end_turn" in caplog.text
+    assert "blocks=none" in caplog.text
+
+
+def test_a_turn_that_only_thought_is_reported_as_thinking(caplog):
+    query, _ = fake_query(
+        [
+            AssistantMessage(
+                content=[ThinkingBlock(thinking="hmm", signature="sig")],
+                model="sonnet",
+            ),
+            make_result(),
+        ]
+    )
+    with patch("langraph.models.claude_cli.query", query), caplog.at_level("WARNING"):
+        message = ClaudeCLIModelWithTools().invoke("hi")
+
+    assert message.content == ""
+    assert "ThinkingBlock" in caplog.text
+    assert message.response_metadata["block_types"] == {"ThinkingBlock": 1}
+
+
+def test_block_types_are_tallied_for_a_normal_turn():
+    query, _ = fake_query(
+        [
+            AssistantMessage(content=[TextBlock(text="hi"), TextBlock(text="there")],
+                             model="sonnet"),
+            make_result(),
+        ]
+    )
+    with patch("langraph.models.claude_cli.query", query):
+        message = ClaudeCLIModelWithTools().invoke("hi")
+
+    assert message.response_metadata["block_types"] == {"TextBlock": 2}
+
+
+def _text_turn(text):
+    return fake_query(
+        [AssistantMessage(content=[TextBlock(text=text)], model="sonnet"), make_result()]
+    )
+
+
+def test_an_expired_login_is_named_rather_than_returned_as_an_answer():
+    # The real one, verbatim from the forecast CronJob: it used to travel on as
+    # `content` and fail as "not valid JSON" wherever it was parsed.
+    query, _ = _text_turn(
+        "Failed to authenticate: OAuth session expired and could not be refreshed"
+    )
+    with (
+        patch("langraph.models.claude_cli.query", query),
+        pytest.raises(RuntimeError, match="not authenticated"),
+    ):
+        ClaudeCLIModelWithTools().invoke("hi")
+
+
+def test_the_authentication_error_repeats_what_the_cli_said():
+    query, _ = _text_turn("Invalid API key · Please run /login")
+    with (
+        patch("langraph.models.claude_cli.query", query),
+        pytest.raises(RuntimeError, match=r"Invalid API key . Please run /login"),
+    ):
+        ClaudeCLIModelWithTools().invoke("hi")
+
+
+def test_a_normal_answer_is_not_mistaken_for_an_authentication_failure():
+    query, _ = _text_turn('{"fields":["time"],"rows":[]}')
+    with patch("langraph.models.claude_cli.query", query):
+        assert ClaudeCLIModelWithTools().invoke("hi").content == (
+            '{"fields":["time"],"rows":[]}'
+        )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "",
+        "here are the rows you asked for",
+        # Long enough to be an answer about authentication rather than a failure.
+        "failed to authenticate " + "x" * 400,
+    ],
+)
+def test_authentication_failure_ignores_text_that_is_not_the_cli_complaining(text):
+    assert _authentication_failure(text) is False
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Failed to authenticate: OAuth session expired and could not be refreshed",
+        "OAuth session expired",
+        "Please run /login",
+        "Invalid API key",
+        "authentication_error",
+    ],
+)
+def test_authentication_failure_recognises_the_cli_phrasings(text):
+    assert _authentication_failure(text) is True
