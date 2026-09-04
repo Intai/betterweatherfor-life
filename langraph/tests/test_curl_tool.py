@@ -5,18 +5,18 @@ from langraph.tools.curl_tool import curl
 
 
 def test_get_request():
-    mock_result = MagicMock(stdout="response data", stderr="")
+    mock_result = MagicMock(returncode=0, stdout="response data", stderr="")
     with patch("langraph.tools.curl_tool.subprocess.run", return_value=mock_result) as mock_run:
         result = curl.invoke({"url": "http://example.com"})
         mock_run.assert_called_once_with(
-            ["curl", "-s", "-f", "-X", "GET", "http://example.com"],
+            ["curl", "-sS", "--fail-with-body", "-X", "GET", "http://example.com"],
             capture_output=True, text=True, timeout=30, check=False,
         )
         assert result == "response data"
 
 
 def test_post_with_data():
-    mock_result = MagicMock(stdout="ok", stderr="")
+    mock_result = MagicMock(returncode=0, stdout="ok", stderr="")
     with patch("langraph.tools.curl_tool.subprocess.run", return_value=mock_result) as mock_run:
         result = curl.invoke({"url": "http://example.com", "method": "POST", "data": '{"key": "val"}'})
         args = mock_run.call_args[0][0]
@@ -28,7 +28,7 @@ def test_post_with_data():
 
 
 def test_custom_headers():
-    mock_result = MagicMock(stdout="ok", stderr="")
+    mock_result = MagicMock(returncode=0, stdout="ok", stderr="")
     with patch("langraph.tools.curl_tool.subprocess.run", return_value=mock_result) as mock_run:
         curl.invoke({
             "url": "http://example.com",
@@ -42,7 +42,7 @@ def test_custom_headers():
 
 
 def test_returns_stderr_when_stdout_empty():
-    mock_result = MagicMock(stdout="", stderr="error msg")
+    mock_result = MagicMock(returncode=0, stdout="", stderr="error msg")
     with patch("langraph.tools.curl_tool.subprocess.run", return_value=mock_result):
         result = curl.invoke({"url": "http://example.com"})
         assert result == "error msg"
@@ -61,10 +61,23 @@ def test_timeout_propagates():
 
 
 def test_no_headers_no_data():
-    mock_result = MagicMock(stdout="ok", stderr="")
+    mock_result = MagicMock(returncode=0, stdout="ok", stderr="")
     with patch("langraph.tools.curl_tool.subprocess.run", return_value=mock_result) as mock_run:
         curl.invoke({"url": "http://example.com", "method": "DELETE"})
         args = mock_run.call_args[0][0]
         assert "-H" not in args
         assert "-d" not in args
         assert "DELETE" in args
+
+
+def test_reports_status_and_body_when_curl_fails():
+    mock_result = MagicMock(
+        returncode=22,
+        stdout='{"detail":"Longitude must be between 160 and 180"}',
+        stderr="curl: (22) The requested URL returned error: 422",
+    )
+    with patch("langraph.tools.curl_tool.subprocess.run", return_value=mock_result):
+        result = curl.invoke({"url": "http://example.com"})
+        assert result.startswith("curl failed (exit 22): ")
+        assert "returned error: 422" in result
+        assert "Longitude must be between 160 and 180" in result

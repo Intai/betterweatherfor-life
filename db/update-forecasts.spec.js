@@ -134,7 +134,7 @@ describe('db/update-forecasts', () => {
           mockReturning.mockResolvedValue([{ id: 1 }])
         })
 
-        expect(total).toBe(1)
+        expect(total.count).toBe(1)
         expect(mockExecSync).toHaveBeenCalledTimes(1)
         const prompt = mockExecSync.mock.calls[0][1].input
         expect(prompt).toContain('-36.8547')
@@ -193,7 +193,7 @@ describe('db/update-forecasts', () => {
           mockReturning.mockResolvedValue([{ id: 1 }])
         })
 
-        expect(total).toBe(2)
+        expect(total.count).toBe(2)
         expect(mockInsert).toHaveBeenCalledTimes(2)
         const prompt = mockExecSync.mock.calls[0][1].input
         expect(prompt.match(/-36\.8547/g)).toHaveLength(4)
@@ -228,7 +228,7 @@ describe('db/update-forecasts', () => {
           mockReturning.mockResolvedValue([{ id: 1 }])
         })
 
-        expect(total).toBe(2)
+        expect(total.count).toBe(2)
         expect(mockExecSync).toHaveBeenCalledTimes(2)
         expect(mockReadFileSync).toHaveBeenCalledTimes(3)
         const prompt1 = mockExecSync.mock.calls[0][1].input
@@ -270,7 +270,7 @@ describe('db/update-forecasts', () => {
           mockReturning.mockResolvedValue([{ id: 1 }])
         }, 'takapuna-beach')
 
-        expect(total).toBe(1)
+        expect(total.count).toBe(1)
         expect(mockExecSync).toHaveBeenCalledTimes(1)
         const prompt = mockExecSync.mock.calls[0][1].input
         expect(prompt).toContain('-36.7840')
@@ -345,7 +345,7 @@ describe('db/update-forecasts', () => {
         mockReadFileSync.mockReturnValueOnce(promptTemplate)
       })
 
-      expect(total).toBe(0)
+      expect(total.count).toBe(0)
       expect(mockExecSync).not.toHaveBeenCalled()
     })
 
@@ -359,7 +359,7 @@ describe('db/update-forecasts', () => {
         mockReadFileSync.mockReturnValueOnce(promptTemplate)
       })
 
-      expect(total).toBe(0)
+      expect(total.count).toBe(0)
       expect(mockExecSync).not.toHaveBeenCalled()
       dateNow.mockReturnValue(new Date(2026, 1, 14, 0, 0))
     })
@@ -378,7 +378,7 @@ describe('db/update-forecasts', () => {
         mockReturning.mockResolvedValue([{ id: 1 }])
       })
 
-      expect(total).toBe(1)
+      expect(total.count).toBe(1)
       expect(mockExecSync).toHaveBeenCalledTimes(1)
       dateNow.mockReturnValue(new Date(2026, 1, 14, 0, 0))
     })
@@ -397,7 +397,7 @@ describe('db/update-forecasts', () => {
         mockReturning.mockResolvedValue([{ id: 1 }])
       })
 
-      expect(total).toBe(1)
+      expect(total.count).toBe(1)
       expect(mockExecSync).toHaveBeenCalledTimes(1)
       dateNow.mockReturnValue(new Date(2026, 1, 14, 0, 0))
     })
@@ -417,7 +417,7 @@ describe('db/update-forecasts', () => {
         mockReturning.mockResolvedValue([{ id: 1 }])
       })
 
-      expect(total).toBe(1)
+      expect(total.count).toBe(1)
       expect(mockExecSync).toHaveBeenCalledTimes(1)
       dateNow.mockReturnValue(new Date(2026, 1, 14, 0, 0))
     })
@@ -428,8 +428,29 @@ describe('db/update-forecasts', () => {
         mockReadFileSync.mockReturnValueOnce(promptTemplate)
       }, 'no-such-place')
 
-      expect(total).toBe(0)
+      expect(total.count).toBe(0)
       expect(mockExecSync).not.toHaveBeenCalled()
+    })
+
+    it('should keep processing after a location fails', async () => {
+      const location1 = makeLocation()
+      const location2 = makeLocation({ id: 2, name: 'Takapuna Beach' })
+
+      const total = await loadAndCall(() => {
+        mockGroupBy.mockResolvedValue([location1, location2])
+        mockExecSync.mockImplementationOnce(() => {
+          throw new Error('NIWA rejected the longitude')
+        })
+        mockReadFileSync
+          .mockReturnValueOnce(promptTemplate)
+          .mockReturnValueOnce(JSON.stringify({ 'sup;2026-02-14;all-day': makeForecastValue() }))
+        mockReturning.mockResolvedValue([{ id: 1 }])
+      })
+
+      expect(total.count).toBe(1)
+      expect(total.failed).toEqual(['Mission Bay'])
+      expect(mockExecSync).toHaveBeenCalledTimes(2)
+      expect(mockExecSync.mock.calls[1][1].input).toContain('takapuna-beach-{activity}.json')
     })
 
     it('should pick only allowed forecast fields', async () => {
@@ -464,6 +485,26 @@ describe('db/update-forecasts', () => {
       require('./update-forecasts')
       await new Promise(resolve => setTimeout(resolve, 0))
       expect(mockExit).toHaveBeenCalledWith(0)
+    })
+
+    it('should exit with code 1 when every location fails', async () => {
+      const argv = process.argv
+      // The module reads its slug filter from argv, which under jest holds a jest
+      // flag; naming the seeded location is what puts it in the run.
+      process.argv = [...argv.slice(0, 2), 'mission-bay']
+      setupModuleLevelMocks()
+      mockGroupBy.mockResolvedValue([makeLocation()])
+      mockExecSync.mockImplementationOnce(() => {
+        throw new Error('NIWA rejected the longitude')
+      })
+
+      try {
+        require('./update-forecasts')
+        await new Promise(resolve => setTimeout(resolve, 0))
+        expect(mockExit).toHaveBeenCalledWith(1)
+      } finally {
+        process.argv = argv
+      }
     })
 
     it('should exit with code 1 on failure', async () => {

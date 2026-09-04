@@ -156,14 +156,38 @@ async function deletePastForecasts() {
   info(`Deleted ${result.count} past forecasts older than ${cutoffDate}`)
 }
 
+async function updateLocation(location, template) {
+  const locationSlug = slugify(location.name)
+  let count = 0
+
+  if (config.get('forecast.engine') === 'langgraph') {
+    runLangGraph(location)
+  } else {
+    const prompt = buildPrompt(location)(template)
+    runClaude(prompt)
+  }
+  for (const activity of ACTIVITIES) {
+    const filepath = resolve(currentDir, `../${locationSlug}-${activity}.json`)
+    const forecastData = JSON.parse(readFileSync(filepath, 'utf-8'))
+    count += await upsertForecasts(location, activity, forecastData)
+  }
+  return count
+}
+
 /**
  * Update forecasts for all locations by querying AI and upserting results.
  *
- * @returns {Promise<number>} Total number of forecast entries upserted.
+ * A location that throws is logged and skipped rather than ending the run: the
+ * sources are regional, so one location can be permanently outside their coverage
+ * and would otherwise block every other location from ever updating.
+ *
+ * @returns {Promise<{count: number, failed: string[]}>} Entries upserted, and the
+ *   names of the locations that failed.
  */
 export async function updateForecasts(filterSlug) {
   await deletePastForecasts()
   const template = readPromptTemplate()
+  const failed = []
   let count = 0
 
   const allLocations = await queryLocations()
@@ -175,27 +199,24 @@ export async function updateForecasts(filterSlug) {
   info(`Target locations: ${joinByComma(pluck('name', locationsToUpdate))}`)
   for (const location of locationsToUpdate) {
     info(`Processing: ${location.name}`)
-    const locationSlug = slugify(location.name)
-
-    if (config.get('forecast.engine') === 'langgraph') {
-      runLangGraph(location)
-    } else {
-      const prompt = buildPrompt(location)(template)
-      runClaude(prompt)
-    }
-    for (const activity of ACTIVITIES) {
-      const filepath = resolve(currentDir, `../${locationSlug}-${activity}.json`)
-      const forecastData = JSON.parse(readFileSync(filepath, 'utf-8'))
-      count += await upsertForecasts(location, activity, forecastData)
+    try {
+      count += await updateLocation(location, template)
+    } catch (err) {
+      failed.push(location.name)
+      error(`Failed: ${location.name}`, err.stdout?.toString() || err)
     }
   }
-  return count
+  return { count, failed }
 }
 
 updateForecasts(process.argv[2])
-  .then(total => {
-    info(`Update complete. ${total} forecasts upserted.`)
-    process.exit(0)
+  .then(({ count, failed }) => {
+    info(`Update complete. ${count} forecasts upserted.`)
+    if (failed.length) error(`Failed locations: ${joinByComma(failed)}`)
+    // A run where some locations updated is a partial success. Only a run that
+    // upserted nothing despite a failure is worth failing the pod over — having
+    // no stale location to update is not an error.
+    process.exit(failed.length && !count ? 1 : 0)
   })
   .catch(err => {
     error('Update failed:', err.stdout?.toString() || err)
