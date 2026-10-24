@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["langgraph-cli[inmem]", "pytest", "pytest-cov", "ruff"]
+dev = ["langgraph-cli[inmem]", "pytest", "pytest-cov", "ruff==0.17.2"]
 
 [tool.setuptools.packages.find]
 # The eval harness and its captured seeds are development-only, so they stay out

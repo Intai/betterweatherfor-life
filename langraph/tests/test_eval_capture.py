@@ -107,7 +107,7 @@ def test_mining_a_run_stamps_it_with_when_that_run_started():
 def test_a_naive_run_time_is_read_as_utc():
     """LangSmith hands back naive UTC, which would otherwise compare wrong
     against the local stamps a fresh capture writes."""
-    naive = datetime(2026, 7, 1, 9, 30)  # noqa: DTZ001 — being naive is the case under test
+    naive = datetime(2026, 7, 1, 9, 30)
     run = FakeRun(start_time=naive, children=[FakeChild("tides")])
 
     with patch("langsmith.Client") as client:
