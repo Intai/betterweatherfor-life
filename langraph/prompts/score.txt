@@ -182,6 +182,8 @@ All `summary` fields must explain how conditions affect the specific activity â€
 
 `tide.swell` must be a string with the wave height in meters (e.g. `'0.5m'`), extracted from `tideSwell` in the marine data.
 
+A section missing from the fetched data means that source has no coverage for this location. Without Tides, omit `tide.state`, `tide.percentage`, `tide.nextHigh` and `tide.nextLow`, and score on the other factors. Without Water Quality, omit `water`. Without Sea Surface Temperature and Swell, omit `tide.swell` and `temp.water`. Never estimate a missing source's values.
+
 The marine model runs out before the end of the 10-day range, so its final day is all nulls. Omit `tide.swell` for any window whose `tideSwell` values are all null, and `temp.water` for any window whose `tempWater` values are all null.
 
 The `analysis` field is a multi-paragraph AI analysis for the detail page. Use `\n\n` to separate paragraphs. Keep it to two or three short paragraphs â€” cover the factors that decide the score and the best window, and stop.

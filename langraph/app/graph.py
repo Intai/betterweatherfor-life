@@ -1,3 +1,5 @@
+import logging
+
 from langgraph.graph import END, START, StateGraph
 
 from langraph.app.state import ForecastState
@@ -22,6 +24,16 @@ FETCH_NODES = {
     "marine": fetch_marine,
     "sun_times": fetch_sun_times,
 }
+
+# Regional or sea-only data a location can legitimately lack: NIWA and SafeSwim
+# cover New Zealand alone. Scoring leaves out a section it was not given, so a
+# forecast without them is still worth writing. Weather and sun times are not on
+# the list, because scores without them would be guesses.
+OPTIONAL_SOURCES = frozenset({"tides", "water_quality", "marine"})
+
+# Warnings go out through logging's handler of last resort, which is stderr —
+# the same stream the traceback already travels to reach the container log.
+logger = logging.getLogger(__name__)
 
 SCORE_NODES = {
     "score_sup": score_sup,
@@ -54,12 +66,34 @@ def build_fetch_graph(fetch_name, llm=None):
     return builder.compile()
 
 
+def _optional(fetch_name, node):
+    """Wrap a fetch node so its failure leaves its source out instead of the run."""
+
+    def tolerant(state):
+        try:
+            return node(state)
+        except Exception as error:  # noqa: BLE001 — a missing source is not a failed forecast
+            logger.warning(
+                "Skipping %s for %s: %s", fetch_name, state["location_slug"], error
+            )
+            return {}
+
+    return tolerant
+
+
 def build_graph():
-    """Build the forecast LangGraph with parallel fetch and score phases."""
+    """Build the forecast LangGraph with parallel fetch and score phases.
+
+    A source in OPTIONAL_SOURCES that fails is logged and left out rather than
+    failing the location. `build_fetch_graph` does not do this, so an eval still
+    sees the failure.
+    """
     builder = StateGraph(ForecastState)
 
     # Phase 1: parallel data fetch nodes
     for node_name, node_fn in FETCH_NODES.items():
+        if node_name in OPTIONAL_SOURCES:
+            node_fn = _optional(node_name, node_fn)
         builder.add_node(node_name, node_fn)
         builder.add_edge(START, node_name)
 

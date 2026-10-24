@@ -40,6 +40,11 @@ GRADES = {"GREEN": "Green", "ORANGE": "Orange", "RED": "Red", "BLACK": "Black"}
 
 EARTH_RADIUS_KM = 6371
 
+# SafeSwim only covers New Zealand, yet the nearest beach always exists: Bondi
+# resolved to Rapahoe Beach, 1,977km away. Past this the water is not the water
+# the location swims in. Every seeded NZ location sits within 2km of one.
+MAX_DISTANCE_KM = 25
+
 
 def _distance(latitude, longitude, other_latitude, other_longitude):
     """Great-circle distance in kilometres between two points."""
@@ -75,7 +80,8 @@ def nearest_slug(latitude, longitude):
         The nearest location's slug.
 
     Raises:
-        ValueError: If the directory holds no location with a position.
+        ValueError: If the directory holds no location with a position, or the
+            nearest is further than MAX_DISTANCE_KM away.
     """
     directory = _read(DIRECTORY)
     locations = directory.get("locations") if isinstance(directory, dict) else directory
@@ -88,12 +94,16 @@ def nearest_slug(latitude, longitude):
     if not placed:
         raise ValueError("SafeSwim directory has no located beaches")
 
-    nearest = min(
-        placed,
-        key=lambda location: _distance(
-            float(latitude), float(longitude), *location["position"]
-        ),
-    )
+    distances = [
+        (_distance(float(latitude), float(longitude), *location["position"]), location)
+        for location in placed
+    ]
+    distance, nearest = min(distances, key=lambda pair: pair[0])
+    if distance > MAX_DISTANCE_KM:
+        raise ValueError(
+            f"Nearest SafeSwim beach `{nearest['slug']}` is {distance:.0f}km away, "
+            f"beyond {MAX_DISTANCE_KM}km"
+        )
     return nearest["slug"]
 
 

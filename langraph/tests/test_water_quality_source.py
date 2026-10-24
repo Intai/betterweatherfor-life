@@ -86,6 +86,12 @@ def test_nearest_slug_accepts_a_bare_list_directory():
         assert nearest_slug(*MISSION_BAY) == "mission-bay-beach"
 
 
+def test_nearest_slug_rejects_a_beach_beyond_the_cap():
+    # SafeSwim is Auckland only, so Bondi's nearest is still an Auckland beach.
+    with api(DIRECTORY), pytest.raises(ValueError, match="km away, beyond 25km"):
+        nearest_slug("-33.8915", "151.2767")
+
+
 @pytest.mark.parametrize("directory", [
     {"locations": []},
     {"locations": [{"name": "No position", "slug": "no-position"}]},

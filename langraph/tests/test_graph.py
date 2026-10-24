@@ -2,7 +2,14 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from langraph.app.graph import FETCH_NODES, SCORE_NODES, build_fetch_graph, build_graph
+from langraph.app.graph import (
+    FETCH_NODES,
+    OPTIONAL_SOURCES,
+    SCORE_NODES,
+    _optional,
+    build_fetch_graph,
+    build_graph,
+)
 
 
 def test_fetch_nodes_has_five_entries():
@@ -82,3 +89,60 @@ def test_score_nodes_registered():
         "score_snorkelling",
         "score_cycling",
     }
+
+
+def test_optional_sources_leave_weather_and_sun_times_required():
+    assert OPTIONAL_SOURCES == {"tides", "water_quality", "marine"}
+
+
+def test_optional_node_passes_a_result_through(minimal_state):
+    node = _optional("tides", lambda state: {"tides": "tide_data"})
+    assert node(minimal_state) == {"tides": "tide_data"}
+
+
+def test_optional_node_leaves_a_failed_source_out_and_warns(minimal_state, caplog):
+    def fail(state):
+        raise ValueError("NIWA only supports New Zealand")
+
+    with caplog.at_level("WARNING"):
+        assert _optional("tides", fail)(minimal_state) == {}
+
+    assert "Skipping tides for mission-bay" in caplog.text
+    assert "NIWA only supports New Zealand" in caplog.text
+
+
+@patch("langraph.nodes.fetch_nodes.run_fetch_agent", side_effect=ValueError("prose"))
+@patch("langraph.nodes.fetch_nodes.load_prompt", return_value="prompt")
+def test_build_fetch_graph_still_raises_on_an_optional_source(mock_load, mock_agent,
+                                                              minimal_state):
+    # Evals measure the failure itself, so only the production graph forgives it.
+    with pytest.raises(ValueError, match="prose"):
+        build_fetch_graph("tides").invoke(minimal_state)
+
+
+def _score_node(name):
+    return lambda state: {f"{name}_forecast": {"sources": sorted(
+        key for key in FETCH_NODES if state.get(key)
+    )}}
+
+
+@patch.dict("langraph.app.graph.SCORE_NODES", {"score_sup": _score_node("sup")},
+            clear=True)
+@patch.dict("langraph.app.graph.FETCH_NODES", {
+    "tides": lambda state: (_ for _ in ()).throw(ValueError("prose")),
+    "weather": lambda state: {"weather": "weather_data"},
+}, clear=True)
+def test_build_graph_scores_without_a_failed_optional_source(minimal_state):
+    result = build_graph().invoke(minimal_state)
+    assert "tides" not in result
+    assert result["sup_forecast"] == {"sources": ["weather"]}
+
+
+@patch.dict("langraph.app.graph.SCORE_NODES", {"score_sup": _score_node("sup")},
+            clear=True)
+@patch.dict("langraph.app.graph.FETCH_NODES", {
+    "weather": lambda state: (_ for _ in ()).throw(ValueError("no weather")),
+}, clear=True)
+def test_build_graph_still_fails_on_a_required_source(minimal_state):
+    with pytest.raises(ValueError, match="no weather"):
+        build_graph().invoke(minimal_state)
